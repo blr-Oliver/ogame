@@ -19,7 +19,7 @@ create table galaxy_report_slot (
   moon_size smallint,
   player_id int,
   player_name varchar(200),
-  player_status varchar(50),
+  player_status varchar(50) binary,
   player_rank smallint,
   alliance_id int,
   alliance_name varchar(200),
