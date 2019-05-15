@@ -1,0 +1,908 @@
+<!-- [if lte IE 11] > <style type="text/css"> .icon.icon_eye.hueRotate { background: url(/cdn/img/icons/iconsprite16px.png); background-position: -993px; } </style> <! [endif] -->
+<div id="mobileDiv">
+  <table cellpadding="0" cellspacing="0" id="galaxytable" border="0" data-galaxy="1" data-system="3">
+    <thead>
+    <tr class="info info_header ct_head_row">
+      <th colspan="11"><span id="probes"> Шп. зонд: <span id="probeValue">11</span> </span>
+        <span id="recycler"> Переработчик: <span id="recyclerValue">77</span> </span> <span id="rockets"> МПР.: <span id="missileValue">0</span>
+        </span> <span
+            id="slots"> использовано слотов: <span id="slotValue"> <span id='slotUsed'>6</span>/11 </span> </span>
+        <span class='fright'>
+          <span id='filter_empty'
+                class="filter "
+                onClick='filterToggle(event);'>E</span>
+          <span
+              id='filter_inactive'
+              class="filter "
+              onClick='filterToggle(event);'>I</span>
+          <span id='filter_newbie' class="filter " onClick='filterToggle(event);'>N</span>
+          <span id='filter_strong'
+                class="filter "
+                onClick='filterToggle(event);'>A</span> <span
+            id='filter_vacation'
+            class="filter "
+            onClick='filterToggle(event);'>V</span>
+        </span></th>
+    </tr>
+    <tr id="galaxyheadbg2" class="ct_head_row">
+      <th class="first" style="width: 70px; overflow: hidden;">Планета</th>
+      <th style="width: 129px; padding-right: 5px;">Имя</th>
+      <th class="text_moon" style="width: 38px; padding-right: 5px;">Луна</th>
+      <th style="width: 38px; padding-right: 5px;">ПО</th>
+      <th style="width: 130px; padding-right: 5px;">игрок (статус)</th>
+      <th style="width: 108px; padding-right: 5px;">Альянс</th>
+      <th class="last" style="width: 75px;">Действие</th>
+    </tr>
+    </thead>
+    <tfoot>
+    <tr class="footer ct_foot_row" id="fleetstatus">
+      <td class="ct_foot_row" colspan="11" id="fleetstatusrow"></td>
+    </tr>
+    <tr class="info ct_foot_row">
+      <td colspan="11"><span id="legend"> <a href="javascript: void(0);"
+                                             class="tooltipRel tooltipClose"
+                                             rel="legendTT">
+        <span class="icon icon_info"></span> </a> </span> <span id="colonized">7 Планет заселено</span> <br
+          class="clearfloat"/></td>
+    </tr>
+    </tfoot>
+    <tbody>
+    <tr class="row empty_filter ">
+      <td class="position js_no_action">1</td>
+      <td colspan="1" class="microplanet planetEmpty js_planet1 js_planetEmpty1">
+        <div id="ownFleetStatus_1_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="planetname1 planetEmpty js_planetNameEmpty1" align="center"><span class="tooltip planetMoveIcons colonize-inactive icon"
+                                                                                   title="Невозможно колонизировать планету (нет колонизатора или свободных слотов)."></span>
+        <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile"
+           href="javascript: void(0);"
+           onclick="movePlanet( 'https://s148-ru.ogame.gameforge.com/game/index.php?page=planetMove&amp;action=prepareMove&amp;galaxy=1&amp;system=3&amp;ajax=1&position=1', 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3' ); return false;"
+           title="Переселиться"></a></td>
+      <td class="moon js_moon1 js_no_action">
+        <div id="ownFleetStatus_1_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris1 ">
+        <div id="ownFleetStatus_1_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="playername js_playerName1 js_no_action "><span class=""> </span> <span class="status"> </span></td>
+      <td class="allytag js_allyTag1 js_no_action "></td>
+      <td class="action" colspan="2"><span> </span></td>
+    </tr>
+    <tr class="row empty_filter ">
+      <td class="position js_no_action">2</td>
+      <td colspan="1" class="microplanet planetEmpty js_planet2 js_planetEmpty2">
+        <div id="ownFleetStatus_2_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="planetname1 planetEmpty js_planetNameEmpty2" align="center"><span class="tooltip planetMoveIcons colonize-inactive icon"
+                                                                                   title="Невозможно колонизировать планету (нет колонизатора или свободных слотов)."></span>
+        <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile"
+           href="javascript: void(0);"
+           onclick="movePlanet( 'https://s148-ru.ogame.gameforge.com/game/index.php?page=planetMove&amp;action=prepareMove&amp;galaxy=1&amp;system=3&amp;ajax=1&position=2', 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3' ); return false;"
+           title="Переселиться"></a></td>
+      <td class="moon js_moon2 js_no_action">
+        <div id="ownFleetStatus_2_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris2 ">
+        <div id="ownFleetStatus_2_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="playername js_playerName2 js_no_action "><span class=""> </span> <span class="status"> </span></td>
+      <td class="allytag js_allyTag2 js_no_action "></td>
+      <td class="action" colspan="2"><span> </span></td>
+    </tr>
+    <tr class="row empty_filter ">
+      <td class="position js_no_action">3</td>
+      <td colspan="1" class="microplanet planetEmpty js_planet3 js_planetEmpty3">
+        <div id="ownFleetStatus_3_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="planetname1 planetEmpty js_planetNameEmpty3" align="center"><span class="tooltip planetMoveIcons colonize-inactive icon"
+                                                                                   title="Невозможно колонизировать планету (нет колонизатора или свободных слотов)."></span>
+        <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile"
+           href="javascript: void(0);"
+           onclick="movePlanet( 'https://s148-ru.ogame.gameforge.com/game/index.php?page=planetMove&amp;action=prepareMove&amp;galaxy=1&amp;system=3&amp;ajax=1&position=3', 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3' ); return false;"
+           title="Переселиться"></a></td>
+      <td class="moon js_moon3 js_no_action">
+        <div id="ownFleetStatus_3_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris3 ">
+        <div id="ownFleetStatus_3_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="playername js_playerName3 js_no_action "><span class=""> </span> <span class="status"> </span></td>
+      <td class="allytag js_allyTag3 js_no_action "></td>
+      <td class="action" colspan="2"><span> </span></td>
+    </tr>
+    <tr class="row inactive_filter vacation_filter ">
+      <td class="position js_no_action ">4</td>
+      <td rel="planet4" class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile microplanet js_planet4 colonized " data-planet-id="33620197" colspan="1">
+        <div class="ListImage"><a href="javascript: void(0);" onClick="return false;"> <img class="planetTooltip normal_8"
+                                                                                            src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                                                            alt=""
+                                                                                            height="33"
+                                                                                            width="38"/> </a></div>
+        <div id="ownFleetStatus_4_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+        <div id="planet4" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Планета: <span class="textNormal">Главная планета</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-planet">[1:3:4]</span></li>
+            <li><img class="planetTooltip normal_8" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" alt="" height="33" width="38"/>
+            </li>
+          </ul>
+          <ul class="ListLinks"> Игрок в режиме отпуска</ul>
+        </div>
+      </td>
+      <td class="planetname "> Главная пла...</td>
+      <td class="moon js_moon4 js_no_action">
+        <div id="ownFleetStatus_4_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris4 ">
+        <div id="ownFleetStatus_4_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="playername js_playerName4 vacationlonginactive ">
+        <span class="honorRank rank_starlord2 tooltip js_hideTipOnMobile"
+              title="Император">&nbsp;</span> <a href="javascript: void(0);"
+                                                 class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile"
+                                                 rel="player100015">
+        <span class="status_abbr_vacation">Lieutenant...</span> </a>
+        <span class="status"> (<span class='status_abbr_vacation'><span class="status_abbr_vacation tooltip js_hideTipOnMobile" title="Pежим отпуска">РО</span></span> <span
+            class='status_abbr_longinactive'><span class="status_abbr_longinactive tooltip js_hideTipOnMobile"
+                                                   title="неактивен 28 дней">I</span></span>) </span>
+        <div id="player100015" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Игрок: <span>Lieutenant Ferret</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListLinks">
+            <li class="rank">Рейтинг: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&searchRelId=100015">37</a></li>
+            <li><a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerId="100015">Написать сообщение</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&action=7&id=100015&ajax=1"
+                   class="overlay"
+                   data-overlay-title="Запрос дружбы">Предложение подружиться</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=100015">Добавить игрока в список игнорируемых</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="allytag js_allyTag4 ">
+        <span class="allytagwrapper tooltipRel tooltipClose tooltipRight js_hideTipOnMobile " rel="alliance500029"> B-P
+          <div id="alliance500029" style="display: none;" class="htmlTooltip galaxyTooltip">
+            <h1>Blood Phoenixes</h1>
+            <div class="splitLine"></div>
+            <ul class="ListLinks">
+              <li class="rank">Место: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&category=2&searchRelId=500029">9</a></li>
+              <li class="members">Численность:: 2</li>
+              <li><a href="allianceInfo.php?allianceId=500029" target="_ally">Представление альянса</a></li>
+              <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=alliance&bewerbung=500029">Регистрироваться</a></li>
+            </ul>
+          </div>
+        </span>
+      </td>
+      <td class="action" colspan="2">
+        <span> <a class="tooltip js_hideTipOnMobile espionage"
+                  title="Шпионаж невозможен"
+                  href="javascript: void(0);"> <span class="icon icon_eye grayscale"></span> </a> <a href="javascript:void(0)"
+                                                                                                     class="sendMail js_openChat tooltip"
+                                                                                                     data-playerId="100015"
+                                                                                                     title="Написать сообщение"><span
+            class="icon icon_chat"></span></a> <a class="tooltip overlay buddyrequest"
+                                                  title="Запрос дружбы"
+                                                  href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&amp;action=7&amp;id=100015&amp;ajax=1"
+                                                  data-overlay-title="Запрос дружбы"> <span class="icon icon_user"></span> </a> <span class="tooltip js_hideTipOnMobile overlay missleattack"
+                                                                                                                                      title="Ракетная атака"
+                                                                                                                                      data-overlay-modal='true'> <span
+            class="icon icon_missile grayscale"></span> </span> </span></td>
+    </tr>
+    <tr class="row empty_filter ">
+      <td class="position js_no_action">5</td>
+      <td colspan="1" class="microplanet planetEmpty js_planet5 js_planetEmpty5">
+        <div id="ownFleetStatus_5_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="planetname1 planetEmpty js_planetNameEmpty5" align="center"><span class="tooltip planetMoveIcons colonize-inactive icon"
+                                                                                   title="Невозможно колонизировать планету (нет колонизатора или свободных слотов)."></span>
+        <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile"
+           href="javascript: void(0);"
+           onclick="movePlanet( 'https://s148-ru.ogame.gameforge.com/game/index.php?page=planetMove&amp;action=prepareMove&amp;galaxy=1&amp;system=3&amp;ajax=1&position=5', 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3' ); return false;"
+           title="Переселиться"></a></td>
+      <td class="moon js_moon5 js_no_action">
+        <div id="ownFleetStatus_5_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris5 ">
+        <div id="ownFleetStatus_5_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="playername js_playerName5 js_no_action "><span class=""> </span> <span class="status"> </span></td>
+      <td class="allytag js_allyTag5 js_no_action "></td>
+      <td class="action" colspan="2"><span> </span></td>
+    </tr>
+    <tr class="row empty_filter ">
+      <td class="position js_no_action">6</td>
+      <td colspan="1" class="microplanet planetEmpty js_planet6 js_planetEmpty6">
+        <div id="ownFleetStatus_6_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="planetname1 planetEmpty js_planetNameEmpty6" align="center"><span class="tooltip planetMoveIcons colonize-inactive icon"
+                                                                                   title="Невозможно колонизировать планету (нет колонизатора или свободных слотов)."></span>
+        <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile"
+           href="javascript: void(0);"
+           onclick="movePlanet( 'https://s148-ru.ogame.gameforge.com/game/index.php?page=planetMove&amp;action=prepareMove&amp;galaxy=1&amp;system=3&amp;ajax=1&position=6', 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3' ); return false;"
+           title="Переселиться"></a></td>
+      <td class="moon js_moon6 js_no_action">
+        <div id="ownFleetStatus_6_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris6 ">
+        <div id="ownFleetStatus_6_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="playername js_playerName6 js_no_action "><span class=""> </span> <span class="status"> </span></td>
+      <td class="allytag js_allyTag6 js_no_action "></td>
+      <td class="action" colspan="2"><span> </span></td>
+    </tr>
+    <tr class="row inactive_filter vacation_filter ">
+      <td class="position js_no_action ">7</td>
+      <td rel="planet7" class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile microplanet js_planet7 colonized " data-planet-id="33620919" colspan="1">
+        <div class="ListImage"><a href="javascript: void(0);" onClick="return false;"> <img class="planetTooltip jungle_1"
+                                                                                            src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                                                            alt=""
+                                                                                            height="33"
+                                                                                            width="38"/> </a></div>
+        <div id="ownFleetStatus_7_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+        <div id="planet7" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Планета: <span class="textNormal">Колония</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-planet">[1:3:7]</span></li>
+            <li><img class="planetTooltip jungle_1" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" alt="" height="33" width="38"/>
+            </li>
+          </ul>
+          <ul class="ListLinks"> Игрок в режиме отпуска</ul>
+        </div>
+      </td>
+      <td class="planetname "> Колония</td>
+      <td class="moon js_moon7 js_no_action">
+        <div id="ownFleetStatus_7_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris7 ">
+        <div id="ownFleetStatus_7_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="playername js_playerName7 vacationlonginactive "><span class="honorRank rank_starlord2 tooltip js_hideTipOnMobile"
+                                                                        title="Император">&nbsp;</span> <a href="javascript: void(0);"
+                                                                                                           class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile"
+                                                                                                           rel="player100015">
+        <span class="status_abbr_vacation">Lieutenant...</span> </a>
+        <span class="status"> (<span class='status_abbr_vacation'><span class="status_abbr_vacation tooltip js_hideTipOnMobile" title="Pежим отпуска">РО</span></span> <span
+            class='status_abbr_longinactive'><span class="status_abbr_longinactive tooltip js_hideTipOnMobile"
+                                                   title="неактивен 28 дней">I</span></span>) </span>
+        <div id="player100015" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Игрок: <span>Lieutenant Ferret</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListLinks">
+            <li class="rank">Рейтинг: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&searchRelId=100015">37</a></li>
+            <li><a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerId="100015">Написать сообщение</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&action=7&id=100015&ajax=1"
+                   class="overlay"
+                   data-overlay-title="Запрос дружбы">Предложение подружиться</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=100015">Добавить игрока в список игнорируемых</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="allytag js_allyTag7 "><span class="allytagwrapper tooltipRel tooltipClose tooltipRight js_hideTipOnMobile " rel="alliance500029"> B-P <div id="alliance500029"
+                                                                                                                                                            style="display: none;"
+                                                                                                                                                            class="htmlTooltip galaxyTooltip"> <h1>Blood Phoenixes</h1> <div
+          class="splitLine"></div> <ul class="ListLinks"> <li class="rank">Место: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&category=2&searchRelId=500029">9</a></li> <li
+          class="members">Численность:: 2</li> <li><a href="allianceInfo.php?allianceId=500029" target="_ally">Представление альянса</a></li> <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=alliance&bewerbung=500029">Регистрироваться</a></li> </ul> </div> </span>
+      </td>
+      <td class="action" colspan="2"><span> <a class="tooltip js_hideTipOnMobile espionage"
+                                               title="Шпионаж невозможен"
+                                               href="javascript: void(0);"> <span class="icon icon_eye grayscale"></span> </a> <a href="javascript:void(0)"
+                                                                                                                                  class="sendMail js_openChat tooltip"
+                                                                                                                                  data-playerId="100015"
+                                                                                                                                  title="Написать сообщение"><span
+          class="icon icon_chat"></span></a> <a class="tooltip overlay buddyrequest"
+                                                title="Запрос дружбы"
+                                                href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&amp;action=7&amp;id=100015&amp;ajax=1"
+                                                data-overlay-title="Запрос дружбы"> <span class="icon icon_user"></span> </a> <span class="tooltip js_hideTipOnMobile overlay missleattack"
+                                                                                                                                    title="Ракетная атака"
+                                                                                                                                    data-overlay-modal='true'> <span
+          class="icon icon_missile grayscale"></span> </span> </span></td>
+    </tr>
+    <tr class="row inactive_filter vacation_filter ">
+      <td class="position js_no_action ">8</td>
+      <td rel="planet8" class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile microplanet js_planet8 colonized " data-planet-id="33622041" colspan="1">
+        <div class="ListImage"><a href="javascript: void(0);" onClick="return false;"> <img class="planetTooltip water_2"
+                                                                                            src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                                                            alt=""
+                                                                                            height="33"
+                                                                                            width="38"/> </a></div>
+        <div id="ownFleetStatus_8_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+        <div id="planet8" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Планета: <span class="textNormal">Колония</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-planet">[1:3:8]</span></li>
+            <li><img class="planetTooltip water_2" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" alt="" height="33" width="38"/></li>
+          </ul>
+          <ul class="ListLinks"> Игрок в режиме отпуска</ul>
+        </div>
+      </td>
+      <td class="planetname "> Колония</td>
+      <td class="moon js_moon8 js_no_action">
+        <div id="ownFleetStatus_8_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris8 js_no_action">
+        <div id="ownFleetStatus_8_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+        <a href="javascript: void(0);" class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile" rel="debris8">
+          <div class="debrisField"></div>
+        </a>
+        <div id="debris8" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Поле обломков</h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-debris">[1:3:8]</span></li>
+            <li><img src="https://gf2.geo.gfsrv.net/cdndd/3ca961edd69ea535317329e75b0e13.gif" alt="Поле обломков"/></li>
+          </ul>
+          <ul class="ListLinks">
+            <li class="debris-content">Металл: 0</li>
+            <li class="debris-content">Кристалл: 2.500</li>
+            <li class="debris-recyclers">Нужно переработчиков: 1</li>
+            <li><a href="#" onClick="sendShips(8,1,3,8,2,1);return false">Переработать</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="playername js_playerName8 vacationlonginactive "><span class="honorRank rank_starlord2 tooltip js_hideTipOnMobile"
+                                                                        title="Император">&nbsp;</span> <a href="javascript: void(0);"
+                                                                                                           class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile"
+                                                                                                           rel="player100015">
+        <span class="status_abbr_vacation">Lieutenant...</span> </a>
+        <span class="status"> (<span class='status_abbr_vacation'><span class="status_abbr_vacation tooltip js_hideTipOnMobile" title="Pежим отпуска">РО</span></span> <span
+            class='status_abbr_longinactive'><span class="status_abbr_longinactive tooltip js_hideTipOnMobile"
+                                                   title="неактивен 28 дней">I</span></span>) </span>
+        <div id="player100015" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Игрок: <span>Lieutenant Ferret</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListLinks">
+            <li class="rank">Рейтинг: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&searchRelId=100015">37</a></li>
+            <li><a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerId="100015">Написать сообщение</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&action=7&id=100015&ajax=1"
+                   class="overlay"
+                   data-overlay-title="Запрос дружбы">Предложение подружиться</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=100015">Добавить игрока в список игнорируемых</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="allytag js_allyTag8 "><span class="allytagwrapper tooltipRel tooltipClose tooltipRight js_hideTipOnMobile " rel="alliance500029"> B-P <div id="alliance500029"
+                                                                                                                                                            style="display: none;"
+                                                                                                                                                            class="htmlTooltip galaxyTooltip"> <h1>Blood Phoenixes</h1> <div
+          class="splitLine"></div> <ul class="ListLinks"> <li class="rank">Место: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&category=2&searchRelId=500029">9</a></li> <li
+          class="members">Численность:: 2</li> <li><a href="allianceInfo.php?allianceId=500029" target="_ally">Представление альянса</a></li> <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=alliance&bewerbung=500029">Регистрироваться</a></li> </ul> </div> </span>
+      </td>
+      <td class="action" colspan="2"><span> <a class="tooltip js_hideTipOnMobile espionage"
+                                               title="Шпионаж невозможен"
+                                               href="javascript: void(0);"> <span class="icon icon_eye grayscale"></span> </a> <a href="javascript:void(0)"
+                                                                                                                                  class="sendMail js_openChat tooltip"
+                                                                                                                                  data-playerId="100015"
+                                                                                                                                  title="Написать сообщение"><span
+          class="icon icon_chat"></span></a> <a class="tooltip overlay buddyrequest"
+                                                title="Запрос дружбы"
+                                                href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&amp;action=7&amp;id=100015&amp;ajax=1"
+                                                data-overlay-title="Запрос дружбы"> <span class="icon icon_user"></span> </a> <span class="tooltip js_hideTipOnMobile overlay missleattack"
+                                                                                                                                    title="Ракетная атака"
+                                                                                                                                    data-overlay-modal='true'> <span
+          class="icon icon_missile grayscale"></span> </span> </span></td>
+    </tr>
+    <tr class="row strong_filter ">
+      <td class="position js_no_action ">9</td>
+      <td rel="planet9" class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile microplanet js_planet9 colonized " data-planet-id="33632101" colspan="1">
+        <div class="ListImage"><a href="javascript: void(0);" onClick="sendShips( 6, 1, 3, 9, 1, 1 ); return false;"> <img class="planetTooltip water_3"
+                                                                                                                           src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                                                                                           alt=""
+                                                                                                                           height="33"
+                                                                                                                           width="38"/> </a></div>
+        <div id="ownFleetStatus_9_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+        <div id="planet9" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Планета: <span class="textNormal">Колония</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-planet">[1:3:9]</span></li>
+            <li><img class="planetTooltip water_3" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" alt="" height="33" width="38"/></li>
+          </ul>
+          <ul class="ListLinks">
+            <li><a href="javascript:void(0);" onClick="sendShips(6,1,3,9,1,1);return false">Шпионаж</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=9&type=1&mission=1">Атака</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=9&type=1&mission=3">Транспорт</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="planetname "> Колония</td>
+      <td class="moon js_moon9 js_no_action">
+        <div id="ownFleetStatus_9_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="debris js_debris9 ">
+        <div id="ownFleetStatus_9_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                              width="12"
+                                                              height="12"
+                                                              alt=""/></div>
+      </td>
+      <td class="playername js_playerName9 honorableTarget "><a href="javascript: void(0);"
+                                                                class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile"
+                                                                rel="player100113"> <span class="status_abbr_honorableTarget">Tassadar</span> </a>
+        <span class="status"> (<span class='status_abbr_honorableTarget'><span class="status_abbr_honorableTarget tooltipHTML"
+                                                                               title="Почетная Победа|В бою против этой цели вы можете получить очки чести и на 50% больше добычи.">пп</span></span>) </span>
+        <div id="player100113" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Игрок: <span>Tassadar</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListLinks">
+            <li class="rank">Рейтинг: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&searchRelId=100113">25</a></li>
+            <li><a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerId="100113">Написать сообщение</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&action=7&id=100113&ajax=1"
+                   class="overlay"
+                   data-overlay-title="Запрос дружбы">Предложение подружиться</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=100113">Добавить игрока в список игнорируемых</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="allytag js_allyTag9 "></td>
+      <td class="action" colspan="2"><span> <a class="tooltip js_hideTipOnMobile espionage"
+                                               title="Шпионаж"
+                                               href="javascript: void(0);"
+                                               onClick="sendShips( 6, 1, 3, 9, 1, 1 ); return false;"> <span class="icon icon_eye"></span> </a> <a href="javascript:void(0)"
+                                                                                                                                                   class="sendMail js_openChat tooltip"
+                                                                                                                                                   data-playerId="100113"
+                                                                                                                                                   title="Написать сообщение"><span
+          class="icon icon_chat"></span></a> <a class="tooltip overlay buddyrequest"
+                                                title="Запрос дружбы"
+                                                href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&amp;action=7&amp;id=100113&amp;ajax=1"
+                                                data-overlay-title="Запрос дружбы"> <span class="icon icon_user"></span> </a> <span class="tooltip js_hideTipOnMobile overlay missleattack"
+                                                                                                                                    title="Ракетная атака"
+                                                                                                                                    data-overlay-modal='true'> <span
+          class="icon icon_missile grayscale"></span> </span> </span></td>
+    </tr>
+    <tr class="row strong_filter ">
+      <td class="position js_no_action ">10</td>
+      <td rel="planet10"
+          class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile microplanet js_planet10 colonized "
+          data-planet-id="33620200"
+          colspan="1">
+        <div class="ListImage"><a href="javascript: void(0);" onClick="sendShips( 6, 1, 3, 10, 1, 1 ); return false;"> <img class="planetTooltip ice_4"
+                                                                                                                            src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                                                                                            alt=""
+                                                                                                                            height="33"
+                                                                                                                            width="38"/> </a></div>
+        <div id="ownFleetStatus_10_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+        <div id="planet10" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Планета: <span class="textNormal">dav</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-planet">[1:3:10]</span></li>
+            <li><img class="planetTooltip ice_4" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" alt="" height="33" width="38"/></li>
+          </ul>
+          <ul class="ListLinks">
+            <li><a href="javascript:void(0);" onClick="sendShips(6,1,3,10,1,1);return false">Шпионаж</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=10&type=1&mission=1">Атака</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=10&type=1&mission=3">Транспорт</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="planetname "> dav</td>
+      <td class="moon js_moon10 js_no_action">
+        <div id="ownFleetStatus_10_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="debris js_debris10 ">
+        <div id="ownFleetStatus_10_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="playername js_playerName10 honorableTarget "><a href="javascript: void(0);"
+                                                                 class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile"
+                                                                 rel="player100018"> <span class="status_abbr_honorableTarget">Eclipse</span> </a>
+        <span class="status"> (<span class='status_abbr_honorableTarget'><span class="status_abbr_honorableTarget tooltipHTML"
+                                                                               title="Почетная Победа|В бою против этой цели вы можете получить очки чести и на 50% больше добычи.">пп</span></span>) </span>
+        <div id="player100018" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Игрок: <span>Eclipse</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListLinks">
+            <li class="rank">Рейтинг: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&searchRelId=100018">5</a></li>
+            <li><a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerId="100018">Написать сообщение</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&action=7&id=100018&ajax=1"
+                   class="overlay"
+                   data-overlay-title="Запрос дружбы">Предложение подружиться</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=100018">Добавить игрока в список игнорируемых</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="allytag js_allyTag10 "><span class="allytagwrapper tooltipRel tooltipClose tooltipRight js_hideTipOnMobile " rel="alliance500054"> DCL <div id="alliance500054"
+                                                                                                                                                             style="display: none;"
+                                                                                                                                                             class="htmlTooltip galaxyTooltip"> <h1>DESTINY CALLS LOST</h1> <div
+          class="splitLine"></div> <ul class="ListLinks"> <li class="rank">Место: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&category=2&searchRelId=500054">1</a></li> <li
+          class="members">Численность:: 5</li> <li><a href="allianceInfo.php?allianceId=500054" target="_ally">Представление альянса</a></li> <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=alliance&bewerbung=500054">Регистрироваться</a></li> </ul> </div> </span>
+      </td>
+      <td class="action" colspan="2"><span> <a class="tooltip js_hideTipOnMobile espionage"
+                                               title="Шпионаж"
+                                               href="javascript: void(0);"
+                                               onClick="sendShips( 6, 1, 3, 10, 1, 1 ); return false;"> <span class="icon icon_eye"></span> </a> <a href="javascript:void(0)"
+                                                                                                                                                    class="sendMail js_openChat tooltip"
+                                                                                                                                                    data-playerId="100018"
+                                                                                                                                                    title="Написать сообщение"><span
+          class="icon icon_chat"></span></a> <a class="tooltip overlay buddyrequest"
+                                                title="Запрос дружбы"
+                                                href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&amp;action=7&amp;id=100018&amp;ajax=1"
+                                                data-overlay-title="Запрос дружбы"> <span class="icon icon_user"></span> </a> <span class="tooltip js_hideTipOnMobile overlay missleattack"
+                                                                                                                                    title="Ракетная атака"
+                                                                                                                                    data-overlay-modal='true'> <span
+          class="icon icon_missile grayscale"></span> </span> </span></td>
+    </tr>
+    <tr class="row strong_filter ">
+      <td class="position js_no_action ">11</td>
+      <td rel="planet11"
+          class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile microplanet js_planet11 colonized "
+          data-planet-id="33620747"
+          colspan="1">
+        <div class="ListImage"><a href="javascript: void(0);" onClick="sendShips( 6, 1, 3, 11, 1, 1 ); return false;"> <img class="planetTooltip ice_5"
+                                                                                                                            src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                                                                                            alt=""
+                                                                                                                            height="33"
+                                                                                                                            width="38"/> </a></div>
+        <div id="ownFleetStatus_11_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+        <div id="planet11" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Планета: <span class="textNormal">Колония</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-planet">[1:3:11]</span></li>
+            <li><img class="planetTooltip ice_5" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" alt="" height="33" width="38"/></li>
+          </ul>
+          <ul class="ListLinks">
+            <li><a href="javascript:void(0);" onClick="sendShips(6,1,3,11,1,1);return false">Шпионаж</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=11&type=1&mission=1">Атака</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=11&type=1&mission=3">Транспорт</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="planetname "> Колония</td>
+      <td class="moon js_moon11 tooltipRel tooltipClose tooltipRight js_hideTipOnMobile" rel="moon11" data-moon-id="33632295">
+        <div id="ownFleetStatus_11_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+        <a href="javascript: void(0);" onClick="sendShips( 6, 1, 3, 11, 3, 1 ); return false;">
+          <div class="moon_a"></div>
+        </a>
+        <div id="moon11" style="display: none;" class="htmlTooltip galaxyTooltip"><h1><span class="textNormal">Луна </span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-moon">[1:3:11]</span></li>
+            <li><img src="https://gf3.geo.gfsrv.net/cdn8d/fb0bad7c74712fe0d4f3e2b13e4d21.gif" alt="Луна" width="30" height="30"/></li>
+            <li><span id="moonsize" title="Диаметр луны в км">8366 км</span></li>
+          </ul>
+          <ul class="ListLinks">
+            <li><a href="javascript:void(0);" onClick="sendShips(6,1,3,11,3,1);return false;">Шпионаж</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=11&type=3&mission=1">Атака</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=11&type=3&mission=3">Транспорт</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="debris js_debris11 ">
+        <div id="ownFleetStatus_11_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="playername js_playerName11 honorableTarget "><a href="javascript: void(0);"
+                                                                 class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile"
+                                                                 rel="player100018"> <span class="status_abbr_honorableTarget">Eclipse</span> </a>
+        <span class="status"> (<span class='status_abbr_honorableTarget'><span class="status_abbr_honorableTarget tooltipHTML"
+                                                                               title="Почетная Победа|В бою против этой цели вы можете получить очки чести и на 50% больше добычи.">пп</span></span>) </span>
+        <div id="player100018" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Игрок: <span>Eclipse</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListLinks">
+            <li class="rank">Рейтинг: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&searchRelId=100018">5</a></li>
+            <li><a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerId="100018">Написать сообщение</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&action=7&id=100018&ajax=1"
+                   class="overlay"
+                   data-overlay-title="Запрос дружбы">Предложение подружиться</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=100018">Добавить игрока в список игнорируемых</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="allytag js_allyTag11 "><span class="allytagwrapper tooltipRel tooltipClose tooltipRight js_hideTipOnMobile " rel="alliance500054"> DCL <div id="alliance500054"
+                                                                                                                                                             style="display: none;"
+                                                                                                                                                             class="htmlTooltip galaxyTooltip"> <h1>DESTINY CALLS LOST</h1> <div
+          class="splitLine"></div> <ul class="ListLinks"> <li class="rank">Место: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&category=2&searchRelId=500054">1</a></li> <li
+          class="members">Численность:: 5</li> <li><a href="allianceInfo.php?allianceId=500054" target="_ally">Представление альянса</a></li> <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=alliance&bewerbung=500054">Регистрироваться</a></li> </ul> </div> </span>
+      </td>
+      <td class="action" colspan="2"><span> <a class="tooltip js_hideTipOnMobile espionage"
+                                               title="Шпионаж"
+                                               href="javascript: void(0);"
+                                               onClick="sendShips( 6, 1, 3, 11, 1, 1 ); return false;"> <span class="icon icon_eye"></span> </a> <a href="javascript:void(0)"
+                                                                                                                                                    class="sendMail js_openChat tooltip"
+                                                                                                                                                    data-playerId="100018"
+                                                                                                                                                    title="Написать сообщение"><span
+          class="icon icon_chat"></span></a> <a class="tooltip overlay buddyrequest"
+                                                title="Запрос дружбы"
+                                                href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&amp;action=7&amp;id=100018&amp;ajax=1"
+                                                data-overlay-title="Запрос дружбы"> <span class="icon icon_user"></span> </a> <span class="tooltip js_hideTipOnMobile overlay missleattack"
+                                                                                                                                    title="Ракетная атака"
+                                                                                                                                    data-overlay-modal='true'> <span
+          class="icon icon_missile grayscale"></span> </span> </span></td>
+    </tr>
+    <tr class="row empty_filter ">
+      <td class="position js_no_action">12</td>
+      <td colspan="1" class="microplanet planetEmpty js_planet12 js_planetEmpty12">
+        <div id="ownFleetStatus_12_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="planetname1 planetEmpty js_planetNameEmpty12" align="center"><span class="tooltip planetMoveIcons colonize-inactive icon"
+                                                                                    title="Невозможно колонизировать планету (нет колонизатора или свободных слотов)."></span>
+        <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile"
+           href="javascript: void(0);"
+           onclick="movePlanet( 'https://s148-ru.ogame.gameforge.com/game/index.php?page=planetMove&amp;action=prepareMove&amp;galaxy=1&amp;system=3&amp;ajax=1&position=12', 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3' ); return false;"
+           title="Переселиться"></a></td>
+      <td class="moon js_moon12 js_no_action">
+        <div id="ownFleetStatus_12_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="debris js_debris12 ">
+        <div id="ownFleetStatus_12_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="playername js_playerName12 js_no_action "><span class=""> </span> <span class="status"> </span></td>
+      <td class="allytag js_allyTag12 js_no_action "></td>
+      <td class="action" colspan="2"><span> </span></td>
+    </tr>
+    <tr class="row empty_filter ">
+      <td class="position js_no_action">13</td>
+      <td colspan="1" class="microplanet planetEmpty js_planet13 js_planetEmpty13">
+        <div id="ownFleetStatus_13_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="planetname1 planetEmpty js_planetNameEmpty13" align="center"><span class="tooltip planetMoveIcons colonize-inactive icon"
+                                                                                    title="Невозможно колонизировать планету (нет колонизатора или свободных слотов)."></span>
+        <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile"
+           href="javascript: void(0);"
+           onclick="movePlanet( 'https://s148-ru.ogame.gameforge.com/game/index.php?page=planetMove&amp;action=prepareMove&amp;galaxy=1&amp;system=3&amp;ajax=1&position=13', 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3' ); return false;"
+           title="Переселиться"></a></td>
+      <td class="moon js_moon13 js_no_action">
+        <div id="ownFleetStatus_13_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="debris js_debris13 ">
+        <div id="ownFleetStatus_13_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="playername js_playerName13 js_no_action "><span class=""> </span> <span class="status"> </span></td>
+      <td class="allytag js_allyTag13 js_no_action "></td>
+      <td class="action" colspan="2"><span> </span></td>
+    </tr>
+    <tr class="row empty_filter ">
+      <td class="position js_no_action">14</td>
+      <td colspan="1" class="microplanet planetEmpty js_planet14 js_planetEmpty14">
+        <div id="ownFleetStatus_14_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="planetname1 planetEmpty js_planetNameEmpty14" align="center"><span class="tooltip planetMoveIcons colonize-inactive icon"
+                                                                                    title="Невозможно колонизировать планету (нет колонизатора или свободных слотов)."></span>
+        <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile"
+           href="javascript: void(0);"
+           onclick="movePlanet( 'https://s148-ru.ogame.gameforge.com/game/index.php?page=planetMove&amp;action=prepareMove&amp;galaxy=1&amp;system=3&amp;ajax=1&position=14', 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3' ); return false;"
+           title="Переселиться"></a></td>
+      <td class="moon js_moon14 js_no_action">
+        <div id="ownFleetStatus_14_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="debris js_debris14 ">
+        <div id="ownFleetStatus_14_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="playername js_playerName14 js_no_action "><span class=""> </span> <span class="status"> </span></td>
+      <td class="allytag js_allyTag14 js_no_action "></td>
+      <td class="action" colspan="2"><span> </span></td>
+    </tr>
+    <tr class="row strong_filter ">
+      <td class="position js_no_action ">15</td>
+      <td rel="planet15"
+          class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile microplanet js_planet15 colonized "
+          data-planet-id="33622146"
+          colspan="1">
+        <div class="ListImage"><a href="javascript: void(0);" onClick="sendShips( 6, 1, 3, 15, 1, 1 ); return false;"> <img class="planetTooltip normal_9"
+                                                                                                                            src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                                                                                            alt=""
+                                                                                                                            height="33"
+                                                                                                                            width="38"/> </a></div>
+        <div id="ownFleetStatus_15_1" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+        <div id="planet15" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Планета: <span class="textNormal">ICINGDEATH</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListImage">
+            <li><span id="pos-planet">[1:3:15]</span></li>
+            <li><img class="planetTooltip normal_9" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" alt="" height="33" width="38"/>
+            </li>
+          </ul>
+          <ul class="ListLinks">
+            <li><a href="javascript:void(0);" onClick="sendShips(6,1,3,15,1,1);return false">Шпионаж</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=15&type=1&mission=1">Атака</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=1&system=3&position=15&type=1&mission=3">Транспорт</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="planetname "> ICINGDEATH</td>
+      <td class="moon js_moon15 js_no_action">
+        <div id="ownFleetStatus_15_3" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="debris js_debris15 ">
+        <div id="ownFleetStatus_15_2" class="fleetAction"><img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                               width="12"
+                                                               height="12"
+                                                               alt=""/></div>
+      </td>
+      <td class="playername js_playerName15 honorableTarget "><a href="javascript: void(0);"
+                                                                 class="tooltipRel tooltipClose tooltipRight js_hideTipOnMobile"
+                                                                 rel="player100113"> <span class="status_abbr_honorableTarget">Tassadar</span> </a>
+        <span class="status"> (<span class='status_abbr_honorableTarget'><span class="status_abbr_honorableTarget tooltipHTML"
+                                                                               title="Почетная Победа|В бою против этой цели вы можете получить очки чести и на 50% больше добычи.">пп</span></span>) </span>
+        <div id="player100113" style="display: none;" class="htmlTooltip galaxyTooltip"><h1>Игрок: <span>Tassadar</span></h1>
+          <div class="splitLine"></div>
+          <ul class="ListLinks">
+            <li class="rank">Рейтинг: <a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=highscore&site=1&searchRelId=100113">25</a></li>
+            <li><a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerId="100113">Написать сообщение</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&action=7&id=100113&ajax=1"
+                   class="overlay"
+                   data-overlay-title="Запрос дружбы">Предложение подружиться</a></li>
+            <li><a href="https://s148-ru.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=100113">Добавить игрока в список игнорируемых</a></li>
+          </ul>
+        </div>
+      </td>
+      <td class="allytag js_allyTag15 "></td>
+      <td class="action" colspan="2"><span> <a class="tooltip js_hideTipOnMobile espionage"
+                                               title="Шпионаж"
+                                               href="javascript: void(0);"
+                                               onClick="sendShips( 6, 1, 3, 15, 1, 1 ); return false;"> <span class="icon icon_eye"></span> </a> <a href="javascript:void(0)"
+                                                                                                                                                    class="sendMail js_openChat tooltip"
+                                                                                                                                                    data-playerId="100113"
+                                                                                                                                                    title="Написать сообщение"><span
+          class="icon icon_chat"></span></a> <a class="tooltip overlay buddyrequest"
+                                                title="Запрос дружбы"
+                                                href="https://s148-ru.ogame.gameforge.com/game/index.php?page=buddies&amp;action=7&amp;id=100113&amp;ajax=1"
+                                                data-overlay-title="Запрос дружбы"> <span class="icon icon_user"></span> </a> <span class="tooltip js_hideTipOnMobile overlay missleattack"
+                                                                                                                                    title="Ракетная атака"
+                                                                                                                                    data-overlay-modal='true'> <span
+          class="icon icon_missile grayscale"></span> </span> </span></td>
+    </tr>
+    </tbody>
+  </table>
+  <div id="legendTT" style="display: none;" class="htmlTooltip"><h1>Легенда</h1>
+    <div class="splitLine"></div>
+    <dl>
+      <dt class="abbreviation status_abbr_admin">A</dt>
+      <dd class="description">Админ</dd>
+      <dt class="abbreviation status_abbr_strong">с</dt>
+      <dd class="description">сильный игрок</dd>
+      <dt class="abbreviation status_abbr_noob">н</dt>
+      <dd class="description">нуб</dd>
+      <dt class="abbreviation status_abbr_outlaw">o</dt>
+      <dd class="description">Вне закона (временно)</dd>
+      <dt class="abbreviation status_abbr_vacation">РО</dt>
+      <dd class="description">Pежим отпуска</dd>
+      <dt class="abbreviation status_abbr_banned">з</dt>
+      <dd class="description">заблокирован</dd>
+      <dt class="abbreviation status_abbr_inactive">i</dt>
+      <dd class="description">неактивен 7 дней</dd>
+      <dt class="abbreviation status_abbr_longinactive">I</dt>
+      <dd class="description">неактивен 28 дней</dd>
+      <dt class="abbreviation status_abbr_honorableTarget">пп</dt>
+      <dd class="description">Почетная Победа</dd>
+    </dl>
+  </div>
+</div>
+<script type="text/javascript"> var galaxy = 1;
+var system = 3;
+var buildListCountdowns = new Array();
+$(document).ready(function () {
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-0'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-1'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-2'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-3'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-4'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-5'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-6'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-7'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-8'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-9'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-10'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-11'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-12'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-13'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-14'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  buildListCountdowns.push(new baulisteCountdown(document.getElementById('cooldown-15'), 0, 'https://s148-ru.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=1&amp;system=3'));
+  $(document.documentElement).off('keyup');
+  $(document.documentElement).on('keyup', keyevent);
+}); </script>
