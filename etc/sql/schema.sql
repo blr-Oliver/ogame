@@ -5,6 +5,7 @@ create table galaxy_report (
   galaxy tinyint not null,
   system smallint not null,
   timestamp timestamp,
+  empty boolean not null,
   primary key(galaxy, system)
 );
 

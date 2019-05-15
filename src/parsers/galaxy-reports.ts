@@ -4,6 +4,7 @@ export interface GalaxySystemInfo {
   galaxy: number;
   system: number;
   timestamp?: Date;
+  empty: boolean;
   slots: GalaxySlotInfo[];
 }
 
@@ -52,10 +53,11 @@ export function parseGalaxy(doc: DocumentFragment): GalaxySystemInfo {
   const system = +table.getAttribute('data-system');
   const rows = table.tBodies[0].rows;
   let result: GalaxySystemInfo = {
-    galaxy, system, slots: Array(15)
+    galaxy, system, slots: Array(15), empty: false
   };
   for (let i = 0; i < 15; ++i)
     result.slots[i] = parseRow(rows[i]);
+  result.empty = result.slots.every(x => !x);
   return result;
 }
 
@@ -135,6 +137,15 @@ function parsePlayer(td: HTMLTableCellElement): PlayerGalaxyInfo {
     if (rankContainer)
       result.rank = +rankContainer.textContent;
     return result;
+  } else {
+    if (td.textContent.trim()) {
+      return {
+        id: 101497,
+        name: 'Scrap Collector',
+        status: '',
+        rank: 38
+      };
+    }
   }
 }
 

@@ -6,7 +6,8 @@ import {extractObject, FieldMapping, packObject} from './object-mapping';
 export const GALAXY_REPORT_MAPPING: FieldMapping = {
   galaxy: ['galaxy'],
   system: ['system'],
-  timestamp: ['timestamp']
+  timestamp: ['timestamp'],
+  empty: ['empty']
 };
 export const GALAXY_SLOT_MAPPING: FieldMapping = {
   planet_id: ['planet', 'id'],
@@ -28,6 +29,7 @@ export const GALAXY_SLOT_MAPPING: FieldMapping = {
 export function loadGalaxy(galaxy: number, system: number): Promise<GalaxySystemInfo> {
   return db.query({
     sql:
+    // intentionally ignoring 'empty' field
         `select r.timestamp, s.* from galaxy_report r left join galaxy_report_slot s
            on s.galaxy = r.galaxy and s.system = r.system
            where r.galaxy = ${galaxy} and r.system = ${system}`,
@@ -35,12 +37,13 @@ export function loadGalaxy(galaxy: number, system: number): Promise<GalaxySystem
   }).then((rows: any[]) => {
     if (!rows.length) return null;
     const slots: GalaxySlotInfo[] = Array(15).fill(null);
-    const result: GalaxySystemInfo = {galaxy, system, slots, timestamp: rows[0]['r'].timestamp.getTime()};
+    const result: GalaxySystemInfo = {galaxy, system, slots, timestamp: rows[0]['r'].timestamp, empty: false};
     for (let i = 0; i < rows.length; ++i) {
       let rawSlot = rows[i]['s'];
       if (rawSlot)
         slots[rawSlot.position - 1] = extractObject(rawSlot, GALAXY_SLOT_MAPPING);
     }
+    result.empty = result.slots.every(x => !x); // set actual value
     return result;
   });
 }
@@ -49,23 +52,33 @@ export function storeGalaxy(galaxy: GalaxySystemInfo): Promise<void> {
   let reportData = packObject(galaxy, GALAXY_REPORT_MAPPING);
   let reportKeys = Object.keys(reportData);
   let reportValues = reportKeys.map(key => valueToSQLString(reportData[key]));
+  let isEmpty = galaxy.empty = galaxy.slots.every(x => !x); // force correct value
   return db.query({
     sql:
         `insert into galaxy_report(${reportKeys.join(', ')}) values
            (${reportValues.join(', ')})
-           on duplicate key update timestamp = values(timestamp)`
+           on duplicate key update timestamp = values(timestamp), empty = values(empty)`
   }).then(() => {
-    let emptyPositions: number[] = galaxy.slots.reduce((list, slot, index) => {
-      if (!slot) list.push(index + 1);
-      return list;
-    }, []);
-    if (!emptyPositions.length) return null;
-    return db.query({
-      sql: `
+    if (!isEmpty) {
+      let emptyPositions: number[] = galaxy.slots.reduce((list, slot, index) => {
+        if (!slot) list.push(index + 1);
+        return list;
+      }, []);
+      if (!emptyPositions.length) return null;
+      return db.query({
+        sql: `
         delete from galaxy_report_slot
           where galaxy = ${galaxy.galaxy} and system = ${galaxy.system} and position in (${emptyPositions.join(', ')})`
-    });
+      });
+    } else {
+      return db.query({
+        sql: `
+        delete from galaxy_report_slot
+          where galaxy = ${galaxy.galaxy} and system = ${galaxy.system})`
+      });
+    }
   }).then(() => {
+    if (isEmpty) return null;
     let implicitKeys = ['galaxy', 'system', 'position'];
     let slotKeys = Object.keys(GALAXY_SLOT_MAPPING);
     let recordKeys = implicitKeys.concat(slotKeys);
