@@ -1,4 +1,4 @@
-import {db} from '../display/db';
+import {db} from '../repository/db';
 import {loadReportC} from '../display/display-report';
 import {Coordinates, CoordinateType, FleetType, Mission, MissionType, ShardedEspionageReport} from '../model/types';
 import {Calculator} from './Calculator';
@@ -206,3 +206,20 @@ export class Analyzer {
 }
 
 export const defaultAnalyzer = new Analyzer();
+
+/*
+
+select
+	s.galaxy, s.system, s.position, count(e.id) as reports
+from
+	galaxy_report_slot s
+left join
+	espionage_report e
+on
+	s.galaxy = e.galaxy and s.system = e.system and s.position = e.position
+where
+	(s.player_status like '%i%' or s.player_status like '%I%') and s.player_status not like '%РО%'
+group by
+	s.galaxy, s.system, s.position;
+
+ */

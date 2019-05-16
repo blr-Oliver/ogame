@@ -1,4 +1,4 @@
-export type FieldMapping = { [dbField: string]: string[] };
+export type FieldMapping = { readonly [dbField: string]: string[] };
 
 export function extractObject(dbObject: any, mapping: FieldMapping): any {
   return extractFrom(dbObject, Object.keys(mapping), mapping);

@@ -1,12 +1,11 @@
 import {JSDOM} from 'jsdom';
 import request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
-import {db} from '../display/db';
-import {storeGalaxy} from '../display/display-galaxy';
 import {storeReport} from '../display/display-report';
 import {CoordinateType, FleetType, Mission, StampedEspionageReport} from '../model/types';
 import {parseReport, parseReportList} from '../parsers/espionage-reports';
 import {GalaxySystemInfo, parseGalaxy} from '../parsers/galaxy-reports';
+import {GalaxyRepository} from '../repository/GalaxyRepository';
 
 type Form = { [key: string]: string | number };
 
@@ -124,27 +123,18 @@ export class Mapper {
     }
     if (!params.pause) {
       params.pause = true;
-      db.query({
-        sql:
-            `select galaxy, system from galaxy_report where
-              galaxy >= ${params.galaxyMin} and galaxy <= ${params.galaxyMax} and system >= ${params.systemMin} and system <= ${params.systemMax}
-              and (galaxy = ${params.galaxyLast} and system > ${params.systemLast} or galaxy > ${params.galaxyLast || 0})
-              and (empty = 1 and timestamp < date_sub(now(), interval ${params.emptyTimeout} second) 
-                   or empty = 0 and timestamp < date_sub(now(), interval ${params.normalTimeout} second))
-              order by galaxy asc, system asc
-              limit 1;`
-      }).then((rows: any[]) => {
-        if (!rows.length) return null;
-        return [rows[0].galaxy, rows[0].system];
-      }).then(nextTarget => {
+      GalaxyRepository.instance.findNextStale(
+          params.galaxyMin, params.galaxyMax, params.systemMin, params.systemMax, params.galaxyLast, params.systemLast,
+          params.normalTimeout, params.emptyTimeout
+      ).then(nextTarget => {
         if (!nextTarget) {
           params.galaxyLast = null;
           params.systemLast = null;
         } else {
-          let galaxyNext: number = nextTarget[0];
-          let systemNext: number = nextTarget[1];
+          let galaxyNext: number = nextTarget.galaxy;
+          let systemNext: number = nextTarget.system;
           this.viewGalaxy(galaxyNext, systemNext).then(result => {
-            storeGalaxy(result).then(() => {
+            GalaxyRepository.instance.store(result).then(() => {
               params.pause = false;
               params.galaxyLast = galaxyNext;
               params.systemLast = systemNext;

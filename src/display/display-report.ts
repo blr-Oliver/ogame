@@ -1,7 +1,7 @@
 import {Coordinates, CoordinateType, EspionageReport, ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../model/types';
 import {valueToSQLString} from '../parsers/common';
-import {db} from './db';
-import {extractFrom, FieldMapping, packObject} from './object-mapping';
+import {db} from '../repository/db';
+import {extractFrom, FieldMapping, packObject} from '../repository/object-mapping';
 
 export const ESPIONAGE_REPORT_MAPPING: FieldMapping = {
   id: ['id'],

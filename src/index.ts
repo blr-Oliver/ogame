@@ -4,13 +4,14 @@ import path from 'path';
 import {Cookie} from 'tough-cookie';
 import {defaultAnalyzer} from './core/Analyzer';
 import {Mapper} from './core/Mapper';
-import {loadGalaxy} from './display/display-galaxy';
 import {loadReport} from './display/display-report';
 import {CoordinateType, FleetType, MissionType} from './model/types';
+import {GalaxyRepository} from './repository/GalaxyRepository';
 
 const app = express();
 const port = 8080;
 
+// TODO init (and inject?) all components
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('json replacer', function (key: string, value: any) {
   if (this[key] instanceof Date) // direct test on value doesn't work
@@ -27,7 +28,7 @@ app.get('/login', (req, res, next) => {
 });
 
 app.get('/display/galaxy/:galaxy/:system', (req, res) => {
-  loadGalaxy(+req.params['galaxy'], +req.params['system']).then(systemInfo => {
+  GalaxyRepository.instance.load(+req.params['galaxy'], +req.params['system']).then(systemInfo => {
     res.json(systemInfo);
   });
 });
