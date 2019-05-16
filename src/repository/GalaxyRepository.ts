@@ -2,15 +2,11 @@ import {Coordinates} from '../model/types';
 import {valueToSQLString} from '../parsers/common';
 import {GalaxySlotInfo, GalaxySystemInfo} from '../parsers/galaxy-reports';
 import {db} from './db';
-import {extractObject, FieldMapping, packObject} from './object-mapping';
+import {createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';
 
 export class GalaxyRepository {
-  private static readonly GALAXY_REPORT_MAPPING: FieldMapping = {
-    galaxy: ['galaxy'],
-    system: ['system'],
-    timestamp: ['timestamp'],
-    empty: ['empty']
-  };
+  private static readonly COORDINATES_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'position', 'type']);
+  private static readonly GALAXY_REPORT_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'timestamp', 'empty']);
   private static readonly GALAXY_SLOT_MAPPING: FieldMapping = {
     planet_id: ['planet', 'id'],
     planet_name: ['planet', 'name'],
@@ -64,21 +60,23 @@ export class GalaxyRepository {
                 normalTimeout: number, emptyTimeout: number): Promise<Coordinates> {
     return db.query({
       sql:
-          `select galaxy, system from galaxy_report where
+          `select galaxy, system, null as 'position' from galaxy_report where
               galaxy >= ${galaxyMin} and galaxy <= ${galaxyMax} and system >= ${systemMin} and system <= ${systemMax}
               and (galaxy = ${galaxyLast} and system > ${systemLast} or galaxy > ${galaxyLast || 0})
               and (empty = 1 and timestamp < date_sub(now(), interval ${emptyTimeout} second) 
                    or empty = 0 and timestamp < date_sub(now(), interval ${normalTimeout} second))
               order by galaxy asc, system asc
               limit 1;`
-    }).then((rows: any[]) => {
-      if (!rows.length) return null;
-      return {
-        galaxy: rows[0].galaxy,
-        system: rows[0].system,
-        position: null
-      }
-    });
+    }).then((rows: any[]) => extractObject(rows[0], GalaxyRepository.COORDINATES_MAPPING));
+  }
+
+  findInactiveTargets(): Promise<Coordinates[]> {
+    return db.query({
+      sql:
+          `select galaxy, system, position from galaxy_report_slot
+             where (player_status like '%i%' or player_status like '%I%')
+             and player_status not like '%РО%' and player_status not like '%A%'`
+    }).then((rows: any[]) => rows.map(row => extractObject(row, GalaxyRepository.COORDINATES_MAPPING)));
   }
 
   store(galaxy: GalaxySystemInfo): Promise<void> {

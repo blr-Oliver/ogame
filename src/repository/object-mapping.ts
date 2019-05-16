@@ -1,10 +1,15 @@
 export type FieldMapping = { readonly [dbField: string]: string[] };
 
+export function createPlainMapping(keys: string[]): FieldMapping {
+  return keys.reduce((mapping, key) => (mapping[key] = [key], mapping), {} as { [dbField: string]: string[] });
+}
+
 export function extractObject(dbObject: any, mapping: FieldMapping): any {
   return extractFrom(dbObject, Object.keys(mapping), mapping);
 }
 
 export function extractFrom(dbObject: any, keys: string[], mapping: FieldMapping, target: any = {}, skipNulls: boolean = true): any {
+  if (!dbObject) return null;
   keys.forEach(key => {
     if (key in dbObject) {
       let value = dbObject[key];
