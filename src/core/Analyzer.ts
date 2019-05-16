@@ -1,6 +1,6 @@
-import {db} from '../repository/db';
-import {Coordinates, CoordinateType, MissionType, ShardedEspionageReport} from '../model/types';
+import {Coordinates, MissionType, ShardedEspionageReport} from '../model/types';
 import {EspionageRepository} from '../repository/EspionageRepository';
+import {GalaxyRepository} from '../repository/GalaxyRepository';
 import {Calculator} from './Calculator';
 import {FlightCalculator} from './FlightCalculator';
 import {Mapper} from './Mapper';
@@ -114,21 +114,7 @@ export class Analyzer {
   }
 
   private determineCoordinates(): Promise<Coordinates[]> {
-    return db.query({
-      sql:
-          `select distinct galaxy, system, position from espionage_report
-	           where (player_status like '%i%' or player_status like '%I%')
-             and type = 1`
-    }).then((rows: any[]) => {
-      return rows.map(row => {
-        return {
-          galaxy: row.galaxy,
-          system: row.system,
-          position: row.position,
-          type: CoordinateType.Planet
-        };
-      })
-    });
+    return GalaxyRepository.instance.findInactiveTargets();
   }
 
   private loadReports(): Promise<ShardedEspionageReport[]> {
