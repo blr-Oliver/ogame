@@ -1,5 +1,5 @@
 import {db} from '../repository/db';
-import {Coordinates, CoordinateType, FleetType, MissionType, ShardedEspionageReport} from '../model/types';
+import {Coordinates, CoordinateType, MissionType, ShardedEspionageReport} from '../model/types';
 import {EspionageRepository} from '../repository/EspionageRepository';
 import {Calculator} from './Calculator';
 import {FlightCalculator} from './FlightCalculator';
@@ -92,7 +92,7 @@ export class Analyzer {
         Mapper.instance.launch({
           from: report.meta.nearestPlanetId,
           to: report.coordinates,
-          fleet: {[FleetType.EspionageProbe]: 1},
+          fleet: {espionageProbe: 1},
           mission: MissionType.Espionage
         })
     ), Promise.resolve(null));
@@ -107,7 +107,7 @@ export class Analyzer {
         Mapper.instance.launch({
           from: report.meta.nearestPlanetId,
           to: report.coordinates,
-          fleet: {[FleetType.SmallCargo]: report.meta.requiredTransports},
+          fleet: {smallCargo: report.meta.requiredTransports},
           mission: MissionType.Attack
         })
     ), Promise.resolve(null));

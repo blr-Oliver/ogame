@@ -1,6 +1,40 @@
-import {Coordinates, CoordinateType} from '../model/types';
+import {Coordinates, Fleet, ResearchType, ShipType} from '../model/types';
 
 export class FlightCalculator {
+  static readonly BASE_SPEED: { readonly [key in ShipType]: number } = {
+    lightFighter: 12500,
+    heavyFighter: 10000,
+    cruiser: 15000,
+    battleship: 10000,
+    battlecruiser: 10000,
+    bomber: 4000,
+    destroyer: 5000,
+    deathStar: 100,
+    smallCargo: 10000,
+    largeCargo: 7500,
+    colonyShip: 2500,
+    recycler: 2000,
+    espionageProbe: 100000000,
+    solarSatellite: 0
+  };
+  static readonly DRIVE_TYPES: ResearchType[] = [null, 'combustionDrive', 'impulseDrive', 'hyperspaceDrive'];
+  static readonly SHIP_DRIVES: { readonly [key in ShipType]: number } = {
+    lightFighter: 1,
+    heavyFighter: 2,
+    cruiser: 2,
+    battleship: 3,
+    battlecruiser: 3,
+    bomber: 2,
+    destroyer: 3,
+    deathStar: 3,
+    smallCargo: 2,
+    largeCargo: 1,
+    colonyShip: 2,
+    recycler: 1,
+    espionageProbe: 1,
+    solarSatellite: 0
+  };
+
   static calculateDistance(g1: number, s1: number, p1: number, g2: number, s2: number, p2: number): number {
     if (g1 !== g2) {
       let diff = Math.abs(g1 - g2);
@@ -59,5 +93,8 @@ export class FlightCalculator {
     }
 
     return m + c + d;
+  }
+
+  static computeSpeed(fleet: Fleet) {
   }
 }

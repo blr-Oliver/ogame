@@ -13,23 +13,6 @@ export enum MissionType {
   Expedition = 15
 }
 
-export enum FleetType {
-  LightFighter = 'am204',
-  HeavyFighter = 'am205',
-  Cruiser = 'am206',
-  Battleship = 'am207',
-  Battlecruiser = 'am215',
-  Bomber = 'am211',
-  Destroyer = 'am213',
-  DeathStart = 'am214',
-  SmallCargo = 'am202',
-  LargeCargo = 'am203',
-  ColonyShip = 'am208',
-  Recycler = 'am209',
-  EspionageProbe = 'am210',
-  SolarSatellite = 'am212'
-}
-
 export interface Coordinates {
   galaxy: number;
   system: number;
@@ -37,83 +20,108 @@ export interface Coordinates {
   type?: CoordinateType;
 }
 
-export interface Researches {
-  energy: number;
-  laser: number;
-  ion: number;
-  hyperspace: number;
-  plasma: number;
-  espionage: number;
-  computer: number;
-  astrophysics: number;
-  intergalactic: number;
-  graviton: number;
-  combustionDrive: number;
-  impulseDrive: number;
-  hyperspaceDrive: number;
-  weaponsUpgrade: number;
-  shieldingUpgrade: number;
-  armorUpgrade: number;
+export type ResearchType =
+    'energy' |
+    'laser' |
+    'ion' |
+    'hyperspace' |
+    'plasma' |
+    'espionage' |
+    'computer' |
+    'astrophysics' |
+    'intergalactic' |
+    'graviton' |
+    'combustionDrive' |
+    'impulseDrive' |
+    'hyperspaceDrive' |
+    'weaponsUpgrade' |
+    'shieldingUpgrade' |
+    'armorUpgrade';
+export type Researches = { [key in ResearchType]: number };
+
+export const CURRENT_RESEARCHES: Researches = {
+  energy: 12,
+  laser: 12,
+  ion: 5,
+  hyperspace: 8,
+  plasma: 7,
+  espionage: 10,
+  computer: 12,
+  astrophysics: 11,
+  intergalactic: 4,
+  graviton: 0,
+  combustionDrive: 10,
+  impulseDrive: 7,
+  hyperspaceDrive: 7,
+  weaponsUpgrade: 9,
+  shieldingUpgrade: 10,
+  armorUpgrade: 9
+};
+
+export type BuildingType =
+    'metalMine' |
+    'crystalMine' |
+    'deutMine' |
+    'metalStorage' |
+    'crystalStorage' |
+    'deutStorage' |
+    'solarPlant' |
+    'fusionReactor' |
+    'robotics' |
+    'nanite' |
+    'shipyard' |
+    'researchLab' |
+    'terraformer' |
+    'allianceDepot' |
+    'missileSilo' |
+    'spaceDock' |
+    'lunarBase' |
+    'sensorPhalanx' |
+    'jumpGate';
+export type Buildings = { [key in BuildingType]: number };
+
+export type DefenseType =
+    'rocketLauncher' |
+    'lightLaser' |
+    'heavyLaser' |
+    'ionCannon' |
+    'gaussCannon' |
+    'plasmaTurret' |
+    'smallShield' |
+    'largeShield' |
+    'antiBallistic' |
+    'interplanetary';
+export type Defense = { [key in DefenseType]: number };
+export type DefensePartial = { [key in DefenseType]?: number };
+
+export enum ShipTypeId {
+  lightFighter = 'am204',
+  heavyFighter = 'am205',
+  cruiser = 'am206',
+  battleship = 'am207',
+  battlecruiser = 'am215',
+  bomber = 'am211',
+  destroyer = 'am213',
+  deathStar = 'am214',
+  smallCargo = 'am202',
+  largeCargo = 'am203',
+  colonyShip = 'am208',
+  recycler = 'am209',
+  espionageProbe = 'am210',
+  solarSatellite = 'am212'
 }
 
-export interface Buildings {
-  metalMine: number;
-  crystalMine: number;
-  deutMine: number;
-  metalStorage: number;
-  crystalStorage: number;
-  deutStorage: number;
-  solarPlant: number;
-  fusionReactor: number;
-  robotics: number;
-  nanite: number;
-  shipyard: number;
-  researchLab: number;
-  terraformer: number;
-  allianceDepot: number;
-  missileSilo: number;
-  spaceDock: number;
-  lunarBase: number;
-  sensorPhalanx: number;
-  jumpGate: number;
-}
+export type ShipType = keyof typeof ShipTypeId;
+export type Fleet = { [key in ShipType]: number };
+export type FleetPartial = { [key in ShipType]?: number };
 
-export interface Defense {
-  rocketLauncher: number;
-  lightLaser: number;
-  heavyLaser: number;
-  ionCannon: number;
-  gaussCannon: number;
-  plasmaTurret: number;
-  smallShield: number;
-  largeShield: number;
-  antiBallistic: number;
-  interplanetary: number;
-}
+export type ResourceType =
+    'metal' |
+    'crystal' |
+    'deut' |
+    'energy';
 
-export interface Fleet {
-  lightFighter: number;
-  heavyFighter: number;
-  cruiser: number;
-  battleship: number;
-  battlecruiser: number;
-  bomber: number;
-  destroyer: number;
-  deathStar: number;
-  smallCargo: number;
-  largeCargo: number;
-  colonyShip: number;
-  recycler: number;
-  espionageProbe: number;
-  solarSatellite: number;
-}
-
-export interface Resources {
-  metal: number;
-  crystal: number;
-  deut: number;
-  energy: number;
-}
+export type Resources = { [key in ResourceType]?: number };
 
 export interface PlanetActivity {
   active: boolean;
@@ -157,7 +165,7 @@ export type Speed = OneToTen;
 export interface Mission {
   from?: number;
   to: Coordinates;
-  fleet: { [key in FleetType]?: number };
+  fleet: FleetPartial;
   mission: MissionType;
   speed?: Speed;
   cargo?: Resources;

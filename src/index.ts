@@ -4,7 +4,7 @@ import path from 'path';
 import {Cookie} from 'tough-cookie';
 import {defaultAnalyzer} from './core/Analyzer';
 import {Mapper} from './core/Mapper';
-import {CoordinateType, FleetType, MissionType} from './model/types';
+import {CoordinateType} from './model/types';
 import {EspionageRepository} from './repository/EspionageRepository';
 import {GalaxyRepository} from './repository/GalaxyRepository';
 
@@ -95,21 +95,7 @@ app.get('/galaxy', (req, res) => {
 
 
 app.get('/launch', (req, res, next) => {
-  let mission = +req.query['mission'] || MissionType.Espionage;
-  Mapper.instance.launch({
-    from: 33638483,
-    to: {
-      galaxy: 2,
-      system: 292,
-      position: 8,
-      type: 1
-    },
-    mission: mission,
-    speed: 10,
-    fleet: {
-      [FleetType.EspionageProbe]: 1
-    }
-  }).then(next);
+  next();
 });
 
 app.get('/dump', (req, res) => {

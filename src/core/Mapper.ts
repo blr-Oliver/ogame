@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';
 import request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
-import {CoordinateType, FleetType, Mission, StampedEspionageReport} from '../model/types';
+import {CoordinateType, Mission, ShipType, ShipTypeId, StampedEspionageReport} from '../model/types';
 import {parseReport, parseReportList} from '../parsers/espionage-reports';
 import {GalaxySystemInfo, parseGalaxy} from '../parsers/galaxy-reports';
 import {EspionageRepository} from '../repository/EspionageRepository';
@@ -247,8 +247,10 @@ export class Mapper {
   }
 
   private fleetStep2(form: Form, mission: Mission): Promise<request.Response> {
-    for (let shipKey in mission.fleet)
-      form[shipKey] = mission.fleet[shipKey as FleetType];
+    for (let key in mission.fleet) {
+      let shipType = key as ShipType;
+      form[ShipTypeId[shipType]] = mission.fleet[shipType];
+    }
 
     return Mapper.asPromise({
       uri: Mapper.GAME_URL,
