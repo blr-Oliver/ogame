@@ -1,6 +1,7 @@
 import {JSDOM} from 'jsdom';
 import request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
+import {db} from '../display/db';
 import {storeGalaxy} from '../display/display-galaxy';
 import {storeReport} from '../display/display-report';
 import {CoordinateType, FleetType, Mission, StampedEspionageReport} from '../model/types';
@@ -17,6 +18,8 @@ export interface ObserveParams {
   systemMin: number;
   systemMax: number;
   systemLast: number;
+  emptyTimeout: number;
+  normalTimeout: number;
 }
 
 export class Mapper {
@@ -41,13 +44,16 @@ export class Mapper {
 
   readonly observe: ObserveParams = {
     pause: true,
-    galaxyMin: 3,
-    galaxyMax: 3,
+    galaxyMin: 1,
+    galaxyMax: 7,
     systemMin: 1,
     systemMax: 499,
     galaxyLast: null,
-    systemLast: null
+    systemLast: null,
+    emptyTimeout: 3600 * 36,
+    normalTimeout: 3600 * 2
   };
+
   private observeNext: NodeJS.Timeout = null;
   private reportNext: NodeJS.Timeout = null;
 
@@ -117,25 +123,36 @@ export class Mapper {
       this.observeNext = null;
     }
     if (!params.pause) {
-      let systemNext = params.systemLast ? (params.systemLast + 1) : params.systemMin;
-      let galaxyNext = params.galaxyLast || params.galaxyMin;
-      if (systemNext > params.systemMax) {
-        systemNext = params.systemMin;
-        ++galaxyNext;
-      }
-      if (galaxyNext > params.galaxyMax) {
-        params.pause = true;
-        params.galaxyLast = null;
-        params.systemLast = null;
-      } else {
-        this.viewGalaxy(galaxyNext, systemNext).then(result => {
-          storeGalaxy(result).then(() => {
-            this.observeNext = setTimeout(() => this.continueObserve(), 500 + Math.floor(Math.random() * 500));
-            params.galaxyLast = galaxyNext;
-            params.systemLast = systemNext;
-          })
-        });
-      }
+      params.pause = true;
+      db.query({
+        sql:
+            `select galaxy, system from galaxy_report where
+              galaxy >= ${params.galaxyMin} and galaxy <= ${params.galaxyMax} and system >= ${params.systemMin} and system <= ${params.systemMax}
+              and (galaxy = ${params.galaxyLast} and system > ${params.systemLast} or galaxy > ${params.galaxyLast || 0})
+              and (empty = 1 and timestamp < date_sub(now(), interval ${params.emptyTimeout} second) 
+                   or empty = 0 and timestamp < date_sub(now(), interval ${params.normalTimeout} second))
+              order by galaxy asc, system asc
+              limit 1;`
+      }).then((rows: any[]) => {
+        if (!rows.length) return null;
+        return [rows[0].galaxy, rows[0].system];
+      }).then(nextTarget => {
+        if (!nextTarget) {
+          params.galaxyLast = null;
+          params.systemLast = null;
+        } else {
+          let galaxyNext: number = nextTarget[0];
+          let systemNext: number = nextTarget[1];
+          this.viewGalaxy(galaxyNext, systemNext).then(result => {
+            storeGalaxy(result).then(() => {
+              params.pause = false;
+              params.galaxyLast = galaxyNext;
+              params.systemLast = systemNext;
+              this.observeNext = setTimeout(() => this.continueObserve(), 0);
+            });
+          });
+        }
+      })
     }
   }
 
