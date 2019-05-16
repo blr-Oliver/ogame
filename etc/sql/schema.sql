@@ -29,3 +29,27 @@ create table galaxy_report_slot (
   debris_crystal int,
   primary key(galaxy, system, position)
 );
+
+create or replace view player_status(player_id, player_name, player_status, timestamp)
+as
+select distinct
+	s.player_id, s.player_name, s.player_status, t.timestamp
+from
+	galaxy_report r
+join
+	galaxy_report_slot s
+on
+	r.galaxy = s.galaxy and r.system = s.system
+join
+	(select
+		s.player_id, max(r.timestamp) as 'timestamp'
+	from
+		galaxy_report r
+	join
+		galaxy_report_slot s
+	on
+		r.galaxy = s.galaxy and r.system = s.system
+	group by
+		s.player_id) t
+on
+	s.player_id = t.player_id and r.timestamp = t.timestamp;
