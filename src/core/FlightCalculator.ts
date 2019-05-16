@@ -1,4 +1,4 @@
-import {Coordinates, Fleet, ResearchType, ShipType} from '../model/types';
+import {Coordinates, CURRENT_RESEARCHES, Fleet, FleetPartial, ResearchType, ShipType} from '../model/types';
 
 export class FlightCalculator {
   static readonly BASE_SPEED: { readonly [key in ShipType]: number } = {
@@ -55,7 +55,7 @@ export class FlightCalculator {
     return this.calculateDistance(c1.galaxy, c1.system, c1.position, c2.galaxy, c2.system, c2.position);
   }
 
-  static flightTime(distance: number, speed: number = 22000): number {
+  static flightTime(distance: number, speed: number): number {
     return (10 + 3500 * Math.sqrt(10 * distance / speed)) / 2;
   }
 
@@ -95,6 +95,16 @@ export class FlightCalculator {
     return m + c + d;
   }
 
-  static computeSpeed(fleet: Fleet) {
+  static fleetSpeed(fleet: FleetPartial | Fleet) {
+    let speed = Infinity;
+    for (let key in fleet) {
+      if (fleet[key as ShipType] > 0) {
+        let baseSpeed: number = this.BASE_SPEED[key as ShipType];
+        let drive = this.SHIP_DRIVES[key as ShipType];
+        let driveLevel = CURRENT_RESEARCHES[this.DRIVE_TYPES[drive]];
+        speed = Math.min(baseSpeed * (1 + driveLevel * drive / 10));
+      }
+    }
+    return isFinite(speed) ? speed : 0;
   }
 }

@@ -134,7 +134,7 @@ export class Analyzer {
       }
       report.meta.nearestPlanetId = nearestPlanetId;
       report.meta.distance = nearestDistance;
-      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance);
+      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}));
     });
   }
 
