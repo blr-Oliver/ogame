@@ -74,7 +74,7 @@ export function storeGalaxy(galaxy: GalaxySystemInfo): Promise<void> {
       return db.query({
         sql: `
         delete from galaxy_report_slot
-          where galaxy = ${galaxy.galaxy} and system = ${galaxy.system})`
+          where galaxy = ${galaxy.galaxy} and system = ${galaxy.system}`
       });
     }
   }).then(() => {
