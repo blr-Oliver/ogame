@@ -1,10 +1,10 @@
 import {JSDOM} from 'jsdom';
 import request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
-import {storeReport} from '../display/display-report';
 import {CoordinateType, FleetType, Mission, StampedEspionageReport} from '../model/types';
 import {parseReport, parseReportList} from '../parsers/espionage-reports';
 import {GalaxySystemInfo, parseGalaxy} from '../parsers/galaxy-reports';
+import {EspionageRepository} from '../repository/EspionageRepository';
 import {GalaxyRepository} from '../repository/GalaxyRepository';
 
 type Form = { [key: string]: string | number };
@@ -171,7 +171,7 @@ export class Mapper {
 
     if (this.reportIdList && this.reportIdList.length) {
       this.loadReport(this.reportIdList[0]).then(report => {
-        return storeReport(report).then(() => {
+        return EspionageRepository.instance.store(report).then(() => {
           this.lastReportId = this.reportIdList.shift();
           this.reportNext = setTimeout(() => this.continueLoadReports(), 500 + Math.floor(Math.random() * 500));
           return report.id;

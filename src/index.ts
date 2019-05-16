@@ -4,8 +4,8 @@ import path from 'path';
 import {Cookie} from 'tough-cookie';
 import {defaultAnalyzer} from './core/Analyzer';
 import {Mapper} from './core/Mapper';
-import {loadReport} from './display/display-report';
 import {CoordinateType, FleetType, MissionType} from './model/types';
+import {EspionageRepository} from './repository/EspionageRepository';
 import {GalaxyRepository} from './repository/GalaxyRepository';
 
 const app = express();
@@ -35,7 +35,7 @@ app.get('/display/galaxy/:galaxy/:system', (req, res) => {
 
 app.get('/display/report/:galaxy/:system/:position/:type?', (req, res) => {
   let type: CoordinateType = +req.params['type'] || CoordinateType.Planet;
-  loadReport(+req.params['galaxy'], +req.params['system'], +req.params['position'], type).then(report => {
+  EspionageRepository.instance.load(+req.params['galaxy'], +req.params['system'], +req.params['position'], type).then(report => {
     res.json(report);
   });
 });

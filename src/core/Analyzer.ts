@@ -1,6 +1,6 @@
 import {db} from '../repository/db';
-import {loadReportC} from '../display/display-report';
-import {Coordinates, CoordinateType, FleetType, Mission, MissionType, ShardedEspionageReport} from '../model/types';
+import {Coordinates, CoordinateType, FleetType, MissionType, ShardedEspionageReport} from '../model/types';
+import {EspionageRepository} from '../repository/EspionageRepository';
 import {Calculator} from './Calculator';
 import {FlightCalculator} from './FlightCalculator';
 import {Mapper} from './Mapper';
@@ -132,7 +132,7 @@ export class Analyzer {
   }
 
   private loadReports(): Promise<ShardedEspionageReport[]> {
-    return Promise.all(this.coordinates.map(coordinates => loadReportC(coordinates)));
+    return Promise.all(this.coordinates.map(coordinates => EspionageRepository.instance.loadC(coordinates)));
   }
 
   private computeFlight() {
