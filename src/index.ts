@@ -4,6 +4,7 @@ import path from 'path';
 import {Cookie} from 'tough-cookie';
 import {defaultAnalyzer} from './core/Analyzer';
 import {Mapper} from './core/Mapper';
+import {Scanner} from './core/Scanner';
 import {CoordinateType} from './model/types';
 import {EspionageRepository} from './repository/EspionageRepository';
 import {GalaxyRepository} from './repository/GalaxyRepository';
@@ -128,6 +129,16 @@ app.get('/espionage', (req, res) => {
   } else {
     res.json(Mapper.instance.reportIdList);
   }
+});
+
+app.get('/scan', (req, res) => {
+  if ('load' in req.query)
+    GalaxyRepository.instance.findInactiveTargets().then(
+        targets => Scanner.instance.targets = targets);
+  else if ('continue' in req.query) {
+    Scanner.instance.launchNext()
+  }
+  res.json(Scanner.instance);
 });
 
 app.get('/analyze', (req, res) => {

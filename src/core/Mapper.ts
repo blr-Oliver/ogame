@@ -243,7 +243,7 @@ export class Mapper {
       method: 'GET',
       qs: queryParams,
       jar: this.requestJar
-    }, false);
+    }, true);
   }
 
   private fleetStep2(form: Form, mission: Mission): Promise<request.Response> {
@@ -258,7 +258,7 @@ export class Mapper {
       qs: {page: 'fleet2'},
       form: form,
       jar: this.requestJar
-    }, false);
+    }, true);
   }
 
   private fleetStep3(form: Form, mission: Mission): Promise<request.Response> {
@@ -295,7 +295,7 @@ export class Mapper {
       qs: form,
       form: {token: token},
       jar: this.requestJar
-    }, false);
+    }, true);
   }
 
   loginLobby(): Promise<string> {

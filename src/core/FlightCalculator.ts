@@ -1,4 +1,5 @@
-import {Coordinates, CURRENT_RESEARCHES, Fleet, FleetPartial, OneToTen, ResearchType, ShipType, ShipTypeId} from '../model/types';
+import {Coordinates, Fleet, FleetPartial, ResearchType, ShipType, Speed} from '../model/types';
+import {CURRENT_RESEARCHES} from './GameContext';
 
 export class FlightCalculator {
   static readonly FLIGHT_MULTIPLIER = 2;
@@ -52,7 +53,7 @@ export class FlightCalculator {
     solarSatellite: 0
   };
 
-  static calculateDistance(g1: number, s1: number, p1: number, g2: number, s2: number, p2: number): number {
+  static distance(g1: number, s1: number, p1: number, g2: number, s2: number, p2: number): number {
     if (g1 !== g2) {
       let diff = Math.abs(g1 - g2);
       return Math.min(diff, 7 - diff) * 20000;
@@ -68,15 +69,15 @@ export class FlightCalculator {
     return 5;
   }
 
-  static calculateDistanceC(c1: Coordinates, c2: Coordinates): number {
-    return this.calculateDistance(c1.galaxy, c1.system, c1.position, c2.galaxy, c2.system, c2.position);
+  static distanceC(c1: Coordinates, c2: Coordinates): number {
+    return this.distance(c1.galaxy, c1.system, c1.position, c2.galaxy, c2.system, c2.position);
   }
 
-  static flightTime(distance: number, maxSpeed: number, percentage: OneToTen = 10): number {
+  static flightTime(distance: number, maxSpeed: number, percentage: Speed = 10): number /* seconds */ {
     return (10 + 35000 / percentage * Math.sqrt(10 * distance / maxSpeed)) / this.FLIGHT_MULTIPLIER;
   }
 
-  static fuelConsumption(distance: number, fleet: Fleet | FleetPartial, flightTime?: number, percentage: OneToTen = 10) {
+  static fuelConsumption(distance: number, fleet: Fleet | FleetPartial, flightTime?: number, percentage: Speed = 10) {
     flightTime = flightTime || this.flightTime(distance, this.fleetSpeed(fleet), percentage);
 
     let total = 0, shipSpeed: number, shipPercentage: number;

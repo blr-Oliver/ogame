@@ -3,6 +3,7 @@ import {EspionageRepository} from '../repository/EspionageRepository';
 import {GalaxyRepository} from '../repository/GalaxyRepository';
 import {Calculator} from './Calculator';
 import {FlightCalculator} from './FlightCalculator';
+import {nearestPlanet, PLANETS} from './GameContext';
 import {Mapper} from './Mapper';
 
 export interface ReportMetaInfo {
@@ -20,24 +21,6 @@ export interface ReportMetaInfo {
 }
 
 export type ProcessedReport = ShardedEspionageReport & { meta: ReportMetaInfo };
-
-export const PLANETS: { [key: number]: Coordinates } = {
-  '33638474': {
-    galaxy: 1,
-    system: 266,
-    position: 11
-  },
-  '33638483': {
-    galaxy: 2,
-    system: 292,
-    position: 13
-  },
-  '33638501': {
-    galaxy: 1,
-    system: 26,
-    position: 14
-  }
-};
 
 export class Analyzer {
   coordinates: Coordinates[];
@@ -123,17 +106,8 @@ export class Analyzer {
 
   private computeFlight() {
     this.reports.forEach(report => {
-      let nearestDistance = Infinity;
-      let nearestPlanetId: number = null;
-      for (let planetId in PLANETS) {
-        let distance = FlightCalculator.calculateDistanceC(report.coordinates, PLANETS[planetId]);
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
-          nearestPlanetId = +planetId;
-        }
-      }
-      report.meta.nearestPlanetId = nearestPlanetId;
-      report.meta.distance = nearestDistance;
+      let nearestPlanetId = report.meta.nearestPlanetId = nearestPlanet(report.coordinates);
+      let nearestDistance = report.meta.distance = FlightCalculator.distanceC(report.coordinates, PLANETS[nearestPlanetId]);
       report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}));
     });
   }

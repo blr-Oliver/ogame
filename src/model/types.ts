@@ -39,25 +39,6 @@ export type ResearchType =
     'armorUpgrade';
 export type Researches = { [key in ResearchType]: number };
 
-export const CURRENT_RESEARCHES: Researches = {
-  energy: 12,
-  laser: 12,
-  ion: 5,
-  hyperspace: 8,
-  plasma: 7,
-  espionage: 10,
-  computer: 12,
-  astrophysics: 11,
-  intergalactic: 4,
-  graviton: 0,
-  combustionDrive: 10,
-  impulseDrive: 7,
-  hyperspaceDrive: 7,
-  weaponsUpgrade: 9,
-  shieldingUpgrade: 10,
-  armorUpgrade: 9
-};
-
 export type BuildingType =
     'metalMine' |
     'crystalMine' |
