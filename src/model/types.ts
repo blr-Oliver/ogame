@@ -138,8 +138,8 @@ export interface EspionageReport {
   activity: PlanetActivity;
 
   resources: Resources;
-  fleet?: Fleet;
-  defense?: Defense;
+  fleet?: FleetPartial;
+  defense?: DefensePartial;
   buildings?: Buildings;
   researches?: Researches;
 }
@@ -157,6 +157,8 @@ export interface ShardHeader {
 
 export interface ShardedEspionageReport extends EspionageReport {
   source: ShardHeader[];
+  fleet?: Fleet;
+  defense?: Defense;
 }
 
 export type OneToTen = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
