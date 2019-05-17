@@ -174,7 +174,7 @@ export class Analyzer {
       let expected = report.meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, report.meta.capacity[i]), original[i]));
       let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
       let nTransports = report.meta.requiredTransports = Math.ceil(requiredCapacity / 7000);
-      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance, nTransports);
+      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance, {smallCargo: nTransports}, report.meta.flightTime);
       let actualCapacity = nTransports * 7000;
       report.meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
       report.meta.minutesStale = Math.floor((now - report.source[0].timestamp.getTime()) / 1000 / 60);

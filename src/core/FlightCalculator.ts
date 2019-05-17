@@ -1,6 +1,7 @@
-import {Coordinates, CURRENT_RESEARCHES, Fleet, FleetPartial, ResearchType, ShipType} from '../model/types';
+import {Coordinates, CURRENT_RESEARCHES, Fleet, FleetPartial, OneToTen, ResearchType, ShipType, ShipTypeId} from '../model/types';
 
 export class FlightCalculator {
+  static readonly FLIGHT_MULTIPLIER = 2;
   static readonly BASE_SPEED: { readonly [key in ShipType]: number } = {
     lightFighter: 12500,
     heavyFighter: 10000,
@@ -34,6 +35,22 @@ export class FlightCalculator {
     espionageProbe: 1,
     solarSatellite: 0
   };
+  static readonly BASE_CONSUMPTION: { readonly [key in ShipType]: number } = {
+    lightFighter: 20,
+    heavyFighter: 75,
+    cruiser: 300,
+    battleship: 500,
+    battlecruiser: 250,
+    bomber: 1000,
+    destroyer: 1000,
+    deathStar: 1,
+    smallCargo: 20,
+    largeCargo: 50,
+    colonyShip: 1000,
+    recycler: 300,
+    espionageProbe: 1,
+    solarSatellite: 0
+  };
 
   static calculateDistance(g1: number, s1: number, p1: number, g2: number, s2: number, p2: number): number {
     if (g1 !== g2) {
@@ -55,12 +72,22 @@ export class FlightCalculator {
     return this.calculateDistance(c1.galaxy, c1.system, c1.position, c2.galaxy, c2.system, c2.position);
   }
 
-  static flightTime(distance: number, speed: number): number {
-    return (10 + 3500 * Math.sqrt(10 * distance / speed)) / 2;
+  static flightTime(distance: number, maxSpeed: number, percentage: OneToTen = 10): number {
+    return (10 + 35000 / percentage * Math.sqrt(10 * distance / maxSpeed)) / this.FLIGHT_MULTIPLIER;
   }
 
-  static fuelConsumption(distance: number, quantity: number, baseConsumption: number = 10) {
-    return 1 + Math.round(quantity * baseConsumption * distance * 4 / 35000);
+  static fuelConsumption(distance: number, fleet: Fleet | FleetPartial, flightTime?: number, percentage: OneToTen = 10) {
+    flightTime = flightTime || this.flightTime(distance, this.fleetSpeed(fleet), percentage);
+
+    let total = 0, shipSpeed: number, shipPercentage: number;
+
+    for (let key in fleet) {
+      shipSpeed = this.fleetSpeed({[key]: 1});
+      shipPercentage = 35000 / (flightTime * this.FLIGHT_MULTIPLIER - 10) * Math.sqrt(10 * distance / shipSpeed);
+      total += this.BASE_CONSUMPTION[key as ShipType] * fleet[key as ShipType] * (shipPercentage / 10 + 1) * (shipPercentage / 10 + 1);
+    }
+
+    return 1 + Math.round(total * distance / 35000 / this.FLIGHT_MULTIPLIER);
   }
 
   static plunderWith(m: number, c: number, d: number, capacity: number, plunderFactor = 0.5, order = [0, 1, 2]): number[] {
