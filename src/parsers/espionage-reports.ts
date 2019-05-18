@@ -1,15 +1,21 @@
-import {EspionageReport, StampedEspionageReport} from '../model/types';
+import {StampedEspionageReport} from '../model/types';
 import {parseLocalDate, parseOnlyNumbers} from './common';
 
 export interface StringNumberMap {
   [key: string]: number;
 }
 
-export type InfoCategory = 'ships' | 'defense' | 'buildings' | 'research';
+export type InfoCategory = 'resources' | 'ships' | 'defense' | 'buildings' | 'research';
 export type TranslationMapping = { [key: string]: string[] };
 export type ReverseTranslationMapping = { [key: string]: string };
 
 export const GLOBAL_TO_LOCAL: { [category: string]: TranslationMapping } = {
+  'resources': {
+    metal: ['металл'],
+    crystal: ['кристалл'],
+    deut: ['дейтерий'],
+    energy: ['энергия']
+  },
   'ships': {
     lightFighter: ['лёгкий истребитель', 'легкий истребитель'],
     heavyFighter: ['тяжёлый истребитель', 'тяжелый истребитель'],
@@ -135,25 +141,30 @@ export function parseReport(doc: DocumentFragment): StampedEspionageReport {
       deut,
       energy
     },
-    fleet: translateAndPadEntries(fleetInfo, 'ships'),
-    defense: translateAndPadEntries(defenseInfo, 'defense'),
-    buildings: translateAndPadEntries(buildingInfo, 'buildings'),
-    researches: translateAndPadEntries(researchInfo, 'research')
+    fleet: translateEntries(fleetInfo, 'ships'),
+    defense: translateEntries(defenseInfo, 'defense'),
+    buildings: translateEntries(buildingInfo, 'buildings'),
+    researches: translateEntries(researchInfo, 'research')
   };
 }
-export function translateAndPadEntries<T>(local: StringNumberMap, category: InfoCategory): T {
+export function translateEntries<T>(local: StringNumberMap, category: InfoCategory, padEntries: boolean = true, keepUnknown: boolean = true): T {
   if (local) {
     const mapping = LOCAL_TO_GLOBAL[category];
     const result: StringNumberMap = {};
 
     for (let localKey in local) {
-      let newKey = mapping[localKey.toLowerCase()] || localKey;
-      result[newKey] = local[localKey];
+      let newKey = mapping[localKey.toLowerCase()];
+      if (newKey)
+        result[newKey] = local[localKey];
+      else if (keepUnknown)
+        result[localKey] = local[localKey];
     }
 
-    for (let globalKey in GLOBAL_TO_LOCAL[category])
-      if (!(globalKey in result))
-        result[globalKey] = 0;
+    if (padEntries) {
+      for (let globalKey in GLOBAL_TO_LOCAL[category])
+        if (!(globalKey in result))
+          result[globalKey] = 0;
+    }
     return <T>(result as any);
   }
 }

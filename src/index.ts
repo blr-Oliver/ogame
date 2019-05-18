@@ -152,6 +152,10 @@ app.get('/analyze', (req, res) => {
   res.json(defaultAnalyzer.reports);
 });
 
+app.get('/events', (req, res) => {
+  Mapper.instance.loadEvents().then(events => res.json(events));
+});
+
 app.listen(port, () => {
   console.log(`server started at http://localhost:${port}`);
 });

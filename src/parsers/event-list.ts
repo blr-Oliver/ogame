@@ -1,5 +1,6 @@
 import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../model/types';
 import {parseCoordinates} from './common';
+import {StringNumberMap, translateEntries} from './espionage-reports';
 
 export interface FlightEvent {
   id: number;
@@ -59,7 +60,6 @@ function parseEvent(tr: HTMLTableRowElement): FlightEvent {
 
   let tooltipHolder = cells[6].querySelector('.tooltip');
   tooltipHolder.innerHTML = tooltipHolder.getAttribute('title');
-  tooltipHolder.innerHTML = tooltipHolder.textContent; // unescape
   let [fleet, cargo] = parseFleetInfo(tooltipHolder);
 
   let result: FlightEvent = {
@@ -93,7 +93,7 @@ function parseEvent(tr: HTMLTableRowElement): FlightEvent {
 }
 
 function parseAlliedHeader(tr: HTMLTableRowElement): FlightEvent {
-  return null;
+  return null; // TODO
 }
 
 function addPartners(main: FlightEvent, partners: HTMLTableRowElement[]): FlightEvent {
@@ -107,5 +107,15 @@ function getType(classList: DOMTokenList): CoordinateType {
 }
 
 function parseFleetInfo(tooltipHolder: Element): [FleetPartial, Resources] {
-  return null;
+  let data: StringNumberMap = [...tooltipHolder.querySelectorAll('td.value')].reduce((hash, td: HTMLTableCellElement) => {
+        let key = td.previousElementSibling.textContent.trim().toLowerCase();
+        hash[key.substring(0, key.length - 1)] = +td.textContent; // trim ":"
+        return hash;
+      }, {} as StringNumberMap
+  );
+
+  return [
+    translateEntries(data, 'ships', false, false),
+    translateEntries(data, 'resources', false, false)
+  ];
 }
