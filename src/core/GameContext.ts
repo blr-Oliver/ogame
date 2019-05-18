@@ -14,7 +14,7 @@ export const CURRENT_RESEARCHES: Researches = {
   graviton: 0,
   combustionDrive: 10,
   impulseDrive: 8,
-  hyperspaceDrive: 7,
+  hyperspaceDrive: 8,
   weaponsUpgrade: 10,
   shieldingUpgrade: 11,
   armorUpgrade: 10
@@ -39,6 +39,11 @@ export const PLANETS: { [key: number]: Coordinates } = {
   '33638977': {
     galaxy: 5,
     system: 147,
+    position: 15
+  },
+  '33638988': {
+    galaxy: 1,
+    system: 143,
     position: 15
   }
 };
