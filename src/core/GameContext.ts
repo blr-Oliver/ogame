@@ -13,11 +13,11 @@ export const CURRENT_RESEARCHES: Researches = {
   intergalactic: 4,
   graviton: 0,
   combustionDrive: 10,
-  impulseDrive: 7,
+  impulseDrive: 8,
   hyperspaceDrive: 7,
-  weaponsUpgrade: 9,
-  shieldingUpgrade: 10,
-  armorUpgrade: 9
+  weaponsUpgrade: 10,
+  shieldingUpgrade: 11,
+  armorUpgrade: 10
 };
 
 export const PLANETS: { [key: number]: Coordinates } = {
