@@ -25,13 +25,7 @@ export type ProcessedReport = ShardedEspionageReport & { meta: ReportMetaInfo };
 export class Analyzer {
   coordinates: Coordinates[];
   reports: ProcessedReport[];
-  excludedTargets: Coordinates[] = [
-    {
-      galaxy: 4,
-      system: 33,
-      position: 8
-    }
-  ];
+  excludedTargets: Coordinates[] = [];
 
   load(): Promise<ProcessedReport[]> {
     const sumValues = (obj: any) => Object.values(obj).reduce((a: number, b: number) => a + b, 0);
@@ -39,10 +33,10 @@ export class Analyzer {
       this.coordinates = coordinates;
       return this.loadReports();
     }).then(reports => {
-      return this.reports = reports.map(r => ({
-        meta: {},
-        ...r
-      }))
+      this.reports = reports
+          .map(r => ({
+            meta: {}, ...r
+          }))
           .filter(report => report.playerStatus.toLowerCase().indexOf('i') >= 0)
           .filter(report =>
               report.defense && sumValues(report.defense) === 0 &&
@@ -51,6 +45,8 @@ export class Analyzer {
             const to = report.coordinates;
             return !this.excludedTargets.some(c => c.galaxy === to.galaxy && c.system === to.system && c.position === to.position)
           });
+      this.rate();
+      return this.reports;
     });
   }
 
