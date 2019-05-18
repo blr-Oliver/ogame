@@ -1,3 +1,5 @@
+import {Coordinates} from '../model/types';
+
 export function parseOnlyNumbers(text: string): number {
   return +text.replace(/[\D]/g, '');
 }
@@ -13,4 +15,13 @@ export function valueToSQLString(value: string | number | Date | boolean): strin
   if (typeof (value) === 'boolean') return value ? 'TRUE' : 'FALSE';
   if (value instanceof Date) return `FROM_UNIXTIME(${value.getTime()} * 0.001)`;
   return 'NULL';
+}
+
+export function parseCoordinates(value: string): Coordinates {
+  let parsed = /^\[(\d+):(\d+):(\d+)]$/.exec(value);
+  return parsed && {
+    galaxy: +parsed[1],
+    system: +parsed[2],
+    position: +parsed[3]
+  };
 }

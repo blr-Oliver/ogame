@@ -3,6 +3,7 @@ import request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
 import {CoordinateType, Mission, ShipType, ShipTypeId, StampedEspionageReport} from '../model/types';
 import {parseReport, parseReportList} from '../parsers/espionage-reports';
+import {FlightEvent, parseEventList} from '../parsers/event-list';
 import {GalaxySystemInfo, parseGalaxy} from '../parsers/galaxy-reports';
 import {EspionageRepository} from '../repository/EspionageRepository';
 import {GalaxyRepository} from '../repository/GalaxyRepository';
@@ -199,6 +200,19 @@ export class Mapper {
           this.reportNext = setTimeout(() => this.continueLoadReports(), 500 + Math.floor(Math.random() * 500));
       })
     }
+  }
+
+  loadEvents(): Promise<FlightEvent[]> {
+    return Mapper.asPromise({
+      uri: Mapper.GAME_URL,
+      qs: {
+        page: 'eventList',
+        ajax: 1
+      },
+      jar: this.requestJar
+    }, false).then(response => {
+      return parseEventList(JSDOM.fragment(response.body));
+    });
   }
 
   loadReport(id: number): Promise<StampedEspionageReport> {
