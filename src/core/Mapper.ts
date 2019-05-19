@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';
 import request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
-import {CoordinateType, Mission, ShipType, ShipTypeId, StampedEspionageReport} from '../model/types';
+import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId, StampedEspionageReport} from '../model/types';
 import {parseReport, parseReportList} from '../parsers/espionage-reports';
 import {FlightEvent, parseEventList} from '../parsers/event-list';
 import {GalaxySystemInfo, parseGalaxy} from '../parsers/galaxy-reports';
@@ -114,6 +114,20 @@ export class Mapper {
       galaxyResult.timestamp = timestamp;
       return galaxyResult;
     });
+  }
+
+  observeAllSystems(systems: Coordinates[]): Promise<GalaxySystemInfo[]> {
+    // TODO maybe bulk store to GalaxyRepository instead of chain?
+    let storeTasks: Promise<void>[] = [];
+    return systems
+        .reduce((chain, coords) => chain.then(list =>
+            this.viewGalaxy(coords.galaxy, coords.system).then(system => {
+              storeTasks.push(GalaxyRepository.instance.store(system));
+              list.push(system);
+              return list;
+            })
+        ), Promise.resolve([]))
+        .then(list => Promise.all(storeTasks).then(() => list));
   }
 
   continueObserve() {
