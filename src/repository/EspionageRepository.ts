@@ -1,7 +1,8 @@
 import {Coordinates, CoordinateType, ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../model/types';
 import {valueToSQLString} from '../parsers/common';
 import {db} from './db';
-import {extractFrom, FieldMapping, packObject} from './object-mapping';
+import {GalaxyRepository} from './GalaxyRepository';
+import {extractFrom, extractObject, FieldMapping, packObject} from './object-mapping';
 
 export class EspionageRepository {
   private static readonly ESPIONAGE_REPORT_MAPPING: FieldMapping = {
@@ -102,28 +103,13 @@ export class EspionageRepository {
     return db.query({
       sql:
           `select r.* from espionage_report r join
-           (select info_level, max(timestamp) as timestamp from espionage_report
+             (select info_level, max(timestamp) as timestamp from espionage_report
+             where galaxy = ${galaxy} and system = ${system} and position = ${position} and type = ${type}
+             group by info_level) best
+           on r.info_level = best.info_level and r.timestamp = best.timestamp
            where galaxy = ${galaxy} and system = ${system} and position = ${position} and type = ${type}
-           group by info_level) best
-         on r.info_level = best.info_level and r.timestamp = best.timestamp
-         where galaxy = ${galaxy} and system = ${system} and position = ${position} and type = ${type}
-         order by r.timestamp desc`
-    }).then((rawShards: any[]) => {
-      if (!rawShards.length) return null;
-      let result: ShardedEspionageReport = extractFrom(rawShards[0], EspionageRepository.ESPIONAGE_REPORT_INFO_COMMON, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
-      result.source = [];
-      let currentLevel = -1;
-      for (let i = 0; i < rawShards.length; ++i) {
-        let header: ShardHeader = extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_HEADER, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
-        if (currentLevel < header.infoLevel) {
-          result.source.push(header);
-          while (currentLevel < header.infoLevel)
-            extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_LEVELS[++currentLevel], EspionageRepository.ESPIONAGE_REPORT_MAPPING, result);
-        }
-      }
-      result.infoLevel = currentLevel;
-      return result;
-    });
+           order by r.timestamp desc`
+    }).then((rawShards: any[]) => this.collectReport(rawShards));
   }
   loadC(coordinates: Coordinates): Promise<ShardedEspionageReport> {
     return this.load(coordinates.galaxy, coordinates.system, coordinates.position, coordinates.type);
@@ -138,17 +124,79 @@ export class EspionageRepository {
          values (${values.join(', ')})`
     });
   }
+  findForInactiveTargets(): Promise<[Coordinates, ShardedEspionageReport][]> {
+    return db.query({
+      sql:
+          `select s.galaxy, s.system, s.position, r.*
+           from galaxy_report_slot s
+           left join
+             (select r.* from espionage_report r
+             join
+               (select galaxy, system, position, info_level, max(timestamp) as 'timestamp'
+               from espionage_report
+               group by galaxy, system, position, info_level) b
+             on
+               r.galaxy = b.galaxy and r.system = b.system and r.position = b.position
+               and r.info_level = b.info_level and r.timestamp = b.timestamp) r
+           on s.galaxy = r.galaxy and s.system = r.system and s.position = r.position
+           where
+             (s.player_status like '%i%' or s.player_status like '%I%')
+             and s.player_status not like '%РО%' and s.player_status not like '%A%'
+           order by 1, 2, 3, r.timestamp desc`,
+      nestTables: true
+    }).then((rows: any[]) => {
+      if (!rows || !rows.length) return [];
+      let result: [Coordinates, ShardedEspionageReport][] = [];
+      let lastCoordinates: Coordinates = extractObject(rows[0]['s'], GalaxyRepository.COORDINATES_MAPPING);
+      let lastIndex = 0;
+      for (let i = 0; i <= rows.length; ++i) {
+        let coordinates = i == rows.length ? null : extractObject(rows[i]['s'], GalaxyRepository.COORDINATES_MAPPING);
+        if (!this.sameCoordinates(lastCoordinates, coordinates)) {
+          result.push([lastCoordinates, this.collectReport(rows.slice(lastIndex, i).map(row => row['r']))]);
+          lastCoordinates = coordinates;
+          lastIndex = i;
+        }
+      }
+      return result;
+    });
+  }
+
+  private sameCoordinates(first: Coordinates, second: Coordinates): boolean {
+    if (!first && !second) return true;
+    if (first && !second || !first && second) return false;
+    return first.galaxy === second.galaxy
+        && first.system === second.system
+        && first.position === second.position
+        && first.type == second.type;
+  }
+
+  private collectReport(rawShards: any[]): ShardedEspionageReport {
+    let result: ShardedEspionageReport = extractFrom(rawShards[0], EspionageRepository.ESPIONAGE_REPORT_INFO_COMMON, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
+    if (!result || result.infoLevel == null) return null;
+    result.source = [];
+    let currentLevel = -1;
+    for (let i = 0; i < rawShards.length; ++i) {
+      let header: ShardHeader = extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_HEADER, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
+      if (currentLevel < header.infoLevel) {
+        result.source.push(header);
+        while (currentLevel < header.infoLevel)
+          extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_LEVELS[++currentLevel], EspionageRepository.ESPIONAGE_REPORT_MAPPING, result);
+      }
+    }
+    result.infoLevel = currentLevel;
+    return result;
+  }
+
+  deleteOldReports(): Promise<void> {
+    return db.query({
+      sql:
+          `delete r from espionage_report r join espionage_report other on
+             r.galaxy = other.galaxy
+             and r.system = other.system
+             and r.position = other.position
+             and r.type = other.type
+             and r.info_level <= other.info_level
+             and r.timestamp < other.timestamp`
+    });
+  }
 }
-
-/*
-
-DELETE r FROM espionage_report r
-        JOIN
-    espionage_report other ON r.galaxy = other.galaxy
-        AND r.system = other.system
-        AND r.position = other.position
-        AND r.type = other.type
-        AND r.info_level <= other.info_level
-        AND r.timestamp < other.timestamp
-
- */

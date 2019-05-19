@@ -5,7 +5,7 @@ import {db} from './db';
 import {createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';
 
 export class GalaxyRepository {
-  private static readonly COORDINATES_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'position', 'type']);
+  static readonly COORDINATES_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'position', 'type']);
   private static readonly GALAXY_REPORT_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'timestamp', 'empty']);
   private static readonly GALAXY_SLOT_MAPPING: FieldMapping = {
     planet_id: ['planet', 'id'],
@@ -76,6 +76,19 @@ export class GalaxyRepository {
           `select galaxy, system, position from galaxy_report_slot
              where (player_status like '%i%' or player_status like '%I%')
              and player_status not like '%РО%' and player_status not like '%A%'`
+    }).then((rows: any[]) => rows.map(row => extractObject(row, GalaxyRepository.COORDINATES_MAPPING)));
+  }
+
+  findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {
+    return db.query({
+      sql:
+          `select distinct r.galaxy, r.system, NULL as 'position'
+           from galaxy_report_slot s join galaxy_report r
+           on s.galaxy = r.galaxy and s.system = r.system
+           where
+             (s.player_status like '%i%' or s.player_status like '%I%')
+             and s.player_status not like '%РО%' and s.player_status not like '%A%'
+             and r.timestamp < date_sub(now(), interval ${timeout} second)`
     }).then((rows: any[]) => rows.map(row => extractObject(row, GalaxyRepository.COORDINATES_MAPPING)));
   }
 

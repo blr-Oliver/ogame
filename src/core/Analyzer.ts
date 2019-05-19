@@ -29,14 +29,10 @@ export class Analyzer {
 
   load(): Promise<ProcessedReport[]> {
     const sumValues = (obj: any) => Object.values(obj).reduce((a: number, b: number) => a + b, 0);
-    return this.determineCoordinates().then(coordinates => {
-      this.coordinates = coordinates;
-      return this.loadReports();
-    }).then(reports => {
-      this.reports = reports
-          .map(r => ({
-            meta: {}, ...r
-          }))
+    return EspionageRepository.instance.findForInactiveTargets().then(pairs => {
+      this.coordinates = pairs.map(pair => pair[0]);
+      this.reports = pairs
+          .map(pair => ({meta: {}, ...pair[1]}))
           .filter(report => report.playerStatus.toLowerCase().indexOf('i') >= 0)
           .filter(report =>
               report.defense && sumValues(report.defense) === 0 &&
