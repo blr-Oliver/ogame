@@ -86,16 +86,15 @@ export class Mapper {
   }
 
   ping(): Promise<request.Response> {
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       method: 'GET',
-      jar: this.requestJar,
       followRedirect: false
     });
   }
 
   viewGalaxy(galaxy: number, system: number): Promise<GalaxySystemInfo> {
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       method: 'POST',
       json: true,
@@ -106,8 +105,7 @@ export class Mapper {
       form: {
         galaxy: galaxy,
         system: system
-      },
-      jar: this.requestJar
+      }
     }).then(galaxyResponse => {
       let timestamp: Date = galaxyResponse.headers.date ? new Date(galaxyResponse.headers.date) : new Date();
       let galaxyResult = parseGalaxy(JSDOM.fragment(galaxyResponse.body['galaxy']));
@@ -162,15 +160,14 @@ export class Mapper {
   }
 
   loadReportList(): Promise<number[]> {
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       method: 'GET',
       qs: {
         page: 'messages',
         tab: 20,
         ajax: 1
-      },
-      jar: this.requestJar
+      }
     }).then(response => {
       return parseReportList(JSDOM.fragment(response.body));
     }).then(idList => {
@@ -217,28 +214,26 @@ export class Mapper {
   }
 
   loadEvents(): Promise<FlightEvent[]> {
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       qs: {
         page: 'eventList',
         ajax: 1
-      },
-      jar: this.requestJar
+      }
     }, false).then(response => {
       return parseEventList(JSDOM.fragment(response.body));
     });
   }
 
   loadReport(id: number): Promise<StampedEspionageReport> {
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       qs: {
         page: 'messages',
         messageId: id,
         tabid: 20,
         ajax: 1
-      },
-      jar: this.requestJar
+      }
     }).then(response => {
       return parseReport(JSDOM.fragment(response.body));
     });
@@ -266,11 +261,10 @@ export class Mapper {
     let queryParams: any = {page: 'fleet1'};
     if (mission.from)
       queryParams.cp = mission.from;
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       method: 'GET',
-      qs: queryParams,
-      jar: this.requestJar
+      qs: queryParams
     }, true);
   }
 
@@ -280,12 +274,11 @@ export class Mapper {
       form[ShipTypeId[shipType]] = mission.fleet[shipType];
     }
 
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       method: 'POST',
       qs: {page: 'fleet2'},
-      form: form,
-      jar: this.requestJar
+      form: form
     }, true);
   }
 
@@ -296,12 +289,11 @@ export class Mapper {
     form['type'] = mission.to.type || CoordinateType.Planet;
     form['speed'] = mission.speed || 10;
 
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       method: 'POST',
       qs: {page: 'fleet3'},
-      form: form,
-      jar: this.requestJar
+      form: form
     }, false);
   }
 
@@ -317,20 +309,18 @@ export class Mapper {
       form['deuterium'] = mission.cargo.deut || 0;
     }
 
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.GAME_URL,
       method: 'POST',
       qs: form,
-      form: {token: token},
-      jar: this.requestJar
+      form: {token: token}
     }, true);
   }
 
   loginLobby(): Promise<string> {
-    return Mapper.asPromise({
+    return this.asPromise({
       uri: Mapper.LOBBY_LOGIN_URL,
       method: 'POST',
-      jar: this.requestJar,
       form: {
         'credentials[email]': 'vasily.liaskovsky@gmail.com',
         'credentials[password]': 'LemKoTir',
@@ -339,15 +329,13 @@ export class Mapper {
         kid: ''
       }
     }).then(() => {
-      return Mapper.asPromise({
+      return this.asPromise({
         uri: 'https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=101497&server[language]=ru&server[number]=148',
-        jar: this.requestJar,
         json: true
       }).then(response => response.body['url']);
     }).then(url => {
-      return Mapper.asPromise({
-        uri: url,
-        jar: this.requestJar
+      return this.asPromise({
+        uri: url
       }).then(response => {
         console.log(response.body.length);
         return 'ok';
@@ -355,7 +343,9 @@ export class Mapper {
     });
   }
 
-  private static asPromise(options: request.Options, firstByteOnly = false): Promise<request.Response> {
+  private asPromise(options: request.Options, firstByteOnly = false): Promise<request.Response> {
+    if (!options.jar)
+      options.jar = this.requestJar;
     if (firstByteOnly)
       return new Promise((resolve, reject) => {
         let req = request(options);
@@ -374,14 +364,3 @@ export class Mapper {
       });
   }
 }
-
-/*
-DELETE r FROM espionage_report r
-        JOIN
-    espionage_report other ON r.galaxy = other.galaxy
-        AND r.system = other.system
-        AND r.position = other.position
-        AND r.type = other.type
-        AND r.info_level <= other.info_level
-        AND r.timestamp < other.timestamp;
- */
