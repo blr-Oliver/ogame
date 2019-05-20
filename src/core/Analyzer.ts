@@ -28,22 +28,37 @@ export class Analyzer {
   excludedTargets: Coordinates[] = [];
 
   load(): Promise<ProcessedReport[]> {
-    const sumValues = (obj: any) => Object.values(obj).reduce((a: number, b: number) => a + b, 0);
     return EspionageRepository.instance.findForInactiveTargets().then(pairs => {
       this.coordinates = pairs.map(pair => pair[0]);
       this.reports = pairs
+          .filter(pair => !!pair[1])
           .map(pair => ({meta: {}, ...pair[1]}))
-          .filter(report => report.playerStatus.toLowerCase().indexOf('i') >= 0)
-          .filter(report =>
-              report.defense && sumValues(report.defense) === 0 &&
-              report.fleet && sumValues(report.fleet) === 0
-          ).filter(report => {
-            const to = report.coordinates;
-            return !this.excludedTargets.some(c => c.galaxy === to.galaxy && c.system === to.system && c.position === to.position)
+          .filter(report => {
+            let to = report.coordinates;
+            if (!report.fleet || !report.defense) {
+              console.log(`insufficient report details for [${to.galaxy}:${to.system}:${to.position}]`);
+              return false;
+            }
+            if (this.sumValues(report.fleet) > 0 || this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0) {
+              console.log(`target is not clean [${to.galaxy}:${to.system}:${to.position}]`);
+              return false;
+            }
+            if (this.excludedTargets.some(c => c.galaxy === to.galaxy && c.system === to.system && c.position === to.position)) {
+              console.log(`target is explicitly excluded [${to.galaxy}:${to.system}:${to.position}]`);
+              return false;
+            }
+            return true;
           });
       this.rate();
       return this.reports;
     });
+  }
+
+  private sumValues(obj: any, ...skipFields: string[]): number {
+    return Object.keys(obj).reduce((sum: number, key) => {
+      if (!skipFields || !skipFields.length || skipFields.every(field => field !== key)) sum += obj[key];
+      return sum;
+    }, 0)
   }
 
   rate() {
@@ -78,13 +93,20 @@ export class Analyzer {
   launch(top: number) {
     let targetsToLaunch = this.reports.slice(0, top);
 
-    return targetsToLaunch.reduce((chain, report) => chain.then(() =>
-        Mapper.instance.launch({
-          from: report.meta.nearestPlanetId,
-          to: report.coordinates,
-          fleet: {smallCargo: report.meta.requiredTransports},
-          mission: MissionType.Attack
-        })
+    return targetsToLaunch.reduce((chain, report) => chain.then(() => {
+          // galaxy may say the target is inactive but fresh report might cancel that
+          if (report.playerStatus.toLowerCase().indexOf('i') < 0) {
+            let to = report.coordinates;
+            console.log(`target is not inactive [${to.galaxy}:${to.system}:${to.position}]`);
+            return null;
+          }
+          return Mapper.instance.launch({
+            from: report.meta.nearestPlanetId,
+            to: report.coordinates,
+            fleet: {smallCargo: report.meta.requiredTransports},
+            mission: MissionType.Attack
+          });
+        }
     ), Promise.resolve(null));
   }
 
@@ -158,20 +180,3 @@ export class Analyzer {
 }
 
 export const defaultAnalyzer = new Analyzer();
-
-/*
-
-select
-	s.galaxy, s.system, s.position, count(e.id) as reports
-from
-	galaxy_report_slot s
-left join
-	espionage_report e
-on
-	s.galaxy = e.galaxy and s.system = e.system and s.position = e.position
-where
-	(s.player_status like '%i%' or s.player_status like '%I%') and s.player_status not like '%РО%'
-group by
-	s.galaxy, s.system, s.position;
-
- */
