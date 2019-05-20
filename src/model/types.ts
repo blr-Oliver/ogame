@@ -10,6 +10,7 @@ export enum MissionType {
   Colony = 7,
   Recycle = 8,
   Destroy = 9,
+  MissileAttack = 10,
   Expedition = 15
 }
 
