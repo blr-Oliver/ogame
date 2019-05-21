@@ -1,5 +1,5 @@
 import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../model/types';
-import {parseCoordinates} from './common';
+import {parseCoordinates, parseOnlyNumbers} from './common';
 import {StringNumberMap, translateEntries} from './espionage-reports';
 
 export interface FlightEvent {
@@ -109,7 +109,7 @@ function getType(classList: DOMTokenList): CoordinateType {
 function parseFleetInfo(tooltipHolder: Element): [FleetPartial, Resources] {
   let data: StringNumberMap = [...tooltipHolder.querySelectorAll('td.value')].reduce((hash, td: HTMLTableCellElement) => {
         let key = td.previousElementSibling.textContent.trim().toLowerCase();
-        hash[key.substring(0, key.length - 1)] = +td.textContent; // trim ":"
+        hash[key.substring(0, key.length - 1)] = parseOnlyNumbers(td.textContent); // trim ":"
         return hash;
       }, {} as StringNumberMap
   );
