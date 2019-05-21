@@ -16,8 +16,12 @@ export interface ReportMetaInfo {
   expectedPlunder?: number[];
   requiredTransports?: number;
   fuelCost?: number;
-  rating?: number;
+  loadRatio?: number;
   minutesStale?: number;
+  value?: number;
+  old?: number;
+  rating?: number;
+  excluded?: boolean;
 }
 
 export type ProcessedReport = ShardedEspionageReport & { meta: ReportMetaInfo };

@@ -3,8 +3,10 @@ import * as fs from 'fs';
 import path from 'path';
 import {Cookie} from 'tough-cookie';
 import {defaultAnalyzer} from './core/Analyzer';
+import {AutoRaid} from './core/AutoRaid';
 import {Mapper} from './core/Mapper';
 import {Scanner} from './core/Scanner';
+import {launchDelayed} from './core/Schedule';
 import {CoordinateType} from './model/types';
 import {EspionageRepository} from './repository/EspionageRepository';
 import {GalaxyRepository} from './repository/GalaxyRepository';
@@ -95,8 +97,9 @@ app.get('/galaxy', (req, res) => {
 });
 
 
-app.get('/launch', (req, res, next) => {
-  next();
+app.get('/raid', (req, res, next) => {
+  AutoRaid.instance.continue();
+  res.sendStatus(202);
 });
 
 app.get('/dump', (req, res) => {

@@ -1,4 +1,4 @@
-import {Coordinates, CoordinateType, ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../model/types';
+import {Coordinates, CoordinateType, sameCoordinates, ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../model/types';
 import {valueToSQLString} from '../parsers/common';
 import {db} from './db';
 import {GalaxyRepository} from './GalaxyRepository';
@@ -151,7 +151,7 @@ export class EspionageRepository {
       let lastIndex = 0;
       for (let i = 0; i <= rows.length; ++i) {
         let coordinates = i == rows.length ? null : extractObject(rows[i]['s'], GalaxyRepository.COORDINATES_MAPPING);
-        if (!this.sameCoordinates(lastCoordinates, coordinates)) {
+        if (!sameCoordinates(lastCoordinates, coordinates)) {
           result.push([lastCoordinates, this.collectReport(rows.slice(lastIndex, i).map(row => row['r']))]);
           lastCoordinates = coordinates;
           lastIndex = i;
@@ -159,15 +159,6 @@ export class EspionageRepository {
       }
       return result;
     });
-  }
-
-  private sameCoordinates(first: Coordinates, second: Coordinates): boolean {
-    if (!first && !second) return true;
-    if (first && !second || !first && second) return false;
-    return first.galaxy === second.galaxy
-        && first.system === second.system
-        && first.position === second.position
-        && first.type == second.type;
   }
 
   private collectReport(rawShards: any[]): ShardedEspionageReport {

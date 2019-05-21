@@ -21,6 +21,15 @@ export interface Coordinates {
   type?: CoordinateType;
 }
 
+export function sameCoordinates(first: Coordinates, second: Coordinates): boolean {
+  if (!first && !second) return true;
+  if (first && !second || !first && second) return false;
+  return first.galaxy === second.galaxy
+      && first.system === second.system
+      && first.position === second.position
+      && (first.type == second.type || !first.type || !second.type);
+}
+
 export type ResearchType =
     'energy' |
     'laser' |

@@ -74,7 +74,7 @@ export class FlightCalculator {
   }
 
   static flightTime(distance: number, maxSpeed: number, percentage: Speed = 10): number /* seconds */ {
-    return (10 + 35000 / percentage * Math.sqrt(10 * distance / maxSpeed)) / this.FLIGHT_MULTIPLIER;
+    return Math.ceil((10 + 35000 / percentage * Math.sqrt(10 * distance / maxSpeed)) / this.FLIGHT_MULTIPLIER);
   }
 
   static fuelConsumption(distance: number, fleet: Fleet | FleetPartial, flightTime?: number, percentage: Speed = 10) {
