@@ -55,10 +55,7 @@ export class Mapper {
   };
 
   private observeNext: NodeJS.Timeout = null;
-  private reportNext: NodeJS.Timeout = null;
-
   reportIdList: number[] = [];
-  lastReportId: number = null;
 
   constructor() {
     const cookieStore = new MemoryCookieStore();
@@ -175,56 +172,6 @@ export class Mapper {
     });
   }
 
-  continueLoadReports() {
-    if (this.reportNext) {
-      clearTimeout(this.reportNext);
-      this.reportNext = null;
-    }
-
-    if (this.reportIdList && this.reportIdList.length) {
-      this.loadReport(this.reportIdList[0]).then(report => {
-        return EspionageRepository.instance.store(report).then(() => {
-          this.lastReportId = this.reportIdList.shift();
-          this.reportNext = setTimeout(() => this.continueLoadReports(), 500 + Math.floor(Math.random() * 500));
-          return report.id;
-        });
-      }).then(reportId => {
-        // removing report, ignoring response
-        request({
-          uri: Mapper.GAME_URL,
-          method: 'POST',
-          qs: {
-            page: 'messages'
-          },
-          form: {
-            messageId: reportId,
-            action: 103,
-            ajax: 1
-          },
-          jar: this.requestJar
-        });
-      });
-    } else {
-      this.loadReportList().then(idList => {
-        this.reportIdList = idList;
-        if (idList && idList.length)
-          this.reportNext = setTimeout(() => this.continueLoadReports(), 500 + Math.floor(Math.random() * 500));
-      })
-    }
-  }
-
-  loadEvents(): Promise<FlightEvent[]> {
-    return this.asPromise({
-      uri: Mapper.GAME_URL,
-      qs: {
-        page: 'eventList',
-        ajax: 1
-      }
-    }, false).then(response => {
-      return parseEventList(JSDOM.fragment(response.body));
-    });
-  }
-
   loadReport(id: number): Promise<StampedEspionageReport> {
     return this.asPromise({
       uri: Mapper.GAME_URL,
@@ -236,6 +183,55 @@ export class Mapper {
       }
     }).then(response => {
       return parseReport(JSDOM.fragment(response.body));
+    });
+  }
+
+  deleteReport(id: number): Promise<void> {
+    return this.asPromise({
+      uri: Mapper.GAME_URL,
+      method: 'POST',
+      qs: {
+        page: 'messages'
+      },
+      form: {
+        messageId: id,
+        action: 103,
+        ajax: 1
+      }
+    }).then(() => null);
+  }
+
+  loadAllReports(): Promise<StampedEspionageReport[]> {
+    return this.loadReportList().then(idList => {
+          this.reportIdList = idList;
+          return idList.reduce((chain, id) => chain.then(list =>
+              this.loadReport(id).then(report => EspionageRepository.instance.store(report)
+                  .then(() => {
+                    this.reportIdList.shift();
+                    return this.deleteReport(id)
+                        .then(() => {
+                          list.push(report);
+                          return list;
+                        });
+                  })
+              )
+          ), Promise.resolve([]));
+        }
+    ).then(result => {
+      if (!result.length) return result;
+      return this.loadAllReports().then(nextPage => (result.push(...nextPage), result));
+    });
+  }
+
+  loadEvents(): Promise<FlightEvent[]> {
+    return this.asPromise({
+      uri: Mapper.GAME_URL,
+      qs: {
+        page: 'eventList',
+        ajax: 1
+      }
+    }, false).then(response => {
+      return parseEventList(JSDOM.fragment(response.body));
     });
   }
 

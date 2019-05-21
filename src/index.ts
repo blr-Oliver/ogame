@@ -127,11 +127,9 @@ app.get('/dump', (req, res) => {
 });
 
 app.get('/espionage', (req, res) => {
-  if ('continue' in req.query) {
-    Mapper.instance.continueLoadReports();
-  } else {
-    res.json(Mapper.instance.reportIdList);
-  }
+  if ('continue' in req.query)
+    Mapper.instance.loadAllReports();
+  res.json(Mapper.instance.reportIdList);
 });
 
 app.get('/scan', (req, res) => {

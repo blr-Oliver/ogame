@@ -30,9 +30,11 @@ export class AutoRaid {
   }
 
   private checkSpyReports(): Promise<void> {
-    this.harvestEspionage = false;
-    // TODO
-    return null;
+    return Mapper.instance.loadAllReports().then((allReports) => {
+      this.harvestEspionage = false;
+      if (allReports.length)
+        this.data = null;
+    });
   }
 
   private reloadData(): Promise<[Coordinates, ShardedEspionageReport][]> {
