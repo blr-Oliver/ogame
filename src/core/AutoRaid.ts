@@ -11,16 +11,19 @@ import {Mapper} from './Mapper';
 
 export class AutoRaid {
   static readonly instance = new AutoRaid();
-  status: string = 'idle';
-  maxSlots = 9;
-  rate: number[] = [1, 1, 1]; // relative cost rate of resources
+  state: any = {
+    status: 'idle',
+    nextResume: null,
+    maxSlots: 0,
+    rate: [1, 1, 1], // relative cost rate of resources
+    harvestEspionage: false
+  };
 
-  private data: [Coordinates, ProcessedReport][] = [];
-  private harvestEspionage = false;
+  private data: [Coordinates, ProcessedReport][] = null;
 
   continue() {
-    if (this.maxSlots <= 0) return;
-    (this.harvestEspionage ? Promise.resolve(null) : this.checkSpyReports()).then(() => {
+    if (this.state.maxSlots <= 0) return;
+    (this.state.harvestEspionage ? this.checkSpyReports() : Promise.resolve(null)).then(() => {
       (this.data ? Promise.resolve(this.data) : this.reloadData())
           .then(pairs => {
             this.data = pairs as [Coordinates, ProcessedReport][];
@@ -31,7 +34,7 @@ export class AutoRaid {
 
   private checkSpyReports(): Promise<void> {
     return Mapper.instance.loadAllReports().then((allReports) => {
-      this.harvestEspionage = false;
+      this.state.harvestEspionage = false;
       if (allReports.length)
         this.data = null;
     });
@@ -41,47 +44,63 @@ export class AutoRaid {
     let mapper = Mapper.instance;
     let galaxyRepo = GalaxyRepository.instance;
     let espionageRepo = EspionageRepository.instance;
-    this.status = 'checking galaxy info';
+    this.state.status = 'checking galaxy info';
     return galaxyRepo
         .findStaleSystemsWithTargets(mapper.observe.normalTimeout)
         .then(systems => {
           if (!systems.length)
             return [] as GalaxySystemInfo[];
-          this.status = 'refreshing galaxy info';
+          this.state.status = 'refreshing galaxy info';
           return mapper.observeAllSystems(systems);
         })
         .then((/*freshGalaxies*/) => {
-          this.status = 'fetching existing reports';
+          this.state.status = 'fetching existing reports';
           return espionageRepo.findForInactiveTargets()
         });
   }
 
   private performNextLaunches() {
-    this.status = 'rating reports';
+    this.state.status = 'rating reports';
 
     this.data.forEach(pair => {
       pair[1] = this.processReport(pair[0], pair[1]);
     });
 
-    this.data.sort((a, b) => {
-      if (!a[1]) return -+!!b[1];
-      if (!b[1]) return 1;
-      return b[1].meta.rating - a[1].meta.rating;
-    });
+    this.data.sort((a, b) =>
+        +(b[1].infoLevel < 0) - +(a[1].infoLevel < 0) || /*dummies first*/
+        b[1].meta.rating - a[1].meta.rating ||
+        a[1].meta.distance - b[1].meta.distance
+    );
 
-    this.status = 'fetching events';
+    this.state.status = 'fetching events';
     Mapper.instance.loadEvents().then(events => {
-      this.status = 'checking raids in progress';
+      this.state.status = 'checking raids in progress';
       return this.findRaidEvents(events);
     }).then(raidEvents => {
       this.excludeActiveTargets(raidEvents); // TODO make possible to repeat on same target
-      let missionsToGo = this.maxSlots - raidEvents.length;
+      let missionsToGo = this.state.maxSlots - raidEvents.length;
 
       let targetsToSpy = [], targetsToLaunch = [];
-      for (let i = 0; i < this.data.length && missionsToGo >= 0; ++i) {
-        let report = this.data[i][1], meta = report.meta;
+      this.state.status = 'picking targets';
+      for (let i = 0; i < this.data.length && missionsToGo > 0; ++i) {
+        let report = this.data[i][1], meta = report.meta, to = report.coordinates;
         if (meta.excluded) continue;
-        if (report.infoLevel < 0 /*dummy*/ || meta.old / meta.flightTime > 0.5 || meta.old > 3600)
+        if (report.infoLevel < 0 /*dummy*/) {
+          targetsToSpy.push(report);
+          --missionsToGo;
+          continue;
+        }
+        if (report.playerStatus.toLowerCase().indexOf('i') < 0) // working only with inactive players
+          continue;
+        if (report.infoLevel < 2) {
+          console.log(`insufficient report detail [${to.galaxy}:${to.system}:${to.position}]`);
+          continue;
+        }
+        if (this.sumValues(report.fleet) > 0 || this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0) {
+          console.log(`target not clean [${to.galaxy}:${to.system}:${to.position}]`);
+          continue;
+        }
+        if (meta.old / meta.flightTime > 0.5 || meta.old > 3600)
           targetsToSpy.push(report);
         else
           targetsToLaunch.push(report);
@@ -90,19 +109,20 @@ export class AutoRaid {
 
       let spyTime = Infinity, raidTime = Infinity;
       if (targetsToSpy.length) {
-        this.harvestEspionage = true;
+        this.state.harvestEspionage = true;
         spyTime = 0;
-        // pick longest espionage mission
+        // pick longest espionage mission one-way flight
         targetsToSpy.forEach(target => {
           let time = FlightCalculator.flightTime(target.meta.distance, FlightCalculator.fleetSpeed({espionageProbe: 1}));
           spyTime = Math.max(spyTime, time);
         });
       }
       if (targetsToLaunch.length) {
-        // pick shortest raid mission but two-way flight
+        // pick shortest raid mission two-way flight
         raidTime = Math.min(...targetsToLaunch.map(target => target.meta.flightTime * 2));
       }
 
+      this.state.status = 'sending probes';
       let spies = targetsToSpy.reduce((chain, target) => chain.then(() => Mapper.instance.launch({
         from: target.meta.nearestPlanetId,
         to: target.coordinates,
@@ -115,11 +135,15 @@ export class AutoRaid {
         to: target.coordinates,
         fleet: {smallCargo: target.meta.requiredTransports},
         mission: MissionType.Attack
-      })), spies);
+      })), spies.then(() => {
+        this.state.status = 'sending raids';
+      }));
 
       raids.then(() => {
         let currentDelay = raidEvents.length ? (raidEvents[0].arrivalTime.getTime() - Date.now()) : Infinity;
         let delay = 1000 * (Math.min(spyTime, raidTime, currentDelay / 1000, 3600) + 5);
+        this.state.nextResume = new Date(Date.now() + delay);
+        this.state.status = 'idle';
         setTimeout(() => this.continue(), delay);
       })
     });
@@ -157,9 +181,13 @@ export class AutoRaid {
       meta.nearestPlanetId = nearestPlanet(to);
       meta.distance = FlightCalculator.distanceC(to, PLANETS[meta.nearestPlanetId]);
       return dummy;
+    } else if (report.infoLevel === -1) {
+      return report as ProcessedReport;
     }
+
     let meta: ReportMetaInfo = {}, now = Date.now(), result = report as ProcessedReport;
     result.meta = meta;
+
     //
     let nearestPlanetId = meta.nearestPlanetId = nearestPlanet(to);
     let nearestDistance = meta.distance = FlightCalculator.distanceC(to, PLANETS[nearestPlanetId]);
@@ -200,9 +228,16 @@ export class AutoRaid {
     meta.loadRatio = meta.expectedPlunder.reduce((a, b) => a + b, 0) / actualCapacity;
     meta.old = (now - report.source[0].timestamp.getTime()) / 1000;
     //
-    meta.value = meta.expectedPlunder.reduce((value, x, i) => value + x * this.rate[i], 0);
+    meta.value = meta.expectedPlunder.reduce((value, x, i) => value + x * this.state.rate[i], 0);
     meta.rating = meta.value / flightTime;
 
     return result;
+  }
+
+  private sumValues(obj: any, ...skipFields: string[]): number {
+    return Object.keys(obj).reduce((sum: number, key) => {
+      if (!skipFields || !skipFields.length || skipFields.every(field => field !== key)) sum += obj[key];
+      return sum;
+    }, 0)
   }
 }

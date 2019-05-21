@@ -97,9 +97,14 @@ app.get('/galaxy', (req, res) => {
 });
 
 
-app.get('/raid', (req, res, next) => {
-  AutoRaid.instance.continue();
-  res.sendStatus(202);
+app.get('/raid', (req, res) => {
+  if ('slots' in req.query)
+    AutoRaid.instance.state.maxSlots = +req.query['slots'];
+  if ('continue' in req.query) {
+    AutoRaid.instance.continue();
+    res.status(202);
+  }
+  res.json(AutoRaid.instance.state);
 });
 
 app.get('/dump', (req, res) => {
