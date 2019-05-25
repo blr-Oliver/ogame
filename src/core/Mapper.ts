@@ -205,16 +205,20 @@ export class Mapper {
     return this.loadReportList().then(idList => {
           this.reportIdList = idList;
           return idList.reduce((chain, id) => chain.then(list =>
-              this.loadReport(id).then(report => EspionageRepository.instance.store(report)
-                  .then(() => {
-                    this.reportIdList.shift();
-                    return this.deleteReport(id)
-                        .then(() => {
-                          list.push(report);
-                          return list;
-                        });
-                  })
-              )
+              this.loadReport(id).then(report => {
+                if (!report) {
+                  this.reportIdList.shift();
+                  return this.deleteReport(id).then(() => list);
+                } else return EspionageRepository.instance.store(report)
+                    .then(() => {
+                      this.reportIdList.shift();
+                      return this.deleteReport(id)
+                          .then(() => {
+                            list.push(report);
+                            return list;
+                          });
+                    })
+              })
           ), Promise.resolve([]));
         }
     ).then(result => {

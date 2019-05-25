@@ -91,6 +91,7 @@ export function parseReportList(doc: DocumentFragment): number[] {
   return Array.prototype.map.call(doc.querySelectorAll('li[data-msg-id]'), (el: Element) => +el.getAttribute('data-msg-id'));
 }
 export function parseReport(doc: DocumentFragment): StampedEspionageReport {
+  if (doc.querySelector('.espionageDefText')) return null; // hostile espionage
   let id = +doc.querySelector('[data-msg-id]').getAttribute('data-msg-id');
   let timestamp = parseLocalDate(doc.querySelector('.msg_date').textContent.trim());
   let msgTitle = doc.querySelector('.msg_title a.txt_link').textContent.trim();
