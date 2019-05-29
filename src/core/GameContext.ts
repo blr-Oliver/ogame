@@ -6,26 +6,34 @@ export const CURRENT_RESEARCHES: Researches = {
   laser: 12,
   ion: 5,
   hyperspace: 8,
-  plasma: 7,
-  espionage: 11,
-  computer: 12,
-  astrophysics: 11,
+  plasma: 9,
+  espionage: 12,
+  computer: 13,
+  astrophysics: 12,
   intergalactic: 4,
   graviton: 0,
   combustionDrive: 10,
-  impulseDrive: 9,
+  impulseDrive: 10,
   hyperspaceDrive: 8,
-  weaponsUpgrade: 11,
-  shieldingUpgrade: 11,
-  armorUpgrade: 11
+  weaponsUpgrade: 12,
+  shieldingUpgrade: 12,
+  armorUpgrade: 12
 };
 
 export const PLANETS: { [key: number]: Coordinates } = {
+  '33639080': {
+    galaxy: 1,
+    system: 310,
+    position: 8,
+	type: 3
+  },
+  /*
   '33638393': {
     galaxy: 1,
     system: 310,
     position: 8
   },
+  */
   '33638474': {
     galaxy: 1,
     system: 266,
