@@ -15,6 +15,8 @@ export class AutoRaid {
     status: 'idle',
     nextResume: null,
     maxSlots: 0,
+    activeSlots: null,
+    minRaid: 15,
     rate: [1, 1, 1], // relative cost rate of resources
     harvestEspionage: false
   };
@@ -33,6 +35,7 @@ export class AutoRaid {
   }
 
   private checkSpyReports(): Promise<void> {
+    this.state.status = 'reading reports';
     return Mapper.instance.loadAllReports().then((allReports) => {
       this.state.harvestEspionage = false;
       if (allReports.length)
@@ -77,6 +80,7 @@ export class AutoRaid {
       this.state.status = 'checking raids in progress';
       return this.findRaidEvents(events);
     }).then(raidEvents => {
+      this.state.activeSlots = raidEvents.length;
       this.excludeActiveTargets(raidEvents); // TODO make possible to repeat on same target
       let missionsToGo = this.state.maxSlots - raidEvents.length;
 
@@ -102,8 +106,11 @@ export class AutoRaid {
         }
         if (meta.old / meta.flightTime > 0.5 || meta.old > 3600)
           targetsToSpy.push(report);
-        else
+        else {
+          if (meta.requiredTransports < this.state.minRaid)
+            continue;
           targetsToLaunch.push(report);
+        }
         --missionsToGo;
       }
 
@@ -122,21 +129,26 @@ export class AutoRaid {
         raidTime = Math.min(...targetsToLaunch.map(target => target.meta.flightTime * 2));
       }
 
-      this.state.status = 'sending probes';
       let spies = targetsToSpy.reduce((chain, target) => chain.then(() => Mapper.instance.launch({
         from: target.meta.nearestPlanetId,
         to: target.coordinates,
         fleet: {espionageProbe: 1},
         mission: MissionType.Espionage
-      })), Promise.resolve(null));
+      }).then(() => ++this.state.activeSlots
+      )), Promise.resolve(null).then(() => {
+        if (targetsToSpy.length)
+          this.state.status = 'sending probes';
+      }));
 
       let raids = targetsToLaunch.reduce((chain, target) => chain.then(() => Mapper.instance.launch({
         from: target.meta.nearestPlanetId,
         to: target.coordinates,
         fleet: {smallCargo: target.meta.requiredTransports},
         mission: MissionType.Attack
-      })), spies.then(() => {
-        this.state.status = 'sending raids';
+      }).then(() => ++this.state.activeSlots
+      )), spies.then(() => {
+        if (targetsToLaunch.length)
+          this.state.status = 'sending raids';
       }));
 
       raids.then(() => {
