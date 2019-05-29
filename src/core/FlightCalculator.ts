@@ -115,12 +115,11 @@ export class FlightCalculator {
     let res: number[] = [Math.floor(m || 0), Math.floor(c || 0), Math.floor(d || 0)];
     [m, c, d] = [...res].map((x, i) => res[order[i]]);
 
-    if (c < m && c + d < (m << 1)) { // magic
-      let temp = ((m << 1) + c + d) * 3; // STRONG magic
-      return (temp >> 2) + +!!(temp & 3); // wtf is going on?
-    }
-
-    return m + c + d;
+    if (m <= c || (m << 1) <= c + d) return m + c + d;
+    m <<= 1;
+    if (3 * c >= m + d) return m + d;
+    let t = 3 * (m + c + d);
+    return t >> 2 + +!!(t & 3); // = Math.ceil(t / 4)
   }
 
   static fleetSpeed(fleet: FleetPartial | Fleet) {
