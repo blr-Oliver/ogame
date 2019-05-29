@@ -85,8 +85,7 @@ export class GalaxyRepository {
           `select distinct r.galaxy, r.system, NULL as 'position'
            from galaxy_report_slot s join galaxy_report r
            on s.galaxy = r.galaxy and s.system = r.system
-           where
-             and s.player_status not like '%A%'
+           where s.player_status not like '%A%'
              and r.timestamp < date_sub(now(), interval ${timeout} second)`
     }).then((rows: any[]) => rows.map(row => extractObject(row, GalaxyRepository.COORDINATES_MAPPING)));
   }
