@@ -7,6 +7,7 @@ import {FlightEvent, parseEventList} from '../parsers/event-list';
 import {GalaxySystemInfo, parseGalaxy} from '../parsers/galaxy-reports';
 import {EspionageRepository} from '../repository/EspionageRepository';
 import {GalaxyRepository} from '../repository/GalaxyRepository';
+import {dumpFile} from './files';
 
 type Form = { [key: string]: string | number };
 
@@ -235,7 +236,12 @@ export class Mapper {
         ajax: 1
       }
     }, false).then(response => {
-      return parseEventList(JSDOM.fragment(response.body));
+      try {
+        return parseEventList(JSDOM.fragment(response.body));
+      } catch (ex) {
+        dumpFile(`../../etc/samples/auto/events-${Date.now()}.html`, response.body);
+        return Promise.reject(ex);
+      }
     });
   }
 
