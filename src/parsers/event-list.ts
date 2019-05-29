@@ -5,8 +5,8 @@ import {StringNumberMap, translateEntries} from './espionage-reports';
 export interface FlightEvent {
   id: number;
   mission: MissionType;
-  arrivalTime: Date;
-  isReturnFlight: boolean;
+  time: Date;
+  isReturn: boolean;
   isFriendly: boolean;
   to: Coordinates;
   toName?: string;
@@ -61,12 +61,13 @@ function parseEvent(tr: HTMLTableRowElement): FlightEvent {
   let tooltipHolder = cells[6].querySelector('.tooltip');
   tooltipHolder.innerHTML = tooltipHolder.getAttribute('title');
   let [fleet, cargo] = parseFleetInfo(tooltipHolder);
+  if (cargo.metal === 0 && cargo.crystal === 0 && cargo.deut === 0) cargo = void 0;
 
   let result: FlightEvent = {
     id,
     mission,
-    arrivalTime,
-    isReturnFlight,
+    time: arrivalTime,
+    isReturn: isReturnFlight,
     isFriendly,
     to: {
       ...to,
@@ -101,7 +102,7 @@ function addPartners(main: FlightEvent, partners: HTMLTableRowElement[]): Flight
 }
 
 function getType(classList: DOMTokenList): CoordinateType {
-  if (classList.contains('planet')) return CoordinateType.Planet;
+  if (classList.contains('planet')) return void 0 /*CoordinateType.Planet*/; // omit planet type as default
   if (classList.contains('moon')) return CoordinateType.Moon;
   if (classList.contains('tf')) return CoordinateType.Debris;
 }

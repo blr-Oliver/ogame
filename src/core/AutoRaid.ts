@@ -152,7 +152,7 @@ export class AutoRaid {
       }));
 
       raids.then(() => {
-        let currentDelay = raidEvents.length ? (raidEvents[0].arrivalTime.getTime() - Date.now()) : Infinity;
+        let currentDelay = raidEvents.length ? (raidEvents[0].time.getTime() - Date.now()) : Infinity;
         let delay = 1000 * (Math.min(spyTime, raidTime, currentDelay / 1000, 3600) + 5);
         this.state.nextResume = new Date(Date.now() + delay);
         this.state.status = 'idle';
@@ -171,7 +171,7 @@ export class AutoRaid {
 
   private findRaidEvents(events: FlightEvent[]): FlightEvent[] {
     return events.filter(event => {
-      if (!event.isReturnFlight ||
+      if (!event.isReturn ||
           !event.isFriendly ||
           event.fleet.length !== 1 ||
           !(event.mission === MissionType.Attack || event.mission === MissionType.Espionage)
