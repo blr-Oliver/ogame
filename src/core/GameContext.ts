@@ -12,7 +12,7 @@ export const CURRENT_RESEARCHES: Researches = {
   astrophysics: 12,
   intergalactic: 4,
   graviton: 0,
-  combustionDrive: 10,
+  combustionDrive: 12,
   impulseDrive: 10,
   hyperspaceDrive: 8,
   weaponsUpgrade: 12,
