@@ -174,6 +174,7 @@ export class AutoRaid {
       ) return false;
       let fleet = event.fleet[0].fleet;
       if (Object.keys(fleet).length !== 1) return false;
+      if (fleet.smallCargo && event.mission === MissionType.Attack) return true;
       if (!fleet.smallCargo && !fleet.espionageProbe ||
           fleet.smallCargo && event.mission !== MissionType.Attack ||
           fleet.espionageProbe && event.mission !== MissionType.Espionage
