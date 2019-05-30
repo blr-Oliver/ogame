@@ -90,7 +90,7 @@ export class AutoRaid {
       for (let i = 0; i < this.data.length && missionsToGo > 0; ++i) {
         let report = this.data[i][1], meta = report.meta, to = report.coordinates;
         if (meta.excluded) continue;
-        if (report.infoLevel >= 0 && meta.requiredTransports < this.state.minRaid) continue;
+        if (report.infoLevel >= 4 && meta.requiredTransports < this.state.minRaid) continue;
         if (report.infoLevel < 0 /*dummy*/ || meta.old / meta.flightTime > 0.5 || meta.old > 3600) {
           targetsToSpy.push(report);
           --missionsToGo;
@@ -102,9 +102,22 @@ export class AutoRaid {
           console.log(`insufficient report detail [${to.galaxy}:${to.system}:${to.position}]`);
           continue;
         }
-        if (this.sumValues(report.fleet) > 0 || this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0) {
-          console.log(`target not clean [${to.galaxy}:${to.system}:${to.position}]`);
-          continue;
+        let hasFleet = this.sumValues(report.fleet) > 0,
+            hasDefense = this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0;
+        if (hasFleet || hasDefense) {
+          // maybe win by numbers?
+          let ships = meta.requiredTransports;
+          let weakFleet = !hasFleet
+              || this.sumValues(report.fleet, 'espionageProbe', 'solarSatellite') === 0 &&
+              report.fleet.espionageProbe + report.fleet.solarSatellite <= ships;
+          let weakDefense = !hasDefense ||
+              this.sumValues(report.defense, 'rocketLauncher', 'antiBallistic', 'interplanetary') === 0
+              && report.defense.rocketLauncher * 15 <= ships;
+          if (!weakFleet || !weakDefense) {
+            console.log(`target not clean [${to.galaxy}:${to.system}:${to.position}]`);
+            continue;
+          } else
+            console.log(`unsafe raiding to [${to.galaxy}:${to.system}:${to.position}]`);
         }
         targetsToLaunch.push(report);
         --missionsToGo;
