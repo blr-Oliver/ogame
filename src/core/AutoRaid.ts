@@ -85,10 +85,12 @@ export class AutoRaid {
       let missionsToGo = this.state.maxSlots - raidEvents.length;
 
       let targetsToSpy = [], targetsToLaunch = [];
+
       this.state.status = 'picking targets';
       for (let i = 0; i < this.data.length && missionsToGo > 0; ++i) {
         let report = this.data[i][1], meta = report.meta, to = report.coordinates;
         if (meta.excluded) continue;
+        if (report.infoLevel >= 0 && meta.requiredTransports < this.state.minRaid) continue;
         if (report.infoLevel < 0 /*dummy*/ || meta.old / meta.flightTime > 0.5 || meta.old > 3600) {
           targetsToSpy.push(report);
           --missionsToGo;
@@ -104,8 +106,6 @@ export class AutoRaid {
           console.log(`target not clean [${to.galaxy}:${to.system}:${to.position}]`);
           continue;
         }
-        if (meta.requiredTransports < this.state.minRaid)
-          continue;
         targetsToLaunch.push(report);
         --missionsToGo;
       }
