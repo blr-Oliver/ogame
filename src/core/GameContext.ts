@@ -25,7 +25,7 @@ export const PLANETS: { [key: number]: Coordinates } = {
     galaxy: 1,
     system: 310,
     position: 8,
-	type: 3
+    type: 3
   },
   /*
   '33638393': {
@@ -62,7 +62,7 @@ export const PLANETS: { [key: number]: Coordinates } = {
 };
 
 export function nearestPlanet(coordinates: Coordinates): number {
-  let nearestDistance = Infinity, nearestPlanetId: number = null;
+  let nearestDistance = Infinity, nearestPlanetId: number | null = null;
   for (let planetId in PLANETS) {
     let distance = FlightCalculator.distanceC(coordinates, PLANETS[planetId]);
     if (distance < nearestDistance) {
@@ -70,5 +70,6 @@ export function nearestPlanet(coordinates: Coordinates): number {
       nearestPlanetId = +planetId;
     }
   }
+  if (!nearestPlanetId) throw new Error('couldn\'t find nearest planet (are any defined?)');
   return nearestPlanetId;
 }

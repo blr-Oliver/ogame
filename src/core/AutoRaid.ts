@@ -16,17 +16,17 @@ export class AutoRaid {
     nextResume: null,
     maxSlots: 0,
     activeSlots: null,
-    minRaid: 15,
-    rate: [1, 1, 1], // relative cost rate of resources
+    minRaid: 10,
+    rate: [1, 10, 5], // relative cost rate of resources
     harvestEspionage: false
   };
 
-  private data: [Coordinates, ProcessedReport][] = null;
+  private data: [Coordinates, ProcessedReport][] = [];
 
   continue() {
     if (this.state.maxSlots <= 0) return;
     (this.state.harvestEspionage ? this.checkSpyReports() : Promise.resolve(null)).then(() => {
-      (this.data ? Promise.resolve(this.data) : this.reloadData())
+      (this.data.length ? Promise.resolve(this.data) : this.reloadData())
           .then(pairs => {
             this.data = pairs as [Coordinates, ProcessedReport][];
             this.performNextLaunches();
@@ -39,7 +39,7 @@ export class AutoRaid {
     return Mapper.instance.loadAllReports().then((allReports) => {
       this.state.harvestEspionage = false;
       if (allReports.length)
-        this.data = null;
+        this.data = [];
     });
   }
 
@@ -71,8 +71,8 @@ export class AutoRaid {
 
     this.data.sort((a, b) =>
         +(b[1].infoLevel < 0) - +(a[1].infoLevel < 0) || /*dummies first*/
-        b[1].meta.rating - a[1].meta.rating ||
-        a[1].meta.distance - b[1].meta.distance
+        b[1].meta.rating! - a[1].meta.rating! ||
+        a[1].meta.distance! - b[1].meta.distance!
     );
 
     this.state.status = 'fetching events';
@@ -90,8 +90,8 @@ export class AutoRaid {
       for (let i = 0; i < this.data.length && missionsToGo > 0; ++i) {
         let report = this.data[i][1], meta = report.meta, to = report.coordinates;
         if (meta.excluded) continue;
-        if (report.infoLevel >= 4 && meta.requiredTransports < this.state.minRaid) continue;
-        if (report.infoLevel < 0 /*dummy*/ || meta.old / meta.flightTime > 0.5 || meta.old > 3600) {
+        if (report.infoLevel >= 4 && meta.requiredTransports! < this.state.minRaid) continue;
+        if (report.infoLevel < 0 /*dummy*/ || meta.old! / meta.flightTime! > 0.5 || meta.old! > 3600) {
           targetsToSpy.push(report);
           --missionsToGo;
           continue;
@@ -106,13 +106,13 @@ export class AutoRaid {
             hasDefense = this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0;
         if (hasFleet || hasDefense) {
           // maybe win by numbers?
-          let ships = meta.requiredTransports;
+          let ships = meta.requiredTransports!;
           let weakFleet = !hasFleet
               || this.sumValues(report.fleet, 'espionageProbe', 'solarSatellite') === 0 &&
-              report.fleet.espionageProbe + report.fleet.solarSatellite <= ships;
+              report.fleet!.espionageProbe + report.fleet!.solarSatellite <= ships;
           let weakDefense = !hasDefense ||
               this.sumValues(report.defense, 'rocketLauncher', 'antiBallistic', 'interplanetary') === 0
-              && report.defense.rocketLauncher * 15 <= ships;
+              && report.defense!.rocketLauncher * 15 <= ships;
           if (!weakFleet || !weakDefense) {
             console.log(`target not clean [${to.galaxy}:${to.system}:${to.position}]`);
             continue;
@@ -129,13 +129,13 @@ export class AutoRaid {
         spyTime = 0;
         // pick longest espionage mission one-way flight
         targetsToSpy.forEach(target => {
-          let time = FlightCalculator.flightTime(target.meta.distance, FlightCalculator.fleetSpeed({espionageProbe: 1}));
+          let time = FlightCalculator.flightTime(target.meta.distance!, FlightCalculator.fleetSpeed({espionageProbe: 1}));
           spyTime = Math.max(spyTime, time);
         });
       }
       if (targetsToLaunch.length) {
         // pick shortest raid mission two-way flight
-        raidTime = Math.min(...targetsToLaunch.map(target => target.meta.flightTime * 2));
+        raidTime = Math.min(...targetsToLaunch.map(target => target.meta.flightTime! * 2));
       }
 
       let spies = targetsToSpy.reduce((chain, target) => chain.then(() => Mapper.instance.launch({
@@ -143,7 +143,7 @@ export class AutoRaid {
         to: target.coordinates,
         fleet: {espionageProbe: 1},
         mission: MissionType.Espionage
-      }).then(() => ++this.state.activeSlots
+      }).then(() => (++this.state.activeSlots, void 0)
       )), Promise.resolve(null).then(() => {
         if (targetsToSpy.length)
           this.state.status = 'sending probes';
@@ -154,7 +154,7 @@ export class AutoRaid {
         to: target.coordinates,
         fleet: {smallCargo: target.meta.requiredTransports},
         mission: MissionType.Attack
-      }).then(() => ++this.state.activeSlots
+      }).then(() => (++this.state.activeSlots, void 0)
       )), spies.then(() => {
         if (targetsToLaunch.length)
           this.state.status = 'sending raids';
@@ -224,7 +224,7 @@ export class AutoRaid {
       let unconstrainedProduction = mineLevels.map((l, i) => Calculator.DEFAULT.getProduction(i, l));
       let energyConsumption = mineLevels.map((l, i) => Calculator.DEFAULT.getEnergyConsumption(i, l));
       let requiredEnergy = energyConsumption.reduce((a, b) => a + b);
-      let efficiency = Math.min(1, report.resources.energy / requiredEnergy);
+      let efficiency = Math.min(1, report.resources.energy! / requiredEnergy);
 
       let mineProduction = unconstrainedProduction.map(x => x * efficiency);
       if (report.researches) {
@@ -240,9 +240,9 @@ export class AutoRaid {
     }
     //
     let time = (now - report.source[0].timestamp.getTime() + flightTime * 1000) / 1000 / 3600;
-    let original = [report.resources.metal, report.resources.crystal, report.resources.deut];
+    let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deut || 0];
     let andProduced = meta.production.map((x, i) => x * time + original[i]);
-    let expected = meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, meta.capacity[i]), original[i]));
+    let expected = meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, meta.capacity![i]), original[i]));
     let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
     let nTransports = meta.requiredTransports = Math.ceil(requiredCapacity / 7000); // TODO compute based on current techs
     meta.fuelCost = FlightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, flightTime);

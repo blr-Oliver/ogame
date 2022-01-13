@@ -5,7 +5,7 @@ export interface GalaxySystemInfo {
   system: number;
   timestamp?: Date;
   empty: boolean;
-  slots: GalaxySlotInfo[];
+  slots: Array<GalaxySlotInfo | undefined>;
 }
 
 export interface GalaxySlotInfo {
@@ -48,9 +48,9 @@ export interface AllianceGalaxyInfo {
 }
 
 export function parseGalaxy(doc: DocumentFragment): GalaxySystemInfo {
-  const table: HTMLTableElement = doc.querySelector('#galaxytable');
-  const galaxy = +table.getAttribute('data-galaxy');
-  const system = +table.getAttribute('data-system');
+  const table: HTMLTableElement = doc.querySelector('#galaxytable')!;
+  const galaxy = +table.getAttribute('data-galaxy')!;
+  const system = +table.getAttribute('data-system')!;
   const rows = table.tBodies[0].rows;
   let result: GalaxySystemInfo = {
     galaxy, system, slots: Array(15), empty: false
@@ -61,7 +61,7 @@ export function parseGalaxy(doc: DocumentFragment): GalaxySystemInfo {
   return result;
 }
 
-function parseRow(tr: HTMLTableRowElement): GalaxySlotInfo {
+function parseRow(tr: HTMLTableRowElement): GalaxySlotInfo | undefined {
   let result: GalaxySlotInfo = {};
 
   let planet = parsePlanet(tr.cells[1]);
@@ -77,14 +77,13 @@ function parseRow(tr: HTMLTableRowElement): GalaxySlotInfo {
   if (alliance) result.alliance = alliance;
 
   // due to a bug there could be a moon in empty space, without a planet
-  if (!planet && !moon && !debris) return null;
-  return result;
+  if (planet || moon || debris) return result;
 }
 
-function parsePlanet(td: HTMLTableCellElement): PlanetGalaxyInfo {
+function parsePlanet(td: HTMLTableCellElement): PlanetGalaxyInfo | undefined {
   const id = td.getAttribute('data-planet-id');
   if (id) {
-    const name = td.querySelector('h1 .textNormal').textContent.trim();
+    const name = td.querySelector('h1 .textNormal')!.textContent!.trim();
     const activityContainer = td.querySelector('.ListImage .activity');
     const active = activityContainer != null;
     let result: PlanetGalaxyInfo = {
@@ -92,17 +91,17 @@ function parsePlanet(td: HTMLTableCellElement): PlanetGalaxyInfo {
     };
     if (active) {
       if (activityContainer.matches('.showMinutes'))
-        result.activityTime = +activityContainer.textContent;
+        result.activityTime = +activityContainer.textContent!;
     }
     return result;
   }
 }
 
-function parseMoon(td: HTMLTableCellElement): MoonGalaxyInfo {
+function parseMoon(td: HTMLTableCellElement): MoonGalaxyInfo | undefined {
   const id = td.getAttribute('data-moon-id');
   if (id) {
-    const name = td.querySelector('h1 .textNormal').textContent.trim();
-    const size = parseInt(td.querySelector('.ListImage #moonsize').textContent); // strips units
+    const name = td.querySelector('h1 .textNormal')!.textContent!.trim();
+    const size = parseInt(td.querySelector('.ListImage #moonsize')!.textContent!); // strips units
     const activityContainer = td.querySelector('.ListImage .activity');
     const active = activityContainer != null;
     let result: MoonGalaxyInfo = {
@@ -110,35 +109,35 @@ function parseMoon(td: HTMLTableCellElement): MoonGalaxyInfo {
     };
     if (active) {
       if (activityContainer.matches('.showMinutes'))
-        result.activityTime = +activityContainer.textContent;
+        result.activityTime = +activityContainer.textContent!;
     }
     return result;
   }
 }
 
-function parseDebris(td: HTMLTableCellElement): DebrisGalaxyInfo {
+function parseDebris(td: HTMLTableCellElement): DebrisGalaxyInfo | undefined {
   let content = td.querySelectorAll('.debris-content');
   if (content && content.length) {
     return {
-      metal: parseOnlyNumbers(content[0].textContent),
-      crystal: parseOnlyNumbers(content[1].textContent)
+      metal: parseOnlyNumbers(content[0].textContent!),
+      crystal: parseOnlyNumbers(content[1].textContent!)
     };
   }
 }
 
-function parsePlayer(td: HTMLTableCellElement): PlayerGalaxyInfo {
+function parsePlayer(td: HTMLTableCellElement): PlayerGalaxyInfo | undefined {
   let tooltipDiv = td.querySelector('div[id]');
   if (tooltipDiv) {
     const id = tooltipDiv.id.substring('player'.length);
-    const name = tooltipDiv.querySelector('h1>span').textContent.trim();
-    const status = td.querySelector('.status').textContent.trim();
+    const name = tooltipDiv.querySelector('h1>span')!.textContent!.trim();
+    const status = td.querySelector('.status')!.textContent!.trim();
     let result: PlayerGalaxyInfo = {id, name, status};
     let rankContainer = tooltipDiv.querySelector('.rank>a');
     if (rankContainer)
-      result.rank = +rankContainer.textContent;
+      result.rank = +rankContainer.textContent!;
     return result;
   } else {
-    if (td.textContent.trim()) {
+    if (td!.textContent!.trim()) {
       return {
         id: 101497,
         name: 'Scrap Collector',
@@ -149,15 +148,15 @@ function parsePlayer(td: HTMLTableCellElement): PlayerGalaxyInfo {
   }
 }
 
-function parseAlliance(td: HTMLTableCellElement): AllianceGalaxyInfo {
+function parseAlliance(td: HTMLTableCellElement): AllianceGalaxyInfo | undefined {
   let tooltipDiv = td.querySelector('div[id]');
   if (tooltipDiv) {
     tooltipDiv.remove(); // there is a bug in original OGame renderer - <div> tag here is misplaced
     const id = tooltipDiv.id.substring('alliance'.length);
-    const name = tooltipDiv.querySelector('h1').textContent.trim();
-    const rank = +tooltipDiv.querySelector('.rank>a').textContent;
-    const members = parseOnlyNumbers(tooltipDiv.querySelector('.members').textContent);
-    const shortName = td.textContent.trim();
+    const name = tooltipDiv.querySelector('h1')!.textContent!.trim();
+    const rank = +tooltipDiv.querySelector('.rank>a')!.textContent!;
+    const members = parseOnlyNumbers(tooltipDiv.querySelector('.members')!.textContent!);
+    const shortName = td.textContent!.trim();
     return {
       id, name, shortName, rank, members
     };

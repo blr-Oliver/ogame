@@ -99,8 +99,8 @@ export class EspionageRepository {
     // TODO add cache
   }
 
-  load(galaxy: number, system: number, position: number, type: CoordinateType = CoordinateType.Planet): Promise<ShardedEspionageReport> {
-    return db.query({
+  load(galaxy: number, system: number, position: number, type: CoordinateType = CoordinateType.Planet): Promise<ShardedEspionageReport | undefined> {
+    return db.query<any[]>({ // TODO define type for "raw" data
       sql:
           `select r.* from espionage_report r join
              (select info_level, max(timestamp) as timestamp from espionage_report
@@ -111,9 +111,11 @@ export class EspionageRepository {
            order by r.timestamp desc`
     }).then((rawShards: any[]) => this.collectReport(rawShards));
   }
-  loadC(coordinates: Coordinates): Promise<ShardedEspionageReport> {
+
+  loadC(coordinates: Coordinates): Promise<ShardedEspionageReport | undefined> {
     return this.load(coordinates.galaxy, coordinates.system, coordinates.position, coordinates.type);
   }
+
   store(report: StampedEspionageReport): Promise<void> {
     let preparedData = packObject(report, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
     let keys = Object.keys(preparedData);
@@ -124,8 +126,9 @@ export class EspionageRepository {
          values (${values.join(', ')})`
     });
   }
+
   findForInactiveTargets(): Promise<[Coordinates, ShardedEspionageReport][]> {
-    return db.query({
+    return db.query<any[]>({ // TODO define type for "raw" data
       sql:
           `select s.galaxy, s.system, s.position, r.*
            from galaxy_report_slot s
@@ -152,30 +155,34 @@ export class EspionageRepository {
       for (let i = 0; i <= rows.length; ++i) {
         let coordinates = i == rows.length ? null : extractObject(rows[i]['s'], GalaxyRepository.COORDINATES_MAPPING);
         if (!sameCoordinates(lastCoordinates, coordinates)) {
-          result.push([lastCoordinates, this.collectReport(rows.slice(lastIndex, i).map(row => row['r']))]);
-          lastCoordinates = coordinates;
-          lastIndex = i;
+          let report = this.collectReport(rows.slice(lastIndex, i).map(row => row['r']));
+          if (report) {
+            result.push([lastCoordinates, report]);
+            lastCoordinates = coordinates;
+            lastIndex = i;
+          }
         }
       }
       return result;
     });
   }
 
-  private collectReport(rawShards: any[]): ShardedEspionageReport {
+  private collectReport(rawShards: any[]): ShardedEspionageReport | undefined {
     let result: ShardedEspionageReport = extractFrom(rawShards[0], EspionageRepository.ESPIONAGE_REPORT_INFO_COMMON, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
-    if (!result || result.infoLevel == null) return null;
-    result.source = [];
-    let currentLevel = -1;
-    for (let i = 0; i < rawShards.length; ++i) {
-      let header: ShardHeader = extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_HEADER, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
-      if (currentLevel < header.infoLevel) {
-        result.source.push(header);
-        while (currentLevel < header.infoLevel)
-          extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_LEVELS[++currentLevel], EspionageRepository.ESPIONAGE_REPORT_MAPPING, result);
+    if (result && result.infoLevel != null) {
+      result.source = [];
+      let currentLevel = -1;
+      for (let i = 0; i < rawShards.length; ++i) {
+        let header: ShardHeader = extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_HEADER, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
+        if (currentLevel < header.infoLevel) {
+          result.source.push(header);
+          while (currentLevel < header.infoLevel)
+            extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_LEVELS[++currentLevel], EspionageRepository.ESPIONAGE_REPORT_MAPPING, result);
+        }
       }
+      result.infoLevel = currentLevel;
+      return result;
     }
-    result.infoLevel = currentLevel;
-    return result;
   }
 
   deleteOldReports(): Promise<void> {

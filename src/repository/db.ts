@@ -6,7 +6,7 @@ export interface DB {
   query<T>(options: QueryOptions): Promise<T>;
 }
 
-let pool: Pool = null;
+let pool: Pool;
 export const db: DB = {
   config: {
     user: 'ogame-api',

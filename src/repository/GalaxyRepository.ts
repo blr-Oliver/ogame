@@ -30,8 +30,8 @@ export class GalaxyRepository {
     // TODO add cache
   }
 
-  load(galaxy: number, system: number): Promise<GalaxySystemInfo> {
-    return db.query({
+  load(galaxy: number, system: number): Promise<GalaxySystemInfo | null> {
+    return db.query<any[]>({ // TODO define type for "raw" data
       sql:
       // intentionally ignoring 'empty' field
           `select r.timestamp, s.* from galaxy_report r left join galaxy_report_slot s
@@ -52,17 +52,17 @@ export class GalaxyRepository {
     });
   }
 
-  loadC(coordinates: Coordinates): Promise<GalaxySystemInfo> {
+  loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | null> {
     return this.load(coordinates.galaxy, coordinates.system);
   }
 
-  findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number, systemLast: number,
+  findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null,
                 normalTimeout: number, emptyTimeout: number): Promise<Coordinates> {
-    return db.query({
+    return db.query<any[]>({ // TODO define type for "raw" data
       sql:
           `select galaxy, system, null as 'position' from galaxy_report where
               galaxy >= ${galaxyMin} and galaxy <= ${galaxyMax} and system >= ${systemMin} and system <= ${systemMax}
-              and (galaxy = ${galaxyLast} and system > ${systemLast} or galaxy > ${galaxyLast || 0})
+              and (galaxy = ${galaxyLast || 0} and system > ${systemLast || 0} or galaxy > ${galaxyLast || 0})
               and (empty = 1 and timestamp < date_sub(now(), interval ${emptyTimeout} second) 
                    or empty = 0 and timestamp < date_sub(now(), interval ${normalTimeout} second))
               order by galaxy asc, system asc
@@ -71,8 +71,8 @@ export class GalaxyRepository {
   }
 
   findInactiveTargets(): Promise<Coordinates[]> {
-    return db.query({
-      sql:
+    return db.query<any[]>({ // TODO define type for "raw" data
+      sql:  // TODO exact status names depend on the language of the universe
           `select galaxy, system, position from galaxy_report_slot
              where (player_status like '%i%' or player_status like '%I%')
              and player_status not like '%РО%' and player_status not like '%A%'`
@@ -80,7 +80,7 @@ export class GalaxyRepository {
   }
 
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {
-    return db.query({
+    return db.query<any[]>({ // TODO define type for "raw" data
       sql:
           `select distinct r.galaxy, r.system, NULL as 'position'
            from galaxy_report_slot s join galaxy_report r
@@ -105,7 +105,7 @@ export class GalaxyRepository {
         let emptyPositions: number[] = galaxy.slots.reduce((list, slot, index) => {
           if (!slot) list.push(index + 1);
           return list;
-        }, []);
+        }, [] as number[]);
         if (!emptyPositions.length) return null;
         return db.query({
           sql: `
@@ -120,7 +120,7 @@ export class GalaxyRepository {
         });
       }
     }).then(() => {
-      if (isEmpty) return null;
+      if (isEmpty) return;
       let implicitKeys = ['galaxy', 'system', 'position'];
       let slotKeys = Object.keys(GalaxyRepository.GALAXY_SLOT_MAPPING);
       let recordKeys = implicitKeys.concat(slotKeys);
@@ -134,7 +134,7 @@ export class GalaxyRepository {
           records.push(`(${values.join(', ')})`);
         }
       });
-      if (!records.length) return null;
+      if (!records.length) return;
       return db.query({
         sql: `
       insert into galaxy_report_slot(${recordKeys.join(', ')}) values

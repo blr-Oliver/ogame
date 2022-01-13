@@ -43,10 +43,6 @@ export class Calculator {
     this.baseEnergyProduction = baseEnergyProduction;
     this.baseEnergyConsumption = baseEnergyConsumption;
 
-    this.initCaches();
-  }
-
-  private initCaches() {
     this.costCache = Array(Calculator.BUILDING_COUNT);
     this.accumulativeCostCache = Array(Calculator.BUILDING_COUNT);
     this.productionCache = Array(Calculator.RESOURCE_COUNT);

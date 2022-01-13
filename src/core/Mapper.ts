@@ -1,5 +1,5 @@
 import {JSDOM} from 'jsdom';
-import request from 'request';
+import * as request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
 import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId, StampedEspionageReport} from '../model/types';
 import {parseReport, parseReportList} from '../parsers/espionage-reports';
@@ -15,10 +15,10 @@ export interface ObserveParams {
   pause: boolean;
   galaxyMin: number;
   galaxyMax: number;
-  galaxyLast: number;
+  galaxyLast: number | null;
   systemMin: number;
   systemMax: number;
-  systemLast: number;
+  systemLast: number | null;
   emptyTimeout: number;
   normalTimeout: number;
 }
@@ -55,7 +55,7 @@ export class Mapper {
     normalTimeout: 3600 * 2
   };
 
-  private observeNext: NodeJS.Timeout = null;
+  private observeNext: NodeJS.Timeout | null = null;
   reportIdList: number[] = [];
 
   constructor() {
@@ -75,7 +75,7 @@ export class Mapper {
         let cookies = item.split(/;\s*/);
         for (let cookie of cookies) {
           let parsed = Cookie.parse(cookie);
-          if (!Mapper.blacklistCookie[parsed.key]) {
+          if (parsed && !Mapper.blacklistCookie[parsed.key]) {
             this.requestJar.setCookie(cookie, url);
           }
         }
@@ -122,7 +122,7 @@ export class Mapper {
               list.push(system);
               return list;
             })
-        ), Promise.resolve([]))
+        ), Promise.resolve([] as GalaxySystemInfo[]))
         .then(list => Promise.all(storeTasks).then(() => list));
   }
 
@@ -173,7 +173,7 @@ export class Mapper {
     });
   }
 
-  loadReport(id: number): Promise<StampedEspionageReport> {
+  loadReport(id: number): Promise<StampedEspionageReport | undefined> {
     return this.asPromise({
       uri: Mapper.GAME_URL,
       qs: {
@@ -199,7 +199,7 @@ export class Mapper {
         action: 103,
         ajax: 1
       }
-    }).then(() => null);
+    }).then(() => void 0);
   }
 
   loadAllReports(): Promise<StampedEspionageReport[]> {
@@ -220,7 +220,7 @@ export class Mapper {
                           });
                     })
               })
-          ), Promise.resolve([]));
+          ), Promise.resolve([] as StampedEspionageReport[]));
         }
     ).then(result => {
       if (!result.length) return result;
@@ -245,7 +245,7 @@ export class Mapper {
     });
   }
 
-  launch(mission: Mission): Promise<any> {
+  launch(mission: Mission): Promise<number> {
     const form: Form = {};
     return this.fleetStep1(mission)
         .then(() => {
@@ -256,7 +256,7 @@ export class Mapper {
         })
         .then(step3 => {
           let document = new JSDOM(step3.body).window.document;
-          let token = document.querySelector('input[name="token"]').getAttribute('value');
+          let token = document.querySelector('input[name="token"]')!.getAttribute('value')!;
           return this.fleetStepCommit(form, mission, token);
         })
         .then(response => response.statusCode); // TODO return fleet id
@@ -277,7 +277,7 @@ export class Mapper {
   private fleetStep2(form: Form, mission: Mission): Promise<request.Response> {
     for (let key in mission.fleet) {
       let shipType = key as ShipType;
-      form[ShipTypeId[shipType]] = mission.fleet[shipType];
+      form[ShipTypeId[shipType]] = mission.fleet[shipType]!;
     }
 
     return this.asPromise({

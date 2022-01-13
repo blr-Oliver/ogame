@@ -19,7 +19,7 @@ export class FlightCalculator {
     espionageProbe: 100000000,
     solarSatellite: 0
   };
-  static readonly DRIVE_TYPES: ResearchType[] = [null, 'combustionDrive', 'impulseDrive', 'hyperspaceDrive'];
+  static readonly DRIVE_TYPES: (ResearchType | undefined)[] = [undefined, 'combustionDrive', 'impulseDrive', 'hyperspaceDrive'];
   static readonly SHIP_DRIVES: { readonly [key in ShipType]: number } = {
     lightFighter: 1,
     heavyFighter: 2,
@@ -83,9 +83,12 @@ export class FlightCalculator {
     let total = 0, shipSpeed: number, shipPercentage: number;
 
     for (let key in fleet) {
-      shipSpeed = this.fleetSpeed({[key]: 1});
-      shipPercentage = 35000 / (flightTime * this.FLIGHT_MULTIPLIER - 10) * Math.sqrt(10 * distance / shipSpeed);
-      total += this.BASE_CONSUMPTION[key as ShipType] * fleet[key as ShipType] * (shipPercentage / 10 + 1) * (shipPercentage / 10 + 1);
+      let n = fleet[key as ShipType] || 0;
+      if (n > 0) {
+        shipSpeed = this.fleetSpeed({[key]: 1});
+        shipPercentage = 35000 / (flightTime * this.FLIGHT_MULTIPLIER - 10) * Math.sqrt(10 * distance / shipSpeed);
+        total += this.BASE_CONSUMPTION[key as ShipType] * n * (shipPercentage / 10 + 1) * (shipPercentage / 10 + 1);
+      }
     }
 
     return 1 + Math.round(total * distance / 35000 / this.FLIGHT_MULTIPLIER);
@@ -125,10 +128,11 @@ export class FlightCalculator {
   static fleetSpeed(fleet: FleetPartial | Fleet) {
     let speed = Infinity;
     for (let key in fleet) {
-      if (fleet[key as ShipType] > 0) {
+      let n = fleet[key as ShipType] || 0;
+      if (n > 0) {
         let baseSpeed: number = this.BASE_SPEED[key as ShipType];
         let drive = this.SHIP_DRIVES[key as ShipType];
-        let driveLevel = CURRENT_RESEARCHES[this.DRIVE_TYPES[drive]];
+        let driveLevel = CURRENT_RESEARCHES[this.DRIVE_TYPES[drive]!];
         speed = Math.min(baseSpeed * (1 + driveLevel * drive / 10));
       }
     }

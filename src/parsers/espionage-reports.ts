@@ -1,5 +1,5 @@
 import {StampedEspionageReport} from '../model/types';
-import {parseLocalDate, parseOnlyNumbers} from './common';
+import {map, parseLocalDate, parseOnlyNumbers} from './common';
 
 export interface StringNumberMap {
   [key: string]: number;
@@ -88,34 +88,35 @@ export const GLOBAL_TO_LOCAL: { [category: string]: TranslationMapping } = {
 export const LOCAL_TO_GLOBAL: { [category: string]: ReverseTranslationMapping } = reverseMapping(GLOBAL_TO_LOCAL);
 
 export function parseReportList(doc: DocumentFragment): number[] {
-  return Array.prototype.map.call(doc.querySelectorAll('li[data-msg-id]'), (el: Element) => +el.getAttribute('data-msg-id'));
+  return map(doc.querySelectorAll('li[data-msg-id]')!, (el: Element) => +el.getAttribute('data-msg-id')!);
 }
-export function parseReport(doc: DocumentFragment): StampedEspionageReport {
-  if (doc.querySelector('.espionageDefText')) return null; // hostile espionage
-  let id = +doc.querySelector('[data-msg-id]').getAttribute('data-msg-id');
-  let timestamp = parseLocalDate(doc.querySelector('.msg_date').textContent.trim());
-  let msgTitle = doc.querySelector('.msg_title a.txt_link').textContent.trim();
-  let [planetName, galaxy, system, position] = /^(.+)\s\[(\d):(\d{1,3}):(\d{1,2})]$/.exec(msgTitle).slice(1);
-  let type = doc.querySelector('.msg_title .planetIcon').matches('.moon') ? 3 : 1;
+
+export function parseReport(doc: DocumentFragment): StampedEspionageReport | undefined {
+  if (doc.querySelector('.espionageDefText')) return; // hostile espionage
+  let id = +doc.querySelector('[data-msg-id]')!.getAttribute('data-msg-id')!;
+  let timestamp = parseLocalDate(doc.querySelector('.msg_date')!.textContent!.trim());
+  let msgTitle = doc.querySelector('.msg_title a.txt_link')!.textContent!.trim();
+  let [planetName, galaxy, system, position] = /^(.+)\s\[(\d):(\d{1,3}):(\d{1,2})]$/.exec(msgTitle)!.slice(1);
+  let type = doc.querySelector('.msg_title .planetIcon')!.matches('.moon') ? 3 : 1;
 
   let [nameBlock, activityBlock] = doc.querySelectorAll('.detail_msg_ctn .detail_txt');
-  let [playerName, playerStatus] = Array.prototype.map.call(nameBlock.children[0].children, (el: Element) => el.textContent.trim());
+  let [playerName, playerStatus] = map(nameBlock.children[0].children, (el: Element) => el.textContent!.trim());
 
   let planetActivityBlock = activityBlock.querySelector('div');
   let timeBlock = activityBlock.querySelector('div > .red');
   let planetActivity = timeBlock != null, planetActivityTime;
-  if (planetActivity)
-    planetActivityTime = timeBlock && +timeBlock.textContent;
-  planetActivityBlock.remove();
+  if (planetActivity && timeBlock)
+    planetActivityTime = +timeBlock.textContent!;
+  planetActivityBlock!.remove();
 
-  let counterEspionage = parseOnlyNumbers(activityBlock.textContent);
+  let counterEspionage = parseOnlyNumbers(activityBlock.textContent!);
   let resourceBlock = doc.querySelector('.detail_msg_ctn ul[data-type="resources"]');
 
-  let [metal, crystal, deut, energy] = Array.prototype.map.call(resourceBlock.querySelectorAll('.res_value'),
-      (el: Element) => parseOnlyNumbers(el.textContent));
+  let [metal, crystal, deut, energy] = map(resourceBlock!.querySelectorAll('.res_value'),
+      (el: Element) => parseOnlyNumbers(el.textContent!));
 
   let [fleetInfo, defenseInfo, buildingInfo, researchInfo] = ['ships', 'defense', 'buildings', 'research']
-      .map(section => parseInfoSection(doc.querySelector(`.detail_list[data-type="${section}"]`)));
+      .map(section => parseInfoSection(doc.querySelector(`.detail_list[data-type="${section}"]`)!));
 
   let infoLevel = +!!fleetInfo + +!!defenseInfo + +!!buildingInfo + +!!researchInfo;
   return {
@@ -142,13 +143,13 @@ export function parseReport(doc: DocumentFragment): StampedEspionageReport {
       deut,
       energy
     },
-    fleet: translateEntries(fleetInfo, 'ships'),
-    defense: translateEntries(defenseInfo, 'defense'),
-    buildings: translateEntries(buildingInfo, 'buildings'),
-    researches: translateEntries(researchInfo, 'research')
+    fleet: translateEntries('ships', fleetInfo),
+    defense: translateEntries('defense', defenseInfo),
+    buildings: translateEntries('buildings', buildingInfo),
+    researches: translateEntries('research', researchInfo)
   };
 }
-export function translateEntries<T>(local: StringNumberMap, category: InfoCategory, padEntries: boolean = true, keepUnknown: boolean = true): T {
+export function translateEntries<T>(category: InfoCategory, local?: StringNumberMap, padEntries: boolean = true, keepUnknown: boolean = true): T | undefined {
   if (local) {
     const mapping = LOCAL_TO_GLOBAL[category];
     const result: StringNumberMap = {};
@@ -170,11 +171,11 @@ export function translateEntries<T>(local: StringNumberMap, category: InfoCatego
   }
 }
 
-function parseInfoSection(container: Element): StringNumberMap {
+function parseInfoSection(container: Element): StringNumberMap | undefined {
   if (!container.querySelector('.detail_list_fail')) {
     let result: StringNumberMap = {};
     container.querySelectorAll('.detail_list_el').forEach(record => {
-      result[record.querySelector('.detail_list_txt').textContent.trim()] = parseOnlyNumbers(record.querySelector('.fright').textContent);
+      result[record.querySelector('.detail_list_txt')!.textContent!.trim()] = parseOnlyNumbers(record.querySelector('.fright')!.textContent!);
     });
     return result;
   }

@@ -27,16 +27,15 @@ export interface ReportMetaInfo {
 export type ProcessedReport = ShardedEspionageReport & { meta: ReportMetaInfo };
 
 export class Analyzer {
-  coordinates: Coordinates[];
-  reports: ProcessedReport[];
+  coordinates: Coordinates[] = [];
+  reports: ProcessedReport[] = [];
   excludedTargets: Coordinates[] = [];
 
   load(): Promise<ProcessedReport[]> {
     return EspionageRepository.instance.findForInactiveTargets().then(pairs => {
       this.coordinates = pairs.map(pair => pair[0]);
       this.reports = pairs
-          .filter(pair => !!pair[1])
-          .map(pair => ({meta: {}, ...pair[1]}))
+          .map(pair => ({meta: {}, ...pair[1]}) as ProcessedReport)
           .filter(report => {
             let to = report.coordinates;
             if (!report.fleet || !report.defense) {
@@ -78,7 +77,7 @@ export class Analyzer {
     let targetsToScan: ProcessedReport[] = [];
     let count = Math.min(top, this.reports.length);
     for (let i = 0; i < count; ++i) {
-      if (this.reports[i].meta.minutesStale > threshold)
+      if (this.reports[i].meta.minutesStale! > threshold)
         targetsToScan.push(this.reports[i]);
     }
 
@@ -89,7 +88,7 @@ export class Analyzer {
           fleet: {espionageProbe: 1},
           mission: MissionType.Espionage
         })
-    ), Promise.resolve(null));
+    ), Promise.resolve(0));
 
     return targetsToScan.length;
   }
@@ -102,7 +101,7 @@ export class Analyzer {
           if (report.playerStatus.toLowerCase().indexOf('i') < 0) {
             let to = report.coordinates;
             console.log(`target is not inactive [${to.galaxy}:${to.system}:${to.position}]`);
-            return null;
+            return 0;
           }
           return Mapper.instance.launch({
             from: report.meta.nearestPlanetId,
@@ -111,7 +110,7 @@ export class Analyzer {
             mission: MissionType.Attack
           });
         }
-    ), Promise.resolve(null));
+    ), Promise.resolve(0));
   }
 
   private determineCoordinates(): Promise<Coordinates[]> {
@@ -119,7 +118,8 @@ export class Analyzer {
   }
 
   private loadReports(): Promise<ShardedEspionageReport[]> {
-    return Promise.all(this.coordinates.map(coordinates => EspionageRepository.instance.loadC(coordinates)));
+    return Promise.all(this.coordinates.map(coordinates => EspionageRepository.instance.loadC(coordinates)))
+        .then(reports => reports.filter(x => !!x) as ShardedEspionageReport[]);
   }
 
   private computeFlight() {
@@ -140,7 +140,7 @@ export class Analyzer {
         let unconstrainedProduction = mineLevels.map((l, i) => Calculator.DEFAULT.getProduction(i, l));
         let energyConsumption = mineLevels.map((l, i) => Calculator.DEFAULT.getEnergyConsumption(i, l));
         let requiredEnergy = energyConsumption.reduce((a, b) => a + b);
-        let efficiency = Math.min(1, report.resources.energy / requiredEnergy);
+        let efficiency = Math.min(1, report.resources.energy! / requiredEnergy);
 
         let mineProduction = unconstrainedProduction.map(x => x * efficiency);
         if (report.researches) {
@@ -160,13 +160,13 @@ export class Analyzer {
   private computePlunder() {
     const now = Date.now();
     this.reports.forEach(report => {
-      let time = (now - report.source[0].timestamp.getTime() + report.meta.flightTime * 1000) / 1000 / 3600;
-      let original = [report.resources.metal, report.resources.crystal, report.resources.deut];
-      let andProduced = report.meta.production.map((x, i) => x * time + original[i]);
-      let expected = report.meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, report.meta.capacity[i]), original[i]));
+      let time = (now - report.source[0].timestamp.getTime() + report.meta.flightTime! * 1000) / 1000 / 3600;
+      let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deut || 0];
+      let andProduced = report.meta.production!.map((x, i) => x * time + original[i]);
+      let expected = report.meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, report.meta.capacity![i]), original[i]));
       let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
       let nTransports = report.meta.requiredTransports = Math.ceil(requiredCapacity / 7000);
-      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance, {smallCargo: nTransports}, report.meta.flightTime);
+      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance!, {smallCargo: nTransports}, report.meta.flightTime);
       let actualCapacity = nTransports * 7000;
       report.meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
       report.meta.minutesStale = Math.floor((now - report.source[0].timestamp.getTime()) / 1000 / 60);
@@ -175,11 +175,11 @@ export class Analyzer {
 
   private computeRatingAndSort(rate: number[] = [0.5, 1.2, 1.5]) {
     this.reports.forEach(report => {
-      let value = report.meta.expectedPlunder.reduce((total, value, i) => total + value * rate[i], 0);
-      report.meta.rating = (value - report.meta.fuelCost * rate[2]) / report.meta.flightTime;
+      let value = report.meta.expectedPlunder!.reduce((total, value, i) => total + value * rate[i], 0);
+      report.meta.rating = (value - report.meta.fuelCost! * rate[2]) / report.meta.flightTime!;
     });
 
-    this.reports.sort((a, b) => b.meta.rating - a.meta.rating);
+    this.reports.sort((a, b) => b.meta.rating! - a.meta.rating!);
   }
 }
 

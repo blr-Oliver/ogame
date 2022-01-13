@@ -1,12 +1,11 @@
-import express from 'express';
+import * as express from 'express';
 import * as fs from 'fs';
-import path from 'path';
+import * as path from 'path';
 import {Cookie} from 'tough-cookie';
 import {defaultAnalyzer} from './core/Analyzer';
 import {AutoRaid} from './core/AutoRaid';
 import {Mapper} from './core/Mapper';
 import {Scanner} from './core/Scanner';
-import {launchDelayed} from './core/Schedule';
 import {CoordinateType} from './model/types';
 import {EspionageRepository} from './repository/EspionageRepository';
 import {GalaxyRepository} from './repository/GalaxyRepository';
@@ -16,7 +15,7 @@ const port = 8080;
 
 // TODO init (and inject?) all components
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('json replacer', function (key: string, value: any) {
+app.set('json replacer', function (this: any, key: string, value: any) {
   if (this[key] instanceof Date) // direct test on value doesn't work
     return this[key].getTime();
   return value;
@@ -37,7 +36,7 @@ app.get('/display/galaxy/:galaxy/:system', (req, res) => {
 });
 
 app.get('/display/report/:galaxy/:system/:position/:type?', (req, res) => {
-  let type: CoordinateType = +req.params['type'] || CoordinateType.Planet;
+  let type: CoordinateType = +(req.params['type'] || CoordinateType.Planet);
   EspionageRepository.instance.load(+req.params['galaxy'], +req.params['system'], +req.params['position'], type).then(report => {
     res.json(report);
   });
@@ -45,7 +44,7 @@ app.get('/display/report/:galaxy/:system/:position/:type?', (req, res) => {
 
 app.get('/cookies', (req, res) => {
   if ('url' in req.query) {
-    let cookies: Cookie[] = Mapper.instance.requestJar.getCookies(req.query['url']);
+    let cookies: Cookie[] = Mapper.instance.requestJar.getCookies(String(req.query['url']));
     if ('relay' in req.query) {
       let relayCode = cookies.map(c => `document.cookie="${[`${c.key}=${c.value}`, `path=${c.path}`].join('; ')}";`).join('\n');
       res.send(relayCode);
@@ -65,8 +64,8 @@ app.get('/ping', (req, res, next) => {
 });
 
 app.get('/galaxy', (req, res) => {
-  let galaxyParams: string | string[] = req.query['galaxy'];
-  let systemParams: string | string[] = req.query['system'];
+  let galaxyParams: string | string[] = req.query['galaxy'] as (string | string[]);
+  let systemParams: string | string[] = req.query['system'] as (string | string[]);
   if (typeof (galaxyParams) === 'string')
     galaxyParams = [galaxyParams];
   if (typeof (systemParams) === 'string')
@@ -99,7 +98,7 @@ app.get('/galaxy', (req, res) => {
 
 app.get('/raid', (req, res) => {
   if ('slots' in req.query)
-    AutoRaid.instance.state.maxSlots = +req.query['slots'];
+    AutoRaid.instance.state.maxSlots = +req.query['slots']!;
   if ('continue' in req.query) {
     AutoRaid.instance.continue();
     res.status(202);
@@ -108,8 +107,8 @@ app.get('/raid', (req, res) => {
 });
 
 app.get('/dump', (req, res) => {
-  let field: string | string[] = req.query['field'];
-  let path: string | string[] = req.query['path'];
+  let field: string | string[] = req.query['field'] as (string | string[]);
+  let path: string | string[] = req.query['path'] as (string | string[]);
   if (typeof field === 'string')
     field = [field];
   if (typeof path === 'string')
@@ -151,9 +150,9 @@ app.get('/analyze', (req, res) => {
   if ('load' in req.query)
     defaultAnalyzer.load();
   else if ('scan' in req.query)
-    defaultAnalyzer.scan(+req.query['scan']);
+    defaultAnalyzer.scan(+req.query['scan']!);
   else if ('launch' in req.query)
-    defaultAnalyzer.launch(+req.query['launch']);
+    defaultAnalyzer.launch(+req.query['launch']!);
 
   res.json(defaultAnalyzer.reports);
 });
@@ -168,7 +167,7 @@ app.listen(port, () => {
 
 function useCookiesIfPresent(req: express.Request, res: express.Response, next: express.NextFunction) {
   if (req.method !== 'OPTIONS' && req.method !== 'HEAD') {
-    let queryCookie = req.query['cookie'],
+    let queryCookie = req.query['cookie'] as string,
         bodyCookie = null, mergedCookies: string[] = [];
     if (req.method !== 'GET')
       bodyCookie = req.params['cookie'];
@@ -177,7 +176,7 @@ function useCookiesIfPresent(req: express.Request, res: express.Response, next: 
     if (bodyCookie)
       mergedCookies = mergedCookies.concat(bodyCookie);
     if (mergedCookies.length)
-      Mapper.instance.useCookie(mergedCookies, req.params['url'] || req.query['url'] || req.headers.referer);
+      Mapper.instance.useCookie(mergedCookies, (req.params['url'] || req.query['url'] || req.headers.referer) as string);
   }
   next();
 }

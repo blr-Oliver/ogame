@@ -12,7 +12,7 @@ export class Scanner {
 
   launchNext() {
     if (this.targets.length && this.usedSlots < this.maxSlots) {
-      let target = this.targets.pop();
+      let target = this.targets.pop()!;
       let nearestPlanetId = nearestPlanet(target);
       let flightTime = FlightCalculator.flightTime(
           FlightCalculator.distanceC(target, PLANETS[nearestPlanetId]),
