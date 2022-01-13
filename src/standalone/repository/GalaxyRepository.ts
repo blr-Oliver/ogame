@@ -1,5 +1,5 @@
+import {GalaxySlotInfo, GalaxySystemInfo} from '../../common/report-types';
 import {Coordinates} from '../../common/types';
-import {GalaxySlotInfo, GalaxySystemInfo} from '../../browser/parsers/galaxy-reports';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
 import {createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';

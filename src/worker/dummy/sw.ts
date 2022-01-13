@@ -1,7 +1,10 @@
+export default null;
+declare var self: ServiceWorkerGlobalScope;
+
 function sendCurrentDate() {
-  (self as ServiceWorkerGlobalScope)
-      .clients.matchAll({type: 'all'})
-      .then((list: any[]) => {
+  self.clients
+      .matchAll({type: 'all'})
+      .then((list: readonly Client[]) => {
         if (list.length) {
           let client = list[0];
           client.postMessage(Date.now());
@@ -12,4 +15,3 @@ function sendCurrentDate() {
 }
 
 setInterval(sendCurrentDate, 2000);
-

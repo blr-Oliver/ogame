@@ -1,5 +1,5 @@
-import {Coordinates, Researches} from '../../common/types';
 import {FlightCalculator} from '../../common/FlightCalculator';
+import {Coordinates, Researches} from '../../common/types';
 
 export const CURRENT_RESEARCHES: Researches = {
   energy: 12,

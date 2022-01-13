@@ -1,0 +1,15 @@
+{
+  "extends": "../../base-tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "node",
+      "express",
+      "jsdom",
+      "mysql",
+      "request"
+    ]
+  },
+  "include": [
+    "./**/*"
+  ]
+}

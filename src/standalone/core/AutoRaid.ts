@@ -1,16 +1,13 @@
-import {Coordinates, MissionType, sameCoordinates, ShardedEspionageReport} from '../../common/types';
-import {FlightEvent} from '../../browser/parsers/event-list';
-import {GalaxySystemInfo} from '../../browser/parsers/galaxy-reports';
+import {Calculator} from '../../common/Calculator';
+import {FlightCalculator} from '../../common/FlightCalculator';
+import {FlightEvent, GalaxySystemInfo, Mapper, ShardedEspionageReport} from '../../common/report-types';
+import {Coordinates, MissionType, sameCoordinates} from '../../common/types';
 import {EspionageRepository} from '../repository/EspionageRepository';
 import {GalaxyRepository} from '../repository/GalaxyRepository';
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
-import {Calculator} from '../../common/Calculator';
-import {FlightCalculator} from '../../common/FlightCalculator';
-import {nearestPlanet, PLANETS} from './GameContext';
-import {Mapper} from './Mapper';
+import {CURRENT_RESEARCHES, nearestPlanet, PLANETS} from './GameContext';
 
 export class AutoRaid {
-  static readonly instance = new AutoRaid();
   state: any = {
     status: 'idle',
     nextResume: null,
@@ -22,6 +19,9 @@ export class AutoRaid {
   };
 
   private data: [Coordinates, ProcessedReport][] = [];
+
+  constructor(private mapper: Mapper) {
+  }
 
   continue() {
     if (this.state.maxSlots <= 0) return;
@@ -36,7 +36,7 @@ export class AutoRaid {
 
   private checkSpyReports(): Promise<void> {
     this.state.status = 'reading reports';
-    return Mapper.instance.loadAllReports().then((allReports) => {
+    return this.mapper.loadAllReports().then((allReports) => {
       this.state.harvestEspionage = false;
       if (allReports.length)
         this.data = [];
@@ -44,17 +44,16 @@ export class AutoRaid {
   }
 
   private reloadData(): Promise<[Coordinates, ShardedEspionageReport][]> {
-    let mapper = Mapper.instance;
     let galaxyRepo = GalaxyRepository.instance;
     let espionageRepo = EspionageRepository.instance;
     this.state.status = 'checking galaxy info';
     return galaxyRepo
-        .findStaleSystemsWithTargets(mapper.observe.normalTimeout)
+        .findStaleSystemsWithTargets(this.mapper.observe.normalTimeout)
         .then(systems => {
           if (!systems.length)
             return [] as GalaxySystemInfo[];
           this.state.status = 'refreshing galaxy info';
-          return mapper.observeAllSystems(systems);
+          return this.mapper.observeAllSystems(systems);
         })
         .then((/*freshGalaxies*/) => {
           this.state.status = 'fetching existing reports';
@@ -76,7 +75,7 @@ export class AutoRaid {
     );
 
     this.state.status = 'fetching events';
-    Mapper.instance.loadEvents().then(events => {
+    this.mapper.loadEvents().then(events => {
       this.state.status = 'checking raids in progress';
       return this.findRaidEvents(events);
     }).then(raidEvents => {
@@ -129,7 +128,7 @@ export class AutoRaid {
         spyTime = 0;
         // pick longest espionage mission one-way flight
         targetsToSpy.forEach(target => {
-          let time = FlightCalculator.flightTime(target.meta.distance!, FlightCalculator.fleetSpeed({espionageProbe: 1}));
+          let time = FlightCalculator.flightTime(target.meta.distance!, FlightCalculator.fleetSpeed({espionageProbe: 1}, CURRENT_RESEARCHES));
           spyTime = Math.max(spyTime, time);
         });
       }
@@ -138,7 +137,7 @@ export class AutoRaid {
         raidTime = Math.min(...targetsToLaunch.map(target => target.meta.flightTime! * 2));
       }
 
-      let spies = targetsToSpy.reduce((chain, target) => chain.then(() => Mapper.instance.launch({
+      let spies = targetsToSpy.reduce((chain, target) => chain.then(() => this.mapper.launch({
         from: target.meta.nearestPlanetId,
         to: target.coordinates,
         fleet: {espionageProbe: 1},
@@ -149,7 +148,7 @@ export class AutoRaid {
           this.state.status = 'sending probes';
       }));
 
-      let raids = targetsToLaunch.reduce((chain, target) => chain.then(() => Mapper.instance.launch({
+      let raids = targetsToLaunch.reduce((chain, target) => chain.then(() => this.mapper.launch({
         from: target.meta.nearestPlanetId,
         to: target.coordinates,
         fleet: {smallCargo: target.meta.requiredTransports},
@@ -214,7 +213,7 @@ export class AutoRaid {
     //
     let nearestPlanetId = meta.nearestPlanetId = nearestPlanet(to);
     let nearestDistance = meta.distance = FlightCalculator.distanceC(to, PLANETS[nearestPlanetId]);
-    let flightTime = meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}));
+    let flightTime = meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, CURRENT_RESEARCHES));
     //
     if (report.buildings) {
       let storageLevels: number[] = [report.buildings.metalStorage, report.buildings.crystalStorage, report.buildings.deutStorage];
@@ -245,7 +244,7 @@ export class AutoRaid {
     let expected = meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, meta.capacity![i]), original[i]));
     let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
     let nTransports = meta.requiredTransports = Math.ceil(requiredCapacity / 7000); // TODO compute based on current techs
-    meta.fuelCost = FlightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, flightTime);
+    meta.fuelCost = FlightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, CURRENT_RESEARCHES, flightTime);
     let actualCapacity = nTransports * 7000;
     meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
     meta.loadRatio = meta.expectedPlunder.reduce((a, b) => a + b, 0) / actualCapacity;

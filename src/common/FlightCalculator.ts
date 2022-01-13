@@ -1,5 +1,4 @@
-import {Coordinates, Fleet, FleetPartial, ResearchType, ShipType, Speed} from './types';
-import {CURRENT_RESEARCHES} from '../standalone/core/GameContext';
+import {Coordinates, Fleet, FleetPartial, Researches, ResearchType, ShipType, Speed} from './types';
 
 export class FlightCalculator {
   static readonly FLIGHT_MULTIPLIER = 2;
@@ -77,15 +76,15 @@ export class FlightCalculator {
     return Math.ceil((10 + 35000 / percentage * Math.sqrt(10 * distance / maxSpeed)) / this.FLIGHT_MULTIPLIER);
   }
 
-  static fuelConsumption(distance: number, fleet: Fleet | FleetPartial, flightTime?: number, percentage: Speed = 10) {
-    flightTime = flightTime || this.flightTime(distance, this.fleetSpeed(fleet), percentage);
+  static fuelConsumption(distance: number, fleet: Fleet | FleetPartial, researches: Researches, flightTime?: number, percentage: Speed = 10) {
+    flightTime = flightTime || this.flightTime(distance, this.fleetSpeed(fleet, researches), percentage);
 
     let total = 0, shipSpeed: number, shipPercentage: number;
 
     for (let key in fleet) {
       let n = fleet[key as ShipType] || 0;
       if (n > 0) {
-        shipSpeed = this.fleetSpeed({[key]: 1});
+        shipSpeed = this.fleetSpeed({[key]: 1}, researches);
         shipPercentage = 35000 / (flightTime * this.FLIGHT_MULTIPLIER - 10) * Math.sqrt(10 * distance / shipSpeed);
         total += this.BASE_CONSUMPTION[key as ShipType] * n * (shipPercentage / 10 + 1) * (shipPercentage / 10 + 1);
       }
@@ -125,14 +124,14 @@ export class FlightCalculator {
     return t >> 2 + +!!(t & 3); // = Math.ceil(t / 4)
   }
 
-  static fleetSpeed(fleet: FleetPartial | Fleet) {
+  static fleetSpeed(fleet: FleetPartial | Fleet, researches: Researches) {
     let speed = Infinity;
     for (let key in fleet) {
       let n = fleet[key as ShipType] || 0;
       if (n > 0) {
         let baseSpeed: number = this.BASE_SPEED[key as ShipType];
         let drive = this.SHIP_DRIVES[key as ShipType];
-        let driveLevel = CURRENT_RESEARCHES[this.DRIVE_TYPES[drive]!];
+        let driveLevel = researches[this.DRIVE_TYPES[drive]!];
         speed = Math.min(baseSpeed * (1 + driveLevel * drive / 10));
       }
     }

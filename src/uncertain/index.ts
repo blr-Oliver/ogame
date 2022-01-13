@@ -2,16 +2,20 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
-import {defaultAnalyzer} from './core/Analyzer';
-import {AutoRaid} from './core/AutoRaid';
-import {Mapper} from './core/Mapper';
-import {Scanner} from './core/Scanner';
+import {Analyzer} from '../standalone/core/Analyzer';
+import {AutoRaid} from '../standalone/core/AutoRaid';
+import {LegacyMapper} from './LegacyMapper';
+import {Scanner} from '../standalone/core/Scanner';
 import {CoordinateType} from '../common/types';
-import {EspionageRepository} from './repository/EspionageRepository';
-import {GalaxyRepository} from './repository/GalaxyRepository';
+import {EspionageRepository} from '../standalone/repository/EspionageRepository';
+import {GalaxyRepository} from '../standalone/repository/GalaxyRepository';
 
 const app = express();
 const port = 8080;
+
+const autoRaid = new AutoRaid(LegacyMapper.instance);
+const scanner = new Scanner(LegacyMapper.instance);
+const analyzer = new Analyzer(LegacyMapper.instance)
 
 // TODO init (and inject?) all components
 app.use(express.static(path.join(__dirname, 'public')));
@@ -24,7 +28,7 @@ app.set('json replacer', function (this: any, key: string, value: any) {
 app.all('/*', useCookiesIfPresent, addCORSHeader);
 
 app.get('/login', (req, res, next) => {
-  Mapper.instance.loginLobby().then(result => {
+  LegacyMapper.instance.loginLobby().then(result => {
     res.send(result);
   }).then(next);
 });
@@ -44,7 +48,7 @@ app.get('/display/report/:galaxy/:system/:position/:type?', (req, res) => {
 
 app.get('/cookies', (req, res) => {
   if ('url' in req.query) {
-    let cookies: Cookie[] = Mapper.instance.requestJar.getCookies(String(req.query['url']));
+    let cookies: Cookie[] = LegacyMapper.instance.requestJar.getCookies(String(req.query['url']));
     if ('relay' in req.query) {
       let relayCode = cookies.map(c => `document.cookie="${[`${c.key}=${c.value}`, `path=${c.path}`].join('; ')}";`).join('\n');
       res.send(relayCode);
@@ -52,11 +56,11 @@ app.get('/cookies', (req, res) => {
       res.json({cookies});
     }
   } else
-    res.json(Mapper.instance.jar);
+    res.json(LegacyMapper.instance.jar);
 });
 
 app.get('/ping', (req, res, next) => {
-  Mapper.instance.ping().then(response => {
+  LegacyMapper.instance.ping().then(response => {
     let statusCode = response.statusCode;
     console.log(`ping -> ${statusCode}`);
     res.json(statusCode);
@@ -73,37 +77,37 @@ app.get('/galaxy', (req, res) => {
   if (galaxyParams) {
     let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 7);
     if (galaxy.length) {
-      Mapper.instance.observe.galaxyMin = Math.min(...galaxy);
-      Mapper.instance.observe.galaxyMax = Math.max(...galaxy);
+      LegacyMapper.instance.observe.galaxyMin = Math.min(...galaxy);
+      LegacyMapper.instance.observe.galaxyMax = Math.max(...galaxy);
     }
   }
   if (systemParams) {
     let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 499);
     if (system.length) {
-      Mapper.instance.observe.systemMin = Math.min(...system);
-      Mapper.instance.observe.systemMax = Math.max(...system);
+      LegacyMapper.instance.observe.systemMin = Math.min(...system);
+      LegacyMapper.instance.observe.systemMax = Math.max(...system);
     }
   }
 
   if ('pause' in req.query) {
-    Mapper.instance.observe.pause = true;
+    LegacyMapper.instance.observe.pause = true;
   } else if ('continue' in req.query) {
-    Mapper.instance.observe.pause = false;
-    Mapper.instance.continueObserve();
+    LegacyMapper.instance.observe.pause = false;
+    LegacyMapper.instance.continueObserve();
   }
 
-  res.json(Mapper.instance.observe);
+  res.json(LegacyMapper.instance.observe);
 });
 
 
 app.get('/raid', (req, res) => {
   if ('slots' in req.query)
-    AutoRaid.instance.state.maxSlots = +req.query['slots']!;
+    autoRaid.state.maxSlots = +req.query['slots']!;
   if ('continue' in req.query) {
-    AutoRaid.instance.continue();
+    autoRaid.continue();
     res.status(202);
   }
-  res.json(AutoRaid.instance.state);
+  res.json(autoRaid.state);
 });
 
 app.get('/dump', (req, res) => {
@@ -117,7 +121,7 @@ app.get('/dump', (req, res) => {
   if (!field || !field.length)
     res.status(400).send('Expected "field" request param');
   else {
-    let value: any = (Mapper.instance as any)[field[0]];
+    let value: any = (LegacyMapper.instance as any)[field[0]];
     if (path && path.length) {
       fs.writeFile(path[0], JSON.stringify(value), 'utf8', (err) => {
         if (err)
@@ -132,33 +136,33 @@ app.get('/dump', (req, res) => {
 
 app.get('/espionage', (req, res) => {
   if ('continue' in req.query)
-    Mapper.instance.loadAllReports();
-  res.json(Mapper.instance.reportIdList);
+    LegacyMapper.instance.loadAllReports();
+  res.json(LegacyMapper.instance.reportIdList);
 });
 
 app.get('/scan', (req, res) => {
   if ('load' in req.query)
     GalaxyRepository.instance.findInactiveTargets().then(
-        targets => Scanner.instance.targets = targets);
+        targets => scanner.targets = targets);
   else if ('continue' in req.query) {
-    Scanner.instance.launchNext()
+    scanner.launchNext()
   }
-  res.json(Scanner.instance);
+  res.json(scanner);
 });
 
 app.get('/analyze', (req, res) => {
   if ('load' in req.query)
-    defaultAnalyzer.load();
+    analyzer.load();
   else if ('scan' in req.query)
-    defaultAnalyzer.scan(+req.query['scan']!);
+    analyzer.scan(+req.query['scan']!);
   else if ('launch' in req.query)
-    defaultAnalyzer.launch(+req.query['launch']!);
+    analyzer.launch(+req.query['launch']!);
 
-  res.json(defaultAnalyzer.reports);
+  res.json(analyzer.reports);
 });
 
 app.get('/events', (req, res) => {
-  Mapper.instance.loadEvents().then(events => res.json(events));
+  LegacyMapper.instance.loadEvents().then(events => res.json(events));
 });
 
 app.listen(port, () => {
@@ -176,12 +180,12 @@ function useCookiesIfPresent(req: express.Request, res: express.Response, next: 
     if (bodyCookie)
       mergedCookies = mergedCookies.concat(bodyCookie);
     if (mergedCookies.length)
-      Mapper.instance.useCookie(mergedCookies, (req.params['url'] || req.query['url'] || req.headers.referer) as string);
+      LegacyMapper.instance.useCookie(mergedCookies, (req.params['url'] || req.query['url'] || req.headers.referer) as string);
   }
   next();
 }
 
 function addCORSHeader(req: express.Request, res: express.Response, next: express.NextFunction) {
-  res.setHeader('access-control-allow-origin', `https://${Mapper.GAME_DOMAIN}`);
+  res.setHeader('access-control-allow-origin', `https://${LegacyMapper.GAME_DOMAIN}`);
   next();
 }

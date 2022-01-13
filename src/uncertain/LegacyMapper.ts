@@ -1,33 +1,22 @@
 import {JSDOM} from 'jsdom';
 import * as request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
-import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId, StampedEspionageReport} from '../../common/types';
-import {parseReport, parseReportList} from '../../browser/parsers/espionage-reports';
-import {FlightEvent, parseEventList} from '../../browser/parsers/event-list';
-import {GalaxySystemInfo, parseGalaxy} from '../../browser/parsers/galaxy-reports';
-import {EspionageRepository} from '../repository/EspionageRepository';
-import {GalaxyRepository} from '../repository/GalaxyRepository';
-import {dumpFile} from './files';
+import {parseReport, parseReportList} from '../browser/parsers/espionage-reports';
+import {parseEventList} from '../browser/parsers/event-list';
+import {parseGalaxy} from '../browser/parsers/galaxy-reports';
+import {FlightEvent, GalaxySystemInfo, Mapper, ObserveParams, StampedEspionageReport} from '../common/report-types';
+import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
+import {dumpFile} from '../standalone/core/files';
+import {EspionageRepository} from '../standalone/repository/EspionageRepository';
+import {GalaxyRepository} from '../standalone/repository/GalaxyRepository';
 
 type Form = { [key: string]: string | number };
 
-export interface ObserveParams {
-  pause: boolean;
-  galaxyMin: number;
-  galaxyMax: number;
-  galaxyLast: number | null;
-  systemMin: number;
-  systemMax: number;
-  systemLast: number | null;
-  emptyTimeout: number;
-  normalTimeout: number;
-}
-
-export class Mapper {
+export class LegacyMapper implements Mapper {
   static readonly LOBBY_DOMAIN_URL = 'lobby-api.ogame.gameforge.com';
-  static readonly LOBBY_LOGIN_URL = 'https://' + Mapper.LOBBY_DOMAIN_URL + '/users';
+  static readonly LOBBY_LOGIN_URL = 'https://' + LegacyMapper.LOBBY_DOMAIN_URL + '/users';
   static readonly GAME_DOMAIN = 's148-ru.ogame.gameforge.com';
-  static readonly GAME_URL = 'https://' + Mapper.GAME_DOMAIN + '/game/index.php';
+  static readonly GAME_URL = 'https://' + LegacyMapper.GAME_DOMAIN + '/game/index.php';
   static blacklistCookie: { [key: string]: boolean } = {
     tabBoxFleets: true,
     visibleChats: true,
@@ -38,7 +27,7 @@ export class Mapper {
     _gid: true,
     _fbp: true
   };
-  static instance: Mapper = new Mapper();
+  static instance: LegacyMapper = new LegacyMapper();
 
   jar: CookieJar;
   requestJar: request.CookieJar;
@@ -67,7 +56,7 @@ export class Mapper {
     });
   }
 
-  useCookie(cookieString: string | string[], url: string = Mapper.GAME_DOMAIN) {
+  useCookie(cookieString: string | string[], url: string = LegacyMapper.GAME_DOMAIN) {
     if (typeof (cookieString) === 'string')
       cookieString = [cookieString];
     if (cookieString) {
@@ -75,7 +64,7 @@ export class Mapper {
         let cookies = item.split(/;\s*/);
         for (let cookie of cookies) {
           let parsed = Cookie.parse(cookie);
-          if (parsed && !Mapper.blacklistCookie[parsed.key]) {
+          if (parsed && !LegacyMapper.blacklistCookie[parsed.key]) {
             this.requestJar.setCookie(cookie, url);
           }
         }
@@ -85,7 +74,7 @@ export class Mapper {
 
   ping(): Promise<request.Response> {
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       method: 'GET',
       followRedirect: false
     });
@@ -93,7 +82,7 @@ export class Mapper {
 
   viewGalaxy(galaxy: number, system: number): Promise<GalaxySystemInfo> {
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       method: 'POST',
       json: true,
       qs: {
@@ -159,7 +148,7 @@ export class Mapper {
 
   loadReportList(): Promise<number[]> {
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       method: 'GET',
       qs: {
         page: 'messages',
@@ -175,7 +164,7 @@ export class Mapper {
 
   loadReport(id: number): Promise<StampedEspionageReport | undefined> {
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       qs: {
         page: 'messages',
         messageId: id,
@@ -189,7 +178,7 @@ export class Mapper {
 
   deleteReport(id: number): Promise<void> {
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       method: 'POST',
       qs: {
         page: 'messages'
@@ -230,7 +219,7 @@ export class Mapper {
 
   loadEvents(): Promise<FlightEvent[]> {
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       qs: {
         page: 'eventList',
         ajax: 1
@@ -268,7 +257,7 @@ export class Mapper {
     if (mission.from)
       queryParams.cp = mission.from;
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       method: 'GET',
       qs: queryParams
     }, true);
@@ -281,7 +270,7 @@ export class Mapper {
     }
 
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       method: 'POST',
       qs: {page: 'fleet2'},
       form: form
@@ -296,7 +285,7 @@ export class Mapper {
     form['speed'] = mission.speed || 10;
 
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       method: 'POST',
       qs: {page: 'fleet3'},
       form: form
@@ -316,7 +305,7 @@ export class Mapper {
     }
 
     return this.asPromise({
-      uri: Mapper.GAME_URL,
+      uri: LegacyMapper.GAME_URL,
       method: 'POST',
       qs: form,
       form: {token: token}
@@ -325,7 +314,7 @@ export class Mapper {
 
   loginLobby(): Promise<string> {
     return this.asPromise({
-      uri: Mapper.LOBBY_LOGIN_URL,
+      uri: LegacyMapper.LOBBY_LOGIN_URL,
       method: 'POST',
       form: {
         'credentials[email]': 'vasily.liaskovsky@gmail.com',

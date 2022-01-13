@@ -1,10 +1,10 @@
-import {Coordinates, MissionType, ShardedEspionageReport} from '../../common/types';
-import {EspionageRepository} from '../repository/EspionageRepository';
-import {GalaxyRepository} from '../repository/GalaxyRepository';
 import {Calculator} from '../../common/Calculator';
 import {FlightCalculator} from '../../common/FlightCalculator';
-import {nearestPlanet, PLANETS} from './GameContext';
-import {Mapper} from './Mapper';
+import {Mapper, ShardedEspionageReport} from '../../common/report-types';
+import {Coordinates, MissionType} from '../../common/types';
+import {EspionageRepository} from '../repository/EspionageRepository';
+import {GalaxyRepository} from '../repository/GalaxyRepository';
+import {CURRENT_RESEARCHES, nearestPlanet, PLANETS} from './GameContext';
 
 export interface ReportMetaInfo {
   nearestPlanetId?: number;
@@ -30,6 +30,9 @@ export class Analyzer {
   coordinates: Coordinates[] = [];
   reports: ProcessedReport[] = [];
   excludedTargets: Coordinates[] = [];
+
+  constructor(private mapper: Mapper) {
+  }
 
   load(): Promise<ProcessedReport[]> {
     return EspionageRepository.instance.findForInactiveTargets().then(pairs => {
@@ -82,7 +85,7 @@ export class Analyzer {
     }
 
     targetsToScan.reduce((chain, report) => chain.then(() =>
-        Mapper.instance.launch({
+        this.mapper.launch({
           from: report.meta.nearestPlanetId,
           to: report.coordinates,
           fleet: {espionageProbe: 1},
@@ -103,7 +106,7 @@ export class Analyzer {
             console.log(`target is not inactive [${to.galaxy}:${to.system}:${to.position}]`);
             return 0;
           }
-          return Mapper.instance.launch({
+          return this.mapper.launch({
             from: report.meta.nearestPlanetId,
             to: report.coordinates,
             fleet: {smallCargo: report.meta.requiredTransports},
@@ -126,7 +129,7 @@ export class Analyzer {
     this.reports.forEach(report => {
       let nearestPlanetId = report.meta.nearestPlanetId = nearestPlanet(report.coordinates);
       let nearestDistance = report.meta.distance = FlightCalculator.distanceC(report.coordinates, PLANETS[nearestPlanetId]);
-      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}));
+      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, CURRENT_RESEARCHES));
     });
   }
 
@@ -166,7 +169,7 @@ export class Analyzer {
       let expected = report.meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, report.meta.capacity![i]), original[i]));
       let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
       let nTransports = report.meta.requiredTransports = Math.ceil(requiredCapacity / 7000);
-      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance!, {smallCargo: nTransports}, report.meta.flightTime);
+      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance!, {smallCargo: nTransports}, CURRENT_RESEARCHES, report.meta.flightTime);
       let actualCapacity = nTransports * 7000;
       report.meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
       report.meta.minutesStale = Math.floor((now - report.source[0].timestamp.getTime()) / 1000 / 60);
@@ -182,5 +185,3 @@ export class Analyzer {
     this.reports.sort((a, b) => b.meta.rating! - a.meta.rating!);
   }
 }
-
-export const defaultAnalyzer = new Analyzer();

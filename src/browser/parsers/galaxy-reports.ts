@@ -1,51 +1,13 @@
+import {
+  AllianceGalaxyInfo,
+  DebrisGalaxyInfo,
+  GalaxySlotInfo,
+  GalaxySystemInfo,
+  MoonGalaxyInfo,
+  PlanetGalaxyInfo,
+  PlayerGalaxyInfo
+} from '../../common/report-types';
 import {parseOnlyNumbers} from './parsers-common';
-
-export interface GalaxySystemInfo {
-  galaxy: number;
-  system: number;
-  timestamp?: Date;
-  empty: boolean;
-  slots: Array<GalaxySlotInfo | undefined>;
-}
-
-export interface GalaxySlotInfo {
-  planet?: PlanetGalaxyInfo;
-  moon?: MoonGalaxyInfo;
-  debris?: DebrisGalaxyInfo;
-  player?: PlayerGalaxyInfo;
-  alliance?: AllianceGalaxyInfo;
-}
-
-export interface PlanetGalaxyInfo {
-  id: number | string;
-  name: string;
-  active?: boolean;
-  activityTime?: number;
-}
-
-export interface MoonGalaxyInfo extends PlanetGalaxyInfo {
-  size: number;
-}
-
-export interface DebrisGalaxyInfo {
-  metal: number;
-  crystal: number;
-}
-
-export interface PlayerGalaxyInfo {
-  id: number | string;
-  name: string;
-  status: string;
-  rank?: number; // some players (admins) do not have rank
-}
-
-export interface AllianceGalaxyInfo {
-  id: number | string;
-  name: string;
-  shortName: string;
-  rank: number;
-  members: number;
-}
 
 export function parseGalaxy(doc: DocumentFragment): GalaxySystemInfo {
   const table: HTMLTableElement = doc.querySelector('#galaxytable')!;

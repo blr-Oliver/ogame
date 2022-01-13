@@ -1,5 +1,5 @@
-import {Mission, MissionType, Speed} from '../../common/types';
-import {Mapper} from './Mapper';
+import {Mapper} from '../../common/report-types';
+import {Mission, MissionType} from '../../common/types';
 
 type ScheduledMission = Mission & { timestamp: Date };
 let missions: ScheduledMission[] = [
@@ -32,13 +32,14 @@ let missions: ScheduledMission[] = [
     timestamp: new Date(2019, 4, 19, 15, 26, 0)
   }
 ];
-export function launchDelayed() {
+
+export function launchDelayed(mapper: Mapper) {
   let now = Date.now();
   for (let mission of missions) {
     let delay = mission.timestamp.getTime() - now;
     if (delay > 0)
-      setTimeout(() => Mapper.instance.launch(mission), delay)
+      setTimeout(() => mapper.launch(mission), delay)
     else
-      Mapper.instance.launch(mission);
+      mapper.launch(mission);
   }
 }

@@ -1,5 +1,5 @@
 import {map} from '../../common/common';
-import {StampedEspionageReport} from '../../common/types';
+import {StampedEspionageReport} from '../../common/report-types';
 import {parseLocalDate, parseOnlyNumbers} from './parsers-common';
 
 export interface StringNumberMap {

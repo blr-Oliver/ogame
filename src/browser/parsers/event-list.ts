@@ -1,26 +1,7 @@
-import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../../common/types';
-import {parseCoordinates, parseOnlyNumbers} from './parsers-common';
+import {FlightEvent} from '../../common/report-types';
+import {CoordinateType, FleetPartial, MissionType, Resources} from '../../common/types';
 import {StringNumberMap, translateEntries} from './espionage-reports';
-
-export interface FlightEvent {
-  id: number;
-  mission: MissionType;
-  time: Date;
-  isReturn: boolean;
-  isFriendly: boolean;
-  to: Coordinates;
-  toName?: string;
-  targetPlayerName?: string;
-  targetPlayerId?: number;
-  fleet: EventFleet[];
-}
-
-export interface EventFleet {
-  from: Coordinates;
-  fromName?: string;
-  fleet: FleetPartial;
-  cargo?: Resources;
-}
+import {parseCoordinates, parseOnlyNumbers} from './parsers-common';
 
 export function parseEventList(doc: DocumentFragment): FlightEvent[] {
   let eventTable: HTMLTableElement | null = doc.querySelector('#eventContent');
@@ -109,7 +90,8 @@ function getType(classList: DOMTokenList): CoordinateType | undefined {
 }
 
 function parseFleetInfo(tooltipHolder: Element): [FleetPartial, Resources] {
-  let cells: HTMLTableCellElement[] = [...tooltipHolder.querySelectorAll('td.value')] as HTMLTableCellElement[];
+  let elements = tooltipHolder.querySelectorAll('td.value');
+  let cells: HTMLTableCellElement[] = [...elements] as HTMLTableCellElement[];
   let data: StringNumberMap = cells.reduce((hash, td: HTMLTableCellElement) => {
         let key = td.previousElementSibling!.textContent!.trim().toLowerCase();
         hash[key.substring(0, key.length - 1)] = parseOnlyNumbers(td.textContent!); // trim ":"

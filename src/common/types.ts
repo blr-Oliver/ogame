@@ -114,44 +114,6 @@ export type ResourceType =
 
 export type Resources = { [key in ResourceType]?: number };
 
-export interface PlanetActivity {
-  active: boolean;
-  time?: number;
-}
-
-export interface EspionageReport {
-  infoLevel: number;
-  coordinates: Coordinates;
-  planetName: string;
-  playerName: string;
-  playerStatus: string;
-  counterEspionage: number;
-  activity: PlanetActivity;
-
-  resources: Resources;
-  fleet?: FleetPartial;
-  defense?: DefensePartial;
-  buildings?: Buildings;
-  researches?: Researches;
-}
-
-export interface StampedEspionageReport extends EspionageReport {
-  id: number;
-  timestamp: Date;
-}
-
-export interface ShardHeader {
-  id: number;
-  timestamp: Date;
-  infoLevel: number;
-}
-
-export interface ShardedEspionageReport extends EspionageReport {
-  source: ShardHeader[];
-  fleet?: Fleet;
-  defense?: Defense;
-}
-
 export type OneToTen = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export type Speed = OneToTen;
 
