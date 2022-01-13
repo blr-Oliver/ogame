@@ -1,8 +1,8 @@
-import {Coordinates, MissionType, ShardedEspionageReport} from '../model/types';
+import {Coordinates, MissionType, ShardedEspionageReport} from '../../common/types';
 import {EspionageRepository} from '../repository/EspionageRepository';
 import {GalaxyRepository} from '../repository/GalaxyRepository';
-import {Calculator} from './Calculator';
-import {FlightCalculator} from './FlightCalculator';
+import {Calculator} from '../../common/Calculator';
+import {FlightCalculator} from '../../common/FlightCalculator';
 import {nearestPlanet, PLANETS} from './GameContext';
 import {Mapper} from './Mapper';
 

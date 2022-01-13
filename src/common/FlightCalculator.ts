@@ -1,5 +1,5 @@
-import {Coordinates, Fleet, FleetPartial, ResearchType, ShipType, Speed} from '../model/types';
-import {CURRENT_RESEARCHES} from './GameContext';
+import {Coordinates, Fleet, FleetPartial, ResearchType, ShipType, Speed} from './types';
+import {CURRENT_RESEARCHES} from '../standalone/core/GameContext';
 
 export class FlightCalculator {
   static readonly FLIGHT_MULTIPLIER = 2;

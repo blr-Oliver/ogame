@@ -6,7 +6,7 @@ import {defaultAnalyzer} from './core/Analyzer';
 import {AutoRaid} from './core/AutoRaid';
 import {Mapper} from './core/Mapper';
 import {Scanner} from './core/Scanner';
-import {CoordinateType} from './model/types';
+import {CoordinateType} from '../common/types';
 import {EspionageRepository} from './repository/EspionageRepository';
 import {GalaxyRepository} from './repository/GalaxyRepository';
 

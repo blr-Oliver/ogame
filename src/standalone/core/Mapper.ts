@@ -1,10 +1,10 @@
 import {JSDOM} from 'jsdom';
 import * as request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
-import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId, StampedEspionageReport} from '../model/types';
-import {parseReport, parseReportList} from '../parsers/espionage-reports';
-import {FlightEvent, parseEventList} from '../parsers/event-list';
-import {GalaxySystemInfo, parseGalaxy} from '../parsers/galaxy-reports';
+import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId, StampedEspionageReport} from '../../common/types';
+import {parseReport, parseReportList} from '../../browser/parsers/espionage-reports';
+import {FlightEvent, parseEventList} from '../../browser/parsers/event-list';
+import {GalaxySystemInfo, parseGalaxy} from '../../browser/parsers/galaxy-reports';
 import {EspionageRepository} from '../repository/EspionageRepository';
 import {GalaxyRepository} from '../repository/GalaxyRepository';
 import {dumpFile} from './files';

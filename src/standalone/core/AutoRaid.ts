@@ -1,11 +1,11 @@
-import {Coordinates, MissionType, sameCoordinates, ShardedEspionageReport} from '../model/types';
-import {FlightEvent} from '../parsers/event-list';
-import {GalaxySystemInfo} from '../parsers/galaxy-reports';
+import {Coordinates, MissionType, sameCoordinates, ShardedEspionageReport} from '../../common/types';
+import {FlightEvent} from '../../browser/parsers/event-list';
+import {GalaxySystemInfo} from '../../browser/parsers/galaxy-reports';
 import {EspionageRepository} from '../repository/EspionageRepository';
 import {GalaxyRepository} from '../repository/GalaxyRepository';
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
-import {Calculator} from './Calculator';
-import {FlightCalculator} from './FlightCalculator';
+import {Calculator} from '../../common/Calculator';
+import {FlightCalculator} from '../../common/FlightCalculator';
 import {nearestPlanet, PLANETS} from './GameContext';
 import {Mapper} from './Mapper';
 

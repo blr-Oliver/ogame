@@ -1,5 +1,5 @@
-import {Coordinates, MissionType} from '../model/types';
-import {FlightCalculator} from './FlightCalculator';
+import {Coordinates, MissionType} from '../../common/types';
+import {FlightCalculator} from '../../common/FlightCalculator';
 import {nearestPlanet, PLANETS} from './GameContext';
 import {Mapper} from './Mapper';
 

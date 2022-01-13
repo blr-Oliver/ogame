@@ -1,5 +1,5 @@
-import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../model/types';
-import {parseCoordinates, parseOnlyNumbers} from './common';
+import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../../common/types';
+import {parseCoordinates, parseOnlyNumbers} from './parsers-common';
 import {StringNumberMap, translateEntries} from './espionage-reports';
 
 export interface FlightEvent {

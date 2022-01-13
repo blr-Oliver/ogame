@@ -1,7 +1,7 @@
-import {Coordinates} from '../model/types';
-import {valueToSQLString} from '../parsers/common';
-import {GalaxySlotInfo, GalaxySystemInfo} from '../parsers/galaxy-reports';
+import {Coordinates} from '../../common/types';
+import {GalaxySlotInfo, GalaxySystemInfo} from '../../browser/parsers/galaxy-reports';
 import {db} from './db';
+import {valueToSQLString} from './db-common';
 import {createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';
 
 export class GalaxyRepository {

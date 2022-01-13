@@ -1,5 +1,6 @@
-import {StampedEspionageReport} from '../model/types';
-import {map, parseLocalDate, parseOnlyNumbers} from './common';
+import {map} from '../../common/common';
+import {StampedEspionageReport} from '../../common/types';
+import {parseLocalDate, parseOnlyNumbers} from './parsers-common';
 
 export interface StringNumberMap {
   [key: string]: number;
@@ -10,13 +11,13 @@ export type TranslationMapping = { [key: string]: string[] };
 export type ReverseTranslationMapping = { [key: string]: string };
 
 export const GLOBAL_TO_LOCAL: { [category: string]: TranslationMapping } = {
-  'resources': {
+  resources: {
     metal: ['металл'],
     crystal: ['кристалл'],
     deut: ['дейтерий'],
     energy: ['энергия']
   },
-  'ships': {
+  ships: {
     lightFighter: ['лёгкий истребитель', 'легкий истребитель'],
     heavyFighter: ['тяжёлый истребитель', 'тяжелый истребитель'],
     cruiser: ['крейсер'],
@@ -32,7 +33,7 @@ export const GLOBAL_TO_LOCAL: { [category: string]: TranslationMapping } = {
     espionageProbe: ['шпионский зонд'],
     solarSatellite: ['солнечный спутник']
   },
-  'defense': {
+  defense: {
     rocketLauncher: ['ракетная установка'],
     lightLaser: ['лёгкий лазер', 'легкий лазер'],
     heavyLaser: ['тяжёлый лазер', 'тяжелый лазер'],
@@ -44,7 +45,7 @@ export const GLOBAL_TO_LOCAL: { [category: string]: TranslationMapping } = {
     antiBallistic: ['ракета-перехватчик'],
     interplanetary: ['межпланетная ракета']
   },
-  'buildings': {
+  buildings: {
     metalMine: ['рудник по добыче металла'],
     crystalMine: ['рудник по добыче кристалла'],
     deutMine: ['синтезатор дейтерия'],

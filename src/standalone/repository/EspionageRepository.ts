@@ -1,6 +1,6 @@
-import {Coordinates, CoordinateType, sameCoordinates, ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../model/types';
-import {valueToSQLString} from '../parsers/common';
+import {Coordinates, CoordinateType, sameCoordinates, ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../common/types';
 import {db} from './db';
+import {valueToSQLString} from './db-common';
 import {GalaxyRepository} from './GalaxyRepository';
 import {extractFrom, extractObject, FieldMapping, packObject} from './object-mapping';
 

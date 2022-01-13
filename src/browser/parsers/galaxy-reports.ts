@@ -1,4 +1,4 @@
-import {parseOnlyNumbers} from './common';
+import {parseOnlyNumbers} from './parsers-common';
 
 export interface GalaxySystemInfo {
   galaxy: number;
