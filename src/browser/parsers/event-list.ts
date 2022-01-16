@@ -1,6 +1,6 @@
-import {FlightEvent} from '../../common/report-types';
+import {FlightEvent, StringNumberMap} from '../../common/report-types';
+import {translateEntries} from '../../common/translate';
 import {CoordinateType, FleetPartial, MissionType, Resources} from '../../common/types';
-import {StringNumberMap, translateEntries} from './espionage-reports';
 import {parseCoordinates, parseOnlyNumbers} from './parsers-common';
 
 export function parseEventList(doc: DocumentFragment): FlightEvent[] {

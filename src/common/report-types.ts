@@ -124,3 +124,9 @@ export interface Mapper {
   loadEvents(): Promise<FlightEvent[]>;
   launch(mission: Mission): Promise<number>;
 }
+
+export interface StringNumberMap {
+  [key: string]: number;
+}
+
+export type InfoCategory = 'resources' | 'ships' | 'defense' | 'buildings' | 'research';
