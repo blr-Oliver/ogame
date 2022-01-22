@@ -3,10 +3,8 @@
   "compilerOptions": {
     "types": [
       "node",
-      "express",
       "jsdom",
-      "mysql",
-      "request"
+      "mysql"
     ]
   },
   "include": [

@@ -1,7 +1,12 @@
 {
   "extends": "../../base-tsconfig.json",
   "compilerOptions": {
-    "types": []
+    "types": [
+      "node",
+      "jsdom",
+      "express",
+      "request"
+    ]
   },
   "include": [
     "./**/*"
