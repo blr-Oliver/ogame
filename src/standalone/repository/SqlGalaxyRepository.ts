@@ -1,11 +1,11 @@
 import {GalaxySlotInfo, GalaxySystemInfo} from '../../common/report-types';
+import {GalaxyRepository} from '../../common/repository-types';
 import {Coordinates} from '../../common/types';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
-import {createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';
+import {COORDINATES_MAPPING, createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';
 
-export class GalaxyRepository {
-  static readonly COORDINATES_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'position', 'type']);
+export class SqlGalaxyRepository implements GalaxyRepository {
   private static readonly GALAXY_REPORT_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'timestamp', 'empty']);
   private static readonly GALAXY_SLOT_MAPPING: FieldMapping = {
     planet_id: ['planet', 'id'],
@@ -23,8 +23,6 @@ export class GalaxyRepository {
     debris_metal: ['debris', 'metal'],
     debris_crystal: ['debris', 'crystal']
   };
-
-  static readonly instance: GalaxyRepository = new GalaxyRepository();
 
   constructor() {
     // TODO add cache
@@ -45,7 +43,7 @@ export class GalaxyRepository {
       for (let i = 0; i < rows.length; ++i) {
         let rawSlot = rows[i]['s'];
         if (rawSlot)
-          slots[rawSlot.position - 1] = extractObject(rawSlot, GalaxyRepository.GALAXY_SLOT_MAPPING);
+          slots[rawSlot.position - 1] = extractObject(rawSlot, SqlGalaxyRepository.GALAXY_SLOT_MAPPING);
       }
       result.empty = result.slots.every(x => !x); // set actual value
       return result;
@@ -67,7 +65,7 @@ export class GalaxyRepository {
                    or empty = 0 and timestamp < date_sub(now(), interval ${normalTimeout} second))
               order by galaxy asc, system asc
               limit 1;`
-    }).then((rows: any[]) => extractObject(rows[0], GalaxyRepository.COORDINATES_MAPPING));
+    }).then((rows: any[]) => extractObject(rows[0], COORDINATES_MAPPING));
   }
 
   findInactiveTargets(): Promise<Coordinates[]> {
@@ -76,7 +74,7 @@ export class GalaxyRepository {
           `select galaxy, system, position from galaxy_report_slot
              where (player_status like '%i%' or player_status like '%I%')
              and player_status not like '%РО%' and player_status not like '%A%'`
-    }).then((rows: any[]) => rows.map(row => extractObject(row, GalaxyRepository.COORDINATES_MAPPING)));
+    }).then((rows: any[]) => rows.map(row => extractObject(row, COORDINATES_MAPPING)));
   }
 
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {
@@ -87,11 +85,11 @@ export class GalaxyRepository {
            on s.galaxy = r.galaxy and s.system = r.system
            where s.player_status not like '%A%'
              and r.timestamp < date_sub(now(), interval ${timeout} second)`
-    }).then((rows: any[]) => rows.map(row => extractObject(row, GalaxyRepository.COORDINATES_MAPPING)));
+    }).then((rows: any[]) => rows.map(row => extractObject(row, COORDINATES_MAPPING)));
   }
 
   store(galaxy: GalaxySystemInfo): Promise<void> {
-    let reportData = packObject(galaxy, GalaxyRepository.GALAXY_REPORT_MAPPING);
+    let reportData = packObject(galaxy, SqlGalaxyRepository.GALAXY_REPORT_MAPPING);
     let reportKeys = Object.keys(reportData);
     let reportValues = reportKeys.map(key => valueToSQLString(reportData[key]));
     let isEmpty = galaxy.empty = galaxy.slots.every(x => !x); // force correct value
@@ -122,13 +120,13 @@ export class GalaxyRepository {
     }).then(() => {
       if (isEmpty) return;
       let implicitKeys = ['galaxy', 'system', 'position'];
-      let slotKeys = Object.keys(GalaxyRepository.GALAXY_SLOT_MAPPING);
+      let slotKeys = Object.keys(SqlGalaxyRepository.GALAXY_SLOT_MAPPING);
       let recordKeys = implicitKeys.concat(slotKeys);
       let records: string[] = [];
       galaxy.slots.forEach((slot, index) => {
         if (slot) {
           const position = index + 1;
-          let preparedData = packObject(slot, GalaxyRepository.GALAXY_SLOT_MAPPING);
+          let preparedData = packObject(slot, SqlGalaxyRepository.GALAXY_SLOT_MAPPING);
           let slotValues = slotKeys.map(key => valueToSQLString(preparedData[key]));
           let values = [galaxy.galaxy, galaxy.system, position].map(String).concat(slotValues);
           records.push(`(${values.join(', ')})`);

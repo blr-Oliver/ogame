@@ -1,9 +1,8 @@
 import {Calculator} from '../../common/Calculator';
 import {FlightCalculator} from '../../common/FlightCalculator';
 import {FlightEvent, GalaxySystemInfo, Mapper, ShardedEspionageReport} from '../../common/report-types';
+import {EspionageRepository, GalaxyRepository} from '../../common/repository-types';
 import {Coordinates, MissionType, sameCoordinates} from '../../common/types';
-import {EspionageRepository} from '../repository/EspionageRepository';
-import {GalaxyRepository} from '../repository/GalaxyRepository';
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
 import {CURRENT_RESEARCHES, nearestPlanet, PLANETS} from './GameContext';
 
@@ -20,7 +19,9 @@ export class AutoRaid {
 
   private data: [Coordinates, ProcessedReport][] = [];
 
-  constructor(private mapper: Mapper) {
+  constructor(private mapper: Mapper,
+              private espionageRepo: EspionageRepository,
+              private galaxyRepo: GalaxyRepository) {
   }
 
   continue() {
@@ -44,10 +45,8 @@ export class AutoRaid {
   }
 
   private reloadData(): Promise<[Coordinates, ShardedEspionageReport][]> {
-    let galaxyRepo = GalaxyRepository.instance;
-    let espionageRepo = EspionageRepository.instance;
     this.state.status = 'checking galaxy info';
-    return galaxyRepo
+    return this.galaxyRepo
         .findStaleSystemsWithTargets(this.mapper.observe.normalTimeout)
         .then(systems => {
           if (!systems.length)
@@ -57,7 +56,7 @@ export class AutoRaid {
         })
         .then((/*freshGalaxies*/) => {
           this.state.status = 'fetching existing reports';
-          return espionageRepo.findForInactiveTargets()
+          return this.espionageRepo.findForInactiveTargets()
         });
   }
 

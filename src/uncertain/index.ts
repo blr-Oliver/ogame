@@ -2,20 +2,23 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
+import {CoordinateType} from '../common/types';
 import {Analyzer} from '../standalone/core/Analyzer';
 import {AutoRaid} from '../standalone/core/AutoRaid';
-import {LegacyMapper} from './LegacyMapper';
 import {Scanner} from '../standalone/core/Scanner';
-import {CoordinateType} from '../common/types';
-import {EspionageRepository} from '../standalone/repository/EspionageRepository';
-import {GalaxyRepository} from '../standalone/repository/GalaxyRepository';
+import {SqlEspionageRepository} from '../standalone/repository/SqlEspionageRepository';
+import {SqlGalaxyRepository} from '../standalone/repository/SqlGalaxyRepository';
+import {LegacyMapper} from './LegacyMapper';
 
 const app = express();
 const port = 8080;
 
-const autoRaid = new AutoRaid(LegacyMapper.instance);
-const scanner = new Scanner(LegacyMapper.instance);
-const analyzer = new Analyzer(LegacyMapper.instance)
+const espionageRepo = new SqlEspionageRepository();
+const galaxyRepo = new SqlGalaxyRepository();
+const mapper = new LegacyMapper(espionageRepo, galaxyRepo);
+const scanner = new Scanner(mapper);
+const autoRaid = new AutoRaid(mapper, espionageRepo, galaxyRepo);
+const analyzer = new Analyzer(mapper, espionageRepo, galaxyRepo)
 
 // TODO init (and inject?) all components
 app.use(express.static(path.join(__dirname, 'public')));
@@ -28,27 +31,27 @@ app.set('json replacer', function (this: any, key: string, value: any) {
 app.all('/*', useCookiesIfPresent, addCORSHeader);
 
 app.get('/login', (req, res, next) => {
-  LegacyMapper.instance.loginLobby().then(result => {
+  mapper.loginLobby().then(result => {
     res.send(result);
   }).then(next);
 });
 
 app.get('/display/galaxy/:galaxy/:system', (req, res) => {
-  GalaxyRepository.instance.load(+req.params['galaxy'], +req.params['system']).then(systemInfo => {
+  galaxyRepo.load(+req.params['galaxy'], +req.params['system']).then(systemInfo => {
     res.json(systemInfo);
   });
 });
 
 app.get('/display/report/:galaxy/:system/:position/:type?', (req, res) => {
   let type: CoordinateType = +(req.params['type'] || CoordinateType.Planet);
-  EspionageRepository.instance.load(+req.params['galaxy'], +req.params['system'], +req.params['position'], type).then(report => {
+  espionageRepo.load(+req.params['galaxy'], +req.params['system'], +req.params['position'], type).then(report => {
     res.json(report);
   });
 });
 
 app.get('/cookies', (req, res) => {
   if ('url' in req.query) {
-    let cookies: Cookie[] = LegacyMapper.instance.requestJar.getCookies(String(req.query['url']));
+    let cookies: Cookie[] = mapper.requestJar.getCookies(String(req.query['url']));
     if ('relay' in req.query) {
       let relayCode = cookies.map(c => `document.cookie="${[`${c.key}=${c.value}`, `path=${c.path}`].join('; ')}";`).join('\n');
       res.send(relayCode);
@@ -56,11 +59,11 @@ app.get('/cookies', (req, res) => {
       res.json({cookies});
     }
   } else
-    res.json(LegacyMapper.instance.jar);
+    res.json(mapper.jar);
 });
 
 app.get('/ping', (req, res, next) => {
-  LegacyMapper.instance.ping().then(response => {
+  mapper.ping().then(response => {
     let statusCode = response.statusCode;
     console.log(`ping -> ${statusCode}`);
     res.json(statusCode);
@@ -77,26 +80,26 @@ app.get('/galaxy', (req, res) => {
   if (galaxyParams) {
     let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 7);
     if (galaxy.length) {
-      LegacyMapper.instance.observe.galaxyMin = Math.min(...galaxy);
-      LegacyMapper.instance.observe.galaxyMax = Math.max(...galaxy);
+      mapper.observe.galaxyMin = Math.min(...galaxy);
+      mapper.observe.galaxyMax = Math.max(...galaxy);
     }
   }
   if (systemParams) {
     let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 499);
     if (system.length) {
-      LegacyMapper.instance.observe.systemMin = Math.min(...system);
-      LegacyMapper.instance.observe.systemMax = Math.max(...system);
+      mapper.observe.systemMin = Math.min(...system);
+      mapper.observe.systemMax = Math.max(...system);
     }
   }
 
   if ('pause' in req.query) {
-    LegacyMapper.instance.observe.pause = true;
+    mapper.observe.pause = true;
   } else if ('continue' in req.query) {
-    LegacyMapper.instance.observe.pause = false;
-    LegacyMapper.instance.continueObserve();
+    mapper.observe.pause = false;
+    mapper.continueObserve();
   }
 
-  res.json(LegacyMapper.instance.observe);
+  res.json(mapper.observe);
 });
 
 
@@ -121,7 +124,7 @@ app.get('/dump', (req, res) => {
   if (!field || !field.length)
     res.status(400).send('Expected "field" request param');
   else {
-    let value: any = (LegacyMapper.instance as any)[field[0]];
+    let value: any = (mapper as any)[field[0]];
     if (path && path.length) {
       fs.writeFile(path[0], JSON.stringify(value), 'utf8', (err) => {
         if (err)
@@ -136,13 +139,13 @@ app.get('/dump', (req, res) => {
 
 app.get('/espionage', (req, res) => {
   if ('continue' in req.query)
-    LegacyMapper.instance.loadAllReports();
-  res.json(LegacyMapper.instance.reportIdList);
+    mapper.loadAllReports();
+  res.json(mapper.reportIdList);
 });
 
 app.get('/scan', (req, res) => {
   if ('load' in req.query)
-    GalaxyRepository.instance.findInactiveTargets().then(
+    galaxyRepo.findInactiveTargets().then(
         targets => scanner.targets = targets);
   else if ('continue' in req.query) {
     scanner.launchNext()
@@ -162,7 +165,7 @@ app.get('/analyze', (req, res) => {
 });
 
 app.get('/events', (req, res) => {
-  LegacyMapper.instance.loadEvents().then(events => res.json(events));
+  mapper.loadEvents().then(events => res.json(events));
 });
 
 app.listen(port, () => {
@@ -180,7 +183,7 @@ function useCookiesIfPresent(req: express.Request, res: express.Response, next: 
     if (bodyCookie)
       mergedCookies = mergedCookies.concat(bodyCookie);
     if (mergedCookies.length)
-      LegacyMapper.instance.useCookie(mergedCookies, (req.params['url'] || req.query['url'] || req.headers.referer) as string);
+      mapper.useCookie(mergedCookies, (req.params['url'] || req.query['url'] || req.headers.referer) as string);
   }
   next();
 }

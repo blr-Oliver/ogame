@@ -1,11 +1,11 @@
 import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../common/report-types';
+import {EspionageRepository} from '../../common/repository-types';
 import {Coordinates, CoordinateType, sameCoordinates} from '../../common/types';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
-import {GalaxyRepository} from './GalaxyRepository';
-import {extractFrom, extractObject, FieldMapping, packObject} from './object-mapping';
+import {COORDINATES_MAPPING, extractFrom, extractObject, FieldMapping, packObject} from './object-mapping';
 
-export class EspionageRepository {
+export class SqlEspionageRepository implements EspionageRepository {
   private static readonly ESPIONAGE_REPORT_MAPPING: FieldMapping = {
     id: ['id'],
     timestamp: ['timestamp'],
@@ -94,8 +94,6 @@ export class EspionageRepository {
     ['energy_tech', 'laser', 'ion', 'hyperspace', 'plasma', 'espionage', 'computer', 'astrophysics', 'intergalactic', 'graviton', 'combustion_drive', 'impulse_drive', 'hyperspace_drive', 'weapons_upgrade', 'shielding_upgrade', 'armor_upgrade']
   ];
 
-  static readonly instance: EspionageRepository = new EspionageRepository();
-
   constructor() {
     // TODO add cache
   }
@@ -118,7 +116,7 @@ export class EspionageRepository {
   }
 
   store(report: StampedEspionageReport): Promise<void> {
-    let preparedData = packObject(report, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
+    let preparedData = packObject(report, SqlEspionageRepository.ESPIONAGE_REPORT_MAPPING);
     let keys = Object.keys(preparedData);
     let values = keys.map(key => valueToSQLString(preparedData[key]));
     return db.query({
@@ -151,10 +149,10 @@ export class EspionageRepository {
     }).then((rows: any[]) => {
       if (!rows || !rows.length) return [];
       let result: [Coordinates, ShardedEspionageReport][] = [];
-      let lastCoordinates: Coordinates = extractObject(rows[0]['s'], GalaxyRepository.COORDINATES_MAPPING);
+      let lastCoordinates: Coordinates = extractObject(rows[0]['s'], COORDINATES_MAPPING);
       let lastIndex = 0;
       for (let i = 0; i <= rows.length; ++i) {
-        let coordinates = i == rows.length ? null : extractObject(rows[i]['s'], GalaxyRepository.COORDINATES_MAPPING);
+        let coordinates = i == rows.length ? null : extractObject(rows[i]['s'], COORDINATES_MAPPING);
         if (!sameCoordinates(lastCoordinates, coordinates)) {
           let report = this.collectReport(rows.slice(lastIndex, i).map(row => row['r']));
           if (report) {
@@ -169,16 +167,16 @@ export class EspionageRepository {
   }
 
   private collectReport(rawShards: any[]): ShardedEspionageReport | undefined {
-    let result: ShardedEspionageReport = extractFrom(rawShards[0], EspionageRepository.ESPIONAGE_REPORT_INFO_COMMON, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
+    let result: ShardedEspionageReport = extractFrom(rawShards[0], SqlEspionageRepository.ESPIONAGE_REPORT_INFO_COMMON, SqlEspionageRepository.ESPIONAGE_REPORT_MAPPING);
     if (result && result.infoLevel != null) {
       result.source = [];
       let currentLevel = -1;
       for (let i = 0; i < rawShards.length; ++i) {
-        let header: ShardHeader = extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_HEADER, EspionageRepository.ESPIONAGE_REPORT_MAPPING);
+        let header: ShardHeader = extractFrom(rawShards[i], SqlEspionageRepository.ESPIONAGE_REPORT_INFO_HEADER, SqlEspionageRepository.ESPIONAGE_REPORT_MAPPING);
         if (currentLevel < header.infoLevel) {
           result.source.push(header);
           while (currentLevel < header.infoLevel)
-            extractFrom(rawShards[i], EspionageRepository.ESPIONAGE_REPORT_INFO_LEVELS[++currentLevel], EspionageRepository.ESPIONAGE_REPORT_MAPPING, result);
+            extractFrom(rawShards[i], SqlEspionageRepository.ESPIONAGE_REPORT_INFO_LEVELS[++currentLevel], SqlEspionageRepository.ESPIONAGE_REPORT_MAPPING, result);
         }
       }
       result.infoLevel = currentLevel;

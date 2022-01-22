@@ -5,10 +5,9 @@ import {parseReport, parseReportList} from '../browser/parsers/espionage-reports
 import {parseEventList} from '../browser/parsers/event-list';
 import {parseGalaxy} from '../browser/parsers/galaxy-reports';
 import {FlightEvent, GalaxySystemInfo, Mapper, ObserveParams, StampedEspionageReport} from '../common/report-types';
+import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
 import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
 import {dumpFile} from '../standalone/core/files';
-import {EspionageRepository} from '../standalone/repository/EspionageRepository';
-import {GalaxyRepository} from '../standalone/repository/GalaxyRepository';
 
 type Form = { [key: string]: string | number };
 
@@ -27,7 +26,6 @@ export class LegacyMapper implements Mapper {
     _gid: true,
     _fbp: true
   };
-  static instance: LegacyMapper = new LegacyMapper();
 
   jar: CookieJar;
   requestJar: request.CookieJar;
@@ -47,7 +45,8 @@ export class LegacyMapper implements Mapper {
   private observeNext: NodeJS.Timeout | null = null;
   reportIdList: number[] = [];
 
-  constructor() {
+  constructor(private espionageRepo: EspionageRepository,
+              private galaxyRepo: GalaxyRepository) {
     const cookieStore = new MemoryCookieStore();
     this.jar = new CookieJar(cookieStore);
     this.requestJar = request.jar(cookieStore);
@@ -107,7 +106,7 @@ export class LegacyMapper implements Mapper {
     return systems
         .reduce((chain, coords) => chain.then(list =>
             this.viewGalaxy(coords.galaxy, coords.system).then(system => {
-              storeTasks.push(GalaxyRepository.instance.store(system));
+              storeTasks.push(this.galaxyRepo.store(system));
               list.push(system);
               return list;
             })
@@ -123,7 +122,7 @@ export class LegacyMapper implements Mapper {
     }
     if (!params.pause) {
       params.pause = true;
-      GalaxyRepository.instance.findNextStale(
+      this.galaxyRepo.findNextStale(
           params.galaxyMin, params.galaxyMax, params.systemMin, params.systemMax, params.galaxyLast, params.systemLast,
           params.normalTimeout, params.emptyTimeout
       ).then(nextTarget => {
@@ -134,7 +133,7 @@ export class LegacyMapper implements Mapper {
           let galaxyNext: number = nextTarget.galaxy;
           let systemNext: number = nextTarget.system;
           this.viewGalaxy(galaxyNext, systemNext).then(result => {
-            GalaxyRepository.instance.store(result).then(() => {
+            this.galaxyRepo.store(result).then(() => {
               params.pause = false;
               params.galaxyLast = galaxyNext;
               params.systemLast = systemNext;
@@ -199,7 +198,7 @@ export class LegacyMapper implements Mapper {
                 if (!report) {
                   this.reportIdList.shift();
                   return this.deleteReport(id).then(() => list);
-                } else return EspionageRepository.instance.store(report)
+                } else return this.espionageRepo.store(report)
                     .then(() => {
                       this.reportIdList.shift();
                       return this.deleteReport(id)

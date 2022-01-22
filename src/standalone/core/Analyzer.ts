@@ -1,9 +1,8 @@
 import {Calculator} from '../../common/Calculator';
 import {FlightCalculator} from '../../common/FlightCalculator';
 import {Mapper, ShardedEspionageReport} from '../../common/report-types';
+import {EspionageRepository, GalaxyRepository} from '../../common/repository-types';
 import {Coordinates, MissionType} from '../../common/types';
-import {EspionageRepository} from '../repository/EspionageRepository';
-import {GalaxyRepository} from '../repository/GalaxyRepository';
 import {CURRENT_RESEARCHES, nearestPlanet, PLANETS} from './GameContext';
 
 export interface ReportMetaInfo {
@@ -31,11 +30,13 @@ export class Analyzer {
   reports: ProcessedReport[] = [];
   excludedTargets: Coordinates[] = [];
 
-  constructor(private mapper: Mapper) {
+  constructor(private mapper: Mapper,
+              private espionageRepo: EspionageRepository,
+              private galaxyRepo: GalaxyRepository) {
   }
 
   load(): Promise<ProcessedReport[]> {
-    return EspionageRepository.instance.findForInactiveTargets().then(pairs => {
+    return this.espionageRepo.findForInactiveTargets().then(pairs => {
       this.coordinates = pairs.map(pair => pair[0]);
       this.reports = pairs
           .map(pair => ({meta: {}, ...pair[1]}) as ProcessedReport)
@@ -117,11 +118,11 @@ export class Analyzer {
   }
 
   private determineCoordinates(): Promise<Coordinates[]> {
-    return GalaxyRepository.instance.findInactiveTargets();
+    return this.galaxyRepo.findInactiveTargets();
   }
 
   private loadReports(): Promise<ShardedEspionageReport[]> {
-    return Promise.all(this.coordinates.map(coordinates => EspionageRepository.instance.loadC(coordinates)))
+    return Promise.all(this.coordinates.map(coordinates => this.espionageRepo.loadC(coordinates)))
         .then(reports => reports.filter(x => !!x) as ShardedEspionageReport[]);
   }
 

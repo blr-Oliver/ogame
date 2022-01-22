@@ -49,3 +49,5 @@ export function get(obj: any, path: string[]): any {
   }
   return context;
 }
+
+export const COORDINATES_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'position', 'type']);
