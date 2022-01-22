@@ -52,7 +52,8 @@ const config = {
   },
   externalsType: 'import',
   node: {
-    global: false
+    global: false,
+    __dirname: false
   },
   optimization: {
     concatenateModules: true,

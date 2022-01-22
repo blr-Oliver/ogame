@@ -1,2 +1,2 @@
-import './ui/skin.js';
-import './ui/terminal.js';
+import './ui/skin';
+import './ui/terminal';

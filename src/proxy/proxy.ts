@@ -4,7 +4,7 @@ import * as HttpMitmProxy from 'http-mitm-proxy';
 import {createServer, Options} from 'http-server';
 import {URL} from 'url';
 
-type LocalContent = 'pac' | 'shell' | 'src';
+type LocalContent = 'pac' | 'browser' | 'src';
 
 const PORT = 9000;
 const proxy = HttpMitmProxy();
@@ -75,8 +75,8 @@ function getLocalContentType(url: URL): LocalContent | undefined {
   if (isDirectLocalhost(url)) return 'pac';
   if (isInterestedHost(url.hostname.toLowerCase())) {
     let pathname = url.pathname.toLowerCase();
-    if (pathname.startsWith('/shell/')) return 'shell';
     if (pathname.startsWith('/src/')) return 'src';
+    if (pathname.startsWith('/sw.js') || pathname.startsWith('/browser/')) return 'browser';
   }
 }
 
@@ -121,7 +121,7 @@ function respondWithFile(ctx: HttpMitmProxy.IContext, localType: LocalContent) {
     case 'pac':
       handler = proxyHandler;
       break;
-    case 'shell':
+    case 'browser':
       handler = distHandler;
       break;
     case 'src':
