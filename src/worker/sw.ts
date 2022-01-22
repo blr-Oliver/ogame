@@ -1,3 +1,5 @@
 import {Router} from './Router';
 
-let router = new Router();
+declare var self: ServiceWorkerGlobalScope;
+
+let router = new Router(self);
