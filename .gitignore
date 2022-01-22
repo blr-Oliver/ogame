@@ -1,4 +1,9 @@
-dist
+./dist
+./proxy
+./etc/certs
+./etc/keys
+
 node_modules
 
 .idea
+.http-mitm-proxy

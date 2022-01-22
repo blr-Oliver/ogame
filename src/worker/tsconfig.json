@@ -9,7 +9,6 @@
       "webworker"
     ],
     "types": [],
-    "outDir": "../../dist/worker"
   },
   "include": [
     "./**/*"

@@ -30,7 +30,5 @@
       "es2021"
     ]
   },
-  "include": [
-    "./common/*"
-  ]
+  "include": []
 }

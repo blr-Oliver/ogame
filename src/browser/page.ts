@@ -1,3 +1,2 @@
-navigator.serviceWorker.addEventListener('message', event => {
-  console.log(`The service worker sent a message: ${new Date(event.data)}`);
-});
+import './ui/skin.js';
+import './ui/terminal.js';
