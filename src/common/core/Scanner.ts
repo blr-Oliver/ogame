@@ -1,23 +1,25 @@
-import {FlightCalculator} from '../../common/FlightCalculator';
-import {Mapper} from '../../common/report-types';
-import {Coordinates, MissionType} from '../../common/types';
-import {CURRENT_RESEARCHES, nearestPlanet, PLANETS} from './GameContext';
+import {FlightCalculator} from '../FlightCalculator';
+import {Mapper} from '../report-types';
+import {Coordinates, MissionType} from '../types';
+import {GameContext} from './GameContext';
 
 export class Scanner {
   targets: Coordinates[] = [];
   maxSlots: number = 11;
   usedSlots: number = 0;
 
-  constructor(private mapper: Mapper) {
+  constructor(private context: GameContext,
+              private mapper: Mapper) {
   }
 
   launchNext() {
     if (this.targets.length && this.usedSlots < this.maxSlots) {
       let target = this.targets.pop()!;
-      let nearestPlanetId = nearestPlanet(target);
+      let nearestBody = this.context.getNearestBody(target);
+      let nearestPlanetId = nearestBody.id;
       let flightTime = FlightCalculator.flightTime(
-          FlightCalculator.distanceC(target, PLANETS[nearestPlanetId]),
-          FlightCalculator.fleetSpeed({espionageProbe: 1}, CURRENT_RESEARCHES)
+          FlightCalculator.distanceC(target, nearestBody.coordinates),
+          FlightCalculator.fleetSpeed({espionageProbe: 1}, this.context.getResearches())
       );
       ++this.usedSlots;
       this.mapper.launch({

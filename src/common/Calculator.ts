@@ -27,12 +27,12 @@ export class Calculator {
   readonly baseEnergyProduction: number;
   readonly baseEnergyConsumption: number[/*resource*/];
 
-  private costCache: number[/*building*/][/*level*/][/*resource*/];
-  private accumulativeCostCache: number[/*building*/][/*level*/][/*delta*/][/*resource*/];
-  private productionCache: number[/*resource*/][/*level*/];
-  private energyConsumptionCache: number[/*resource*/][/*level*/];
-  private energyProductionCache: number[];
-  private storageCache: number[];
+  private readonly costCache: number[/*building*/][/*level*/][/*resource*/];
+  private readonly accumulativeCostCache: number[/*building*/][/*level*/][/*delta*/][/*resource*/];
+  private readonly productionCache: number[/*resource*/][/*level*/];
+  private readonly energyConsumptionCache: number[/*resource*/][/*level*/];
+  private readonly energyProductionCache: number[];
+  private readonly storageCache: number[];
 
   constructor(economySpeed: number, baseCost: number[][], costGrowth: number[], naturalProduction: number[], baseProduction: number[], baseEnergyProduction: number, baseEnergyConsumption: number[]) {
     this.economySpeed = economySpeed;

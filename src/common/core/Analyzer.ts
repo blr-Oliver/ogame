@@ -1,9 +1,9 @@
-import {Calculator} from '../../common/Calculator';
-import {FlightCalculator} from '../../common/FlightCalculator';
-import {Mapper, ShardedEspionageReport} from '../../common/report-types';
-import {EspionageRepository, GalaxyRepository} from '../../common/repository-types';
-import {Coordinates, MissionType} from '../../common/types';
-import {CURRENT_RESEARCHES, nearestPlanet, PLANETS} from './GameContext';
+import {Calculator} from '../Calculator';
+import {FlightCalculator} from '../FlightCalculator';
+import {Mapper, ShardedEspionageReport} from '../report-types';
+import {EspionageRepository, GalaxyRepository} from '../repository-types';
+import {Coordinates, MissionType} from '../types';
+import {GameContext} from './GameContext';
 
 export interface ReportMetaInfo {
   nearestPlanetId?: number;
@@ -30,7 +30,8 @@ export class Analyzer {
   reports: ProcessedReport[] = [];
   excludedTargets: Coordinates[] = [];
 
-  constructor(private mapper: Mapper,
+  constructor(private context: GameContext,
+              private mapper: Mapper,
               private espionageRepo: EspionageRepository,
               private galaxyRepo: GalaxyRepository) {
   }
@@ -128,9 +129,10 @@ export class Analyzer {
 
   private computeFlight() {
     this.reports.forEach(report => {
-      let nearestPlanetId = report.meta.nearestPlanetId = nearestPlanet(report.coordinates);
-      let nearestDistance = report.meta.distance = FlightCalculator.distanceC(report.coordinates, PLANETS[nearestPlanetId]);
-      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, CURRENT_RESEARCHES));
+      let nearestBody = this.context.getNearestBody(report.coordinates);
+      let nearestDistance = report.meta.distance = FlightCalculator.distanceC(report.coordinates, nearestBody.coordinates);
+      report.meta.nearestPlanetId = nearestBody.id;
+      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, this.context.getResearches()));
     });
   }
 
@@ -163,15 +165,17 @@ export class Analyzer {
 
   private computePlunder() {
     const now = Date.now();
+    const researches = this.context.getResearches();
+    const transportCapacity = 7000; // TODO consider hyperspace technology
     this.reports.forEach(report => {
       let time = (now - report.source[0].timestamp.getTime() + report.meta.flightTime! * 1000) / 1000 / 3600;
       let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deut || 0];
       let andProduced = report.meta.production!.map((x, i) => x * time + original[i]);
       let expected = report.meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, report.meta.capacity![i]), original[i]));
       let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
-      let nTransports = report.meta.requiredTransports = Math.ceil(requiredCapacity / 7000);
-      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance!, {smallCargo: nTransports}, CURRENT_RESEARCHES, report.meta.flightTime);
-      let actualCapacity = nTransports * 7000;
+      let nTransports = report.meta.requiredTransports = Math.ceil(requiredCapacity / transportCapacity);
+      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance!, {smallCargo: nTransports}, researches, report.meta.flightTime);
+      let actualCapacity = nTransports * transportCapacity;
       report.meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
       report.meta.minutesStale = Math.floor((now - report.source[0].timestamp.getTime()) / 1000 / 60);
     });

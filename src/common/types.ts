@@ -21,6 +21,12 @@ export interface Coordinates {
   type?: CoordinateType;
 }
 
+export interface SpaceBody {
+  name?: string; // allow unnamed bodies
+  id: number;
+  coordinates: Coordinates;
+}
+
 export function sameCoordinates(first: Coordinates, second: Coordinates): boolean {
   if (!first && !second) return true;
   if (first && !second || !first && second) return false;

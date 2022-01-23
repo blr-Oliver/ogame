@@ -7,7 +7,7 @@ import {parseGalaxy} from '../browser/parsers/galaxy-reports';
 import {FlightEvent, GalaxySystemInfo, Mapper, ObserveParams, StampedEspionageReport} from '../common/report-types';
 import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
 import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
-import {dumpFile} from '../standalone/core/files';
+import {dumpFile} from '../standalone/files';
 
 type Form = { [key: string]: string | number };
 

@@ -1,5 +1,5 @@
-import {Mapper} from '../../common/report-types';
-import {Mission, MissionType} from '../../common/types';
+import {Mapper} from '../report-types';
+import {Mission, MissionType} from '../types';
 
 type ScheduledMission = Mission & { timestamp: Date };
 let missions: ScheduledMission[] = [

@@ -1,10 +1,10 @@
-import {Calculator} from '../../common/Calculator';
-import {FlightCalculator} from '../../common/FlightCalculator';
-import {FlightEvent, GalaxySystemInfo, Mapper, ShardedEspionageReport} from '../../common/report-types';
-import {EspionageRepository, GalaxyRepository} from '../../common/repository-types';
-import {Coordinates, MissionType, sameCoordinates} from '../../common/types';
+import {Calculator} from '../Calculator';
+import {FlightCalculator} from '../FlightCalculator';
+import {FlightEvent, GalaxySystemInfo, Mapper, ShardedEspionageReport} from '../report-types';
+import {EspionageRepository, GalaxyRepository} from '../repository-types';
+import {Coordinates, MissionType, sameCoordinates} from '../types';
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
-import {CURRENT_RESEARCHES, nearestPlanet, PLANETS} from './GameContext';
+import {GameContext} from './GameContext';
 
 export class AutoRaid {
   state: any = {
@@ -19,7 +19,8 @@ export class AutoRaid {
 
   private data: [Coordinates, ProcessedReport][] = [];
 
-  constructor(private mapper: Mapper,
+  constructor(private context: GameContext,
+              private mapper: Mapper,
               private espionageRepo: EspionageRepository,
               private galaxyRepo: GalaxyRepository) {
   }
@@ -61,6 +62,7 @@ export class AutoRaid {
   }
 
   private performNextLaunches() {
+    const researches = this.context.getResearches();
     this.state.status = 'rating reports';
 
     this.data.forEach(pair => {
@@ -127,7 +129,7 @@ export class AutoRaid {
         spyTime = 0;
         // pick longest espionage mission one-way flight
         targetsToSpy.forEach(target => {
-          let time = FlightCalculator.flightTime(target.meta.distance!, FlightCalculator.fleetSpeed({espionageProbe: 1}, CURRENT_RESEARCHES));
+          let time = FlightCalculator.flightTime(target.meta.distance!, FlightCalculator.fleetSpeed({espionageProbe: 1}, researches));
           spyTime = Math.max(spyTime, time);
         });
       }
@@ -141,7 +143,9 @@ export class AutoRaid {
         to: target.coordinates,
         fleet: {espionageProbe: 1},
         mission: MissionType.Espionage
-      }).then(() => (++this.state.activeSlots, void 0)
+      }).then(() => {
+            ++this.state.activeSlots
+          }
       )), Promise.resolve(null).then(() => {
         if (targetsToSpy.length)
           this.state.status = 'sending probes';
@@ -152,7 +156,9 @@ export class AutoRaid {
         to: target.coordinates,
         fleet: {smallCargo: target.meta.requiredTransports},
         mission: MissionType.Attack
-      }).then(() => (++this.state.activeSlots, void 0)
+      }).then(() => {
+            ++this.state.activeSlots
+          }
       )), spies.then(() => {
         if (targetsToLaunch.length)
           this.state.status = 'sending raids';
@@ -197,10 +203,12 @@ export class AutoRaid {
   }
 
   private processReport(to: Coordinates, report: ShardedEspionageReport | ProcessedReport): ProcessedReport {
+    const nearestBody = this.context.getNearestBody(to);
+    const researches = this.context.getResearches();
     if (!report) {
       let dummy = {infoLevel: -1, coordinates: to, meta: {}} as ProcessedReport, meta = dummy.meta;
-      meta.nearestPlanetId = nearestPlanet(to);
-      meta.distance = FlightCalculator.distanceC(to, PLANETS[meta.nearestPlanetId]);
+      meta.nearestPlanetId = nearestBody.id;
+      meta.distance = FlightCalculator.distanceC(to, nearestBody.coordinates);
       return dummy;
     } else if (report.infoLevel === -1) {
       return report as ProcessedReport;
@@ -210,9 +218,9 @@ export class AutoRaid {
     result.meta = meta;
 
     //
-    let nearestPlanetId = meta.nearestPlanetId = nearestPlanet(to);
-    let nearestDistance = meta.distance = FlightCalculator.distanceC(to, PLANETS[nearestPlanetId]);
-    let flightTime = meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, CURRENT_RESEARCHES));
+    meta.nearestPlanetId = nearestBody.id;
+    let nearestDistance = meta.distance = FlightCalculator.distanceC(to, nearestBody.coordinates);
+    let flightTime = meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, researches));
     //
     if (report.buildings) {
       let storageLevels: number[] = [report.buildings.metalStorage, report.buildings.crystalStorage, report.buildings.deutStorage];
@@ -243,7 +251,7 @@ export class AutoRaid {
     let expected = meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, meta.capacity![i]), original[i]));
     let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
     let nTransports = meta.requiredTransports = Math.ceil(requiredCapacity / 7000); // TODO compute based on current techs
-    meta.fuelCost = FlightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, CURRENT_RESEARCHES, flightTime);
+    meta.fuelCost = FlightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, researches, flightTime);
     let actualCapacity = nTransports * 7000;
     meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
     meta.loadRatio = meta.expectedPlunder.reduce((a, b) => a + b, 0) / actualCapacity;

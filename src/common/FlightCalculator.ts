@@ -52,14 +52,16 @@ export class FlightCalculator {
     solarSatellite: 0
   };
 
+  private static readonly GALAXY_COUNT = 7;
+  private static readonly SYSTEM_COUNT = 499;
   static distance(g1: number, s1: number, p1: number, g2: number, s2: number, p2: number): number {
     if (g1 !== g2) {
       let diff = Math.abs(g1 - g2);
-      return Math.min(diff, 7 - diff) * 20000;
+      return Math.min(diff, this.GALAXY_COUNT - diff) * 20000;
     }
     if (s1 !== s2) {
       let diff = Math.abs(s1 - s2);
-      return Math.min(diff, 499 - diff) * 95 + 2700;
+      return Math.min(diff, this.SYSTEM_COUNT - diff) * 95 + 2700;
     }
     if (p1 !== p2) {
       let diff = Math.abs(p1 - p2);
@@ -106,7 +108,7 @@ export class FlightCalculator {
     return result;
 
     function load(capacityFactor: number, resourceIndex: number) {
-      var loading = Math.min(Math.ceil(capacity / capacityFactor), available[resourceIndex]);
+      let loading = Math.min(Math.ceil(capacity / capacityFactor), available[resourceIndex]);
       capacity -= loading;
       available[resourceIndex] -= loading;
       result[resourceIndex] += loading;

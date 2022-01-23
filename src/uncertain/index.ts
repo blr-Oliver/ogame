@@ -2,23 +2,25 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
+import {Analyzer} from '../common/core/Analyzer';
+import {AutoRaid} from '../common/core/AutoRaid';
+import {Scanner} from '../common/core/Scanner';
 import {CoordinateType} from '../common/types';
-import {Analyzer} from '../standalone/core/Analyzer';
-import {AutoRaid} from '../standalone/core/AutoRaid';
-import {Scanner} from '../standalone/core/Scanner';
 import {SqlEspionageRepository} from '../standalone/repository/SqlEspionageRepository';
 import {SqlGalaxyRepository} from '../standalone/repository/SqlGalaxyRepository';
+import {StaticGameContext} from '../standalone/StaticGameContext';
 import {LegacyMapper} from './LegacyMapper';
 
 const app = express();
 const port = 8080;
 
+const gameContext = new StaticGameContext();
 const espionageRepo = new SqlEspionageRepository();
 const galaxyRepo = new SqlGalaxyRepository();
 const mapper = new LegacyMapper(espionageRepo, galaxyRepo);
-const scanner = new Scanner(mapper);
-const autoRaid = new AutoRaid(mapper, espionageRepo, galaxyRepo);
-const analyzer = new Analyzer(mapper, espionageRepo, galaxyRepo)
+const scanner = new Scanner(gameContext, mapper);
+const autoRaid = new AutoRaid(gameContext, mapper, espionageRepo, galaxyRepo);
+const analyzer = new Analyzer(gameContext, mapper, espionageRepo, galaxyRepo);
 
 // TODO init (and inject?) all components
 app.use(express.static(path.join(__dirname, 'public')));
