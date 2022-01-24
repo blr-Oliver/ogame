@@ -9,16 +9,22 @@ import {
 } from '../../common/report-types';
 import {parseOnlyNumbers} from './parsers-common';
 
-export function parseGalaxy(doc: DocumentFragment): GalaxySystemInfo {
+export function parseGalaxy(doc: DocumentFragment, timestamp: Date = new Date()): GalaxySystemInfo {
   const table: HTMLTableElement = doc.querySelector('#galaxytable')!;
   const galaxy = +table.getAttribute('data-galaxy')!;
   const system = +table.getAttribute('data-system')!;
   const rows = table.tBodies[0].rows;
   let result: GalaxySystemInfo = {
-    galaxy, system, slots: Array(15), empty: false
+    galaxy, system, timestamp, slots: Array(15), empty: false
   };
   for (let i = 0; i < 15; ++i)
-    result.slots[i] = parseRow(rows[i]);
+    result.slots[i] = {
+      galaxy,
+      system,
+      position: i + 1,
+      timestamp,
+      ...parseRow(rows[i])
+    };
   result.empty = result.slots.every(x => !x);
   return result;
 }
@@ -92,18 +98,20 @@ function parsePlayer(td: HTMLTableCellElement): PlayerGalaxyInfo | undefined {
   if (tooltipDiv) {
     const id = tooltipDiv.id.substring('player'.length);
     const name = tooltipDiv.querySelector('h1>span')!.textContent!.trim();
-    const status = td.querySelector('.status')!.textContent!.trim();
-    let result: PlayerGalaxyInfo = {id, name, status};
+    const rawStatus = td.querySelector('.status')!.textContent!.trim();
+    // TODO parse rawStatus to flags
+    let result: PlayerGalaxyInfo = {id, name, rawStatus};
     let rankContainer = tooltipDiv.querySelector('.rank>a');
     if (rankContainer)
       result.rank = +rankContainer.textContent!;
     return result;
   } else {
+    // FIXME generalize this
     if (td!.textContent!.trim()) {
       return {
         id: 101497,
         name: 'Scrap Collector',
-        status: '',
+        rawStatus: '',
         rank: 38
       };
     }

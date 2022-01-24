@@ -10,11 +10,11 @@ export interface EspionageRepository {
 }
 
 export interface GalaxyRepository {
-  load(galaxy: number, system: number): Promise<GalaxySystemInfo | null>;
-  loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | null>;
+  load(galaxy: number, system: number): Promise<GalaxySystemInfo | undefined>;
+  loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | undefined>;
   findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null,
                 normalTimeout: number, emptyTimeout: number): Promise<Coordinates>;
   findInactiveTargets(): Promise<Coordinates[]>;
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]>;
-  store(galaxy: GalaxySystemInfo): Promise<void>;
+  store(report: GalaxySystemInfo): Promise<any>;
 }

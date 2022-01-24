@@ -1,5 +1,7 @@
 import {Buildings, Coordinates, Defense, DefensePartial, Fleet, FleetPartial, Mission, MissionType, Researches, Resources} from './types';
 
+export type ZeroOne = 0 | 1;
+
 export interface FlightEvent {
   id: number;
   mission: MissionType;
@@ -25,7 +27,17 @@ export interface GalaxySystemInfo {
   system: number;
   timestamp?: Date;
   empty: boolean;
-  slots: Array<GalaxySlotInfo | undefined>;
+  slots: Array<GalaxySlot | undefined>;
+}
+
+export interface GalaxySlot extends GalaxySlotCoordinates, GalaxySlotInfo {
+}
+
+export interface GalaxySlotCoordinates {
+  galaxy: number;
+  system: number;
+  timestamp?: Date;
+  position: number;
 }
 
 export interface GalaxySlotInfo {
@@ -55,8 +67,22 @@ export interface DebrisGalaxyInfo {
 export interface PlayerGalaxyInfo {
   id: number | string;
   name: string;
-  status: string;
+  rawStatus: string;
+  status?: PlayerStatusInfo; // TODO make it required
   rank?: number; // some players (admins) do not have rank
+}
+
+export enum PlayerInactivity {Active = 0, Inactive = 1, InactiveLong = 2}
+
+export interface PlayerStatusInfo {
+  inactive: PlayerInactivity;
+  vacation: ZeroOne;
+  admin: ZeroOne;
+  banned: ZeroOne;
+  newbie: ZeroOne;
+  honorableTarget: ZeroOne;
+  strong: ZeroOne;
+  outlaw: ZeroOne;
 }
 
 export interface AllianceGalaxyInfo {

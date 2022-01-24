@@ -94,9 +94,7 @@ export class LegacyMapper implements Mapper {
       }
     }).then(galaxyResponse => {
       let timestamp: Date = galaxyResponse.headers.date ? new Date(galaxyResponse.headers.date) : new Date();
-      let galaxyResult = parseGalaxy(JSDOM.fragment(galaxyResponse.body['galaxy']));
-      galaxyResult.timestamp = timestamp;
-      return galaxyResult;
+      return parseGalaxy(JSDOM.fragment(galaxyResponse.body['galaxy']), timestamp);
     });
   }
 

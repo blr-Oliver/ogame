@@ -1,4 +1,4 @@
-import {GalaxySlotInfo, GalaxySystemInfo} from '../../common/report-types';
+import {GalaxySlot, GalaxySystemInfo} from '../../common/report-types';
 import {GalaxyRepository} from '../../common/repository-types';
 import {Coordinates} from '../../common/types';
 import {db} from './db';
@@ -8,13 +8,17 @@ import {COORDINATES_MAPPING, createPlainMapping, extractObject, FieldMapping, pa
 export class SqlGalaxyRepository implements GalaxyRepository {
   private static readonly GALAXY_REPORT_MAPPING: FieldMapping = createPlainMapping(['galaxy', 'system', 'timestamp', 'empty']);
   private static readonly GALAXY_SLOT_MAPPING: FieldMapping = {
+    galaxy: ['galaxy'],
+    system: ['system'],
+    position: ['position'],
+    timestamp: ['timestamp'],
     planet_id: ['planet', 'id'],
     planet_name: ['planet', 'name'],
     moon_id: ['moon', 'id'],
     moon_size: ['moon', 'size'],
     player_id: ['player', 'id'],
     player_name: ['player', 'name'],
-    player_status: ['player', 'status'],
+    player_status: ['player', 'rawStatus'],
     player_rank: ['player', 'rank'],
     alliance_id: ['alliance', 'id'],
     alliance_name: ['alliance', 'name'],
@@ -28,7 +32,7 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     // TODO add cache
   }
 
-  load(galaxy: number, system: number): Promise<GalaxySystemInfo | null> {
+  load(galaxy: number, system: number): Promise<GalaxySystemInfo | undefined> {
     return db.query<any[]>({ // TODO define type for "raw" data
       sql:
       // intentionally ignoring 'empty' field
@@ -37,20 +41,21 @@ export class SqlGalaxyRepository implements GalaxyRepository {
            where r.galaxy = ${galaxy} and r.system = ${system}`,
       nestTables: true
     }).then((rows: any[]) => {
-      if (!rows.length) return null;
-      const slots: GalaxySlotInfo[] = Array(15).fill(null);
-      const result: GalaxySystemInfo = {galaxy, system, slots, timestamp: rows[0]['r'].timestamp, empty: false};
-      for (let i = 0; i < rows.length; ++i) {
-        let rawSlot = rows[i]['s'];
-        if (rawSlot)
-          slots[rawSlot.position - 1] = extractObject(rawSlot, SqlGalaxyRepository.GALAXY_SLOT_MAPPING);
+      if (rows.length) {
+        const slots: GalaxySlot[] = Array(15).fill(null);
+        const result: GalaxySystemInfo = {galaxy, system, slots, timestamp: rows[0]['r'].timestamp, empty: false};
+        for (let i = 0; i < rows.length; ++i) {
+          let rawSlot = rows[i]['s'];
+          if (rawSlot)
+            slots[rawSlot.position - 1] = extractObject(rawSlot, SqlGalaxyRepository.GALAXY_SLOT_MAPPING);
+        }
+        result.empty = result.slots.every(x => !x);
+        return result;
       }
-      result.empty = result.slots.every(x => !x); // set actual value
-      return result;
     });
   }
 
-  loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | null> {
+  loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | undefined> {
     return this.load(coordinates.galaxy, coordinates.system);
   }
 
@@ -99,6 +104,7 @@ export class SqlGalaxyRepository implements GalaxyRepository {
            (${reportValues.join(', ')})
            on duplicate key update timestamp = values(timestamp), empty = values(empty)`
     }).then(() => {
+      // FIXME whoa! why do I delete old report slots? that would be cool to see galaxy's history
       if (!isEmpty) {
         let emptyPositions: number[] = galaxy.slots.reduce((list, slot, index) => {
           if (!slot) list.push(index + 1);
@@ -119,23 +125,21 @@ export class SqlGalaxyRepository implements GalaxyRepository {
       }
     }).then(() => {
       if (isEmpty) return;
-      let implicitKeys = ['galaxy', 'system', 'position'];
       let slotKeys = Object.keys(SqlGalaxyRepository.GALAXY_SLOT_MAPPING);
-      let recordKeys = implicitKeys.concat(slotKeys);
+      // FIXME this thing excludes timestamp from stored fields, but it actually SHOULD be stored
+      slotKeys.splice(3, 1);
       let records: string[] = [];
-      galaxy.slots.forEach((slot, index) => {
+      galaxy.slots.forEach(slot => {
         if (slot) {
-          const position = index + 1;
           let preparedData = packObject(slot, SqlGalaxyRepository.GALAXY_SLOT_MAPPING);
           let slotValues = slotKeys.map(key => valueToSQLString(preparedData[key]));
-          let values = [galaxy.galaxy, galaxy.system, position].map(String).concat(slotValues);
-          records.push(`(${values.join(', ')})`);
+          records.push(`(${slotValues.join(', ')})`);
         }
       });
       if (!records.length) return;
       return db.query({
         sql: `
-      insert into galaxy_report_slot(${recordKeys.join(', ')}) values
+      insert into galaxy_report_slot(${slotKeys.join(', ')}) values
         ${records.join(',\n')} on duplicate key update
         ${slotKeys.map(key => `${key} = values(${key})`).join(', ')}
       `
