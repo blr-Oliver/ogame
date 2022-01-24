@@ -29,7 +29,7 @@ const config = {
     chunkFormat: 'module',
     clean: true,
     iife: false,
-    path: path.resolve('./dist/browser'), // yes, must be root
+    path: path.resolve('./dist/browser'),
     filename: '[name].js'
   },
   experiments: {

@@ -1,9 +1,11 @@
 {
   "extends": "../../base-tsconfig.json",
   "compilerOptions": {
-    "module": "es6",
+    "types": [
+      "node"
+    ],
     "sourceMap": false,
-    "outDir": "../../dist/proxy"
+    "outDir": "../../proxy"
   },
   "include": [
     "./**/*"

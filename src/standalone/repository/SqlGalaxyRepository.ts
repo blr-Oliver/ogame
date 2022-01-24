@@ -60,7 +60,7 @@ export class SqlGalaxyRepository implements GalaxyRepository {
   }
 
   findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null,
-                normalTimeout: number, emptyTimeout: number): Promise<Coordinates> {
+                normalTimeout: number, emptyTimeout: number): Promise<Coordinates | undefined> {
     return db.query<any[]>({ // TODO define type for "raw" data
       sql:
           `select galaxy, system, null as 'position' from galaxy_report where

@@ -1,11 +1,12 @@
-import {deduplicate} from '../common';
-import {GalaxySlot, GalaxySlotInfo, GalaxySystemInfo, PlayerInactivity} from '../report-types';
-import {GalaxyRepository} from '../repository-types';
-import {Coordinates, CoordinateType} from '../types';
-import {IDBUtils, MAX_DATE, MIN_DATE} from './IDBUtils';
+import {deduplicate} from '../../common';
+import {GalaxySlot, GalaxySlotInfo, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
+import {GalaxyRepository} from '../../repository-types';
+import {Coordinates, CoordinateType} from '../../types';
+import {IDBRepository} from '../IDBRepository';
+import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
 
 const {
-  headMatchQuery,
+  headMatchKeyRange,
   getAllFromIndex,
   getFirst,
   getTopMatching,
@@ -14,6 +15,7 @@ const {
   upsertAll
 } = IDBUtils;
 
+// TODO find better place for this function
 function coordinateComparator(a: Coordinates, b: Coordinates): number {
   return a.galaxy - b.galaxy || a.system - b.system || a.position - b.position || (a.type ?? CoordinateType.Planet) - (b.type ?? CoordinateType.Planet)
 }
@@ -28,21 +30,25 @@ function coordinateComparator(a: Coordinates, b: Coordinates): number {
       parent: galaxy, system, timestamp
       timestamp: timestamp, galaxy, system
       inactive: player.status.inactive, player.status.vacation, player.status.admin
-
 */
-export class IDBGalaxyRepository implements GalaxyRepository {
-  static readonly SYSTEM_STORE_NAME = 'galaxy-report';
-  static readonly SLOT_STORE_NAME = 'galaxy-report-slot';
+export class IDBGalaxyRepository extends IDBRepository implements GalaxyRepository {
+  static readonly SYSTEM_STORE = 'galaxy-report';
+  static readonly SLOT_STORE = 'galaxy-report-slot';
+  static readonly SLOT_PARENT_INDEX = 'parent';
+  static readonly SLOT_TIMESTAMP_INDEX = 'timestamp';
+  static readonly SLOT_INACTIVE_INDEX = 'inactive';
+
   private static readonly INACTIVE_QUERY: IDBKeyRange = IDBKeyRange.bound([PlayerInactivity.Inactive, 0, 0], [PlayerInactivity.InactiveLong, 0, 0]);
 
-  constructor(private db: IDBDatabase) {
+  constructor(db: IDBDatabase) {
+    super(db);
   }
 
   findInactiveTargets(): Promise<Coordinates[]> {
-    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SLOT_STORE_NAME], 'readonly');
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SLOT_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
-      let slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE_NAME);
-      return getAllFromIndex<GalaxySlot>(slotStore, 'inactive', IDBGalaxyRepository.INACTIVE_QUERY)
+      let slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE);
+      return getAllFromIndex<GalaxySlot>(slotStore, IDBGalaxyRepository.SLOT_INACTIVE_INDEX, IDBGalaxyRepository.INACTIVE_QUERY)
           .then(slots => slots.flatMap(slot => {
             let coordinates: Coordinates = {
               galaxy: slot.galaxy,
@@ -62,10 +68,15 @@ export class IDBGalaxyRepository implements GalaxyRepository {
           .then(coordinates => deduplicate(coordinates, coordinateComparator));
     });
   }
+
+  /*
+  (galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null, normalTimeout: number, emptyTimeout: number) => Promise<...>
+  (galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null, normalTimeout: number, emptyTimeout: number) => Promise<...>
+   */
   findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null, normalTimeout: number, emptyTimeout: number): Promise<Coordinates | undefined> {
-    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE_NAME], 'readonly');
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
-      let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE_NAME);
+      let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
       if (galaxyLast != null) {
         galaxyMin = galaxyLast;
         if (systemLast != null)
@@ -88,12 +99,12 @@ export class IDBGalaxyRepository implements GalaxyRepository {
     });
   }
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {
-    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SLOT_STORE_NAME], 'readonly');
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SLOT_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
-      let slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE_NAME);
+      let slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE);
       let query = IDBKeyRange.lowerBound([new Date(Date.now() - timeout), -Infinity, -Infinity], true);
-      return getTopMatchingFromIndex<GalaxySlot>(slotStore, 'timestamp', Infinity, slot => {
-        return !slot.player.status.admin;
+      return getTopMatchingFromIndex<GalaxySlot>(slotStore, IDBGalaxyRepository.SLOT_TIMESTAMP_INDEX, Infinity, slot => {
+        return !slot.player?.status?.admin;
       }, query)
           .then(slots => slots.map(slot => ({
             galaxy: slot.galaxy,
@@ -104,43 +115,26 @@ export class IDBGalaxyRepository implements GalaxyRepository {
     });
   }
   load(galaxy: number, system: number): Promise<GalaxySystemInfo | undefined> {
-    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE_NAME], 'readonly');
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
-      let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE_NAME);
-      return getFirst(systemStore, headMatchQuery([galaxy, system], 'Date'), 'prev');
+      let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
+      return getFirst(systemStore, headMatchKeyRange([galaxy, system], 'Date'), 'prev');
     });
   }
   loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | undefined> {
     return this.load(coordinates.galaxy, coordinates.system);
   }
   store(report: GalaxySystemInfo): Promise<IDBValidKey> {
-    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE_NAME, IDBGalaxyRepository.SLOT_STORE_NAME], 'readwrite');
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE, IDBGalaxyRepository.SLOT_STORE], 'readwrite');
     return this.withTransaction(tx, tx => {
-      let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE_NAME);
-      let slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE_NAME);
-      let slots: GalaxySlotInfo[] = report.slots.filter(x => !!x);
+      let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
+      let slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE);
+      let slots: GalaxySlotInfo[] = report.slots.filter(x => !!x) as GalaxySlotInfo[];
       return Promise.all([
         upsertOne(systemStore, report),
         upsertAll(slotStore, ...slots)
       ])
           .then(([key]) => key);
     }, true);
-  }
-
-  private withTransaction<T>(tx: IDBTransaction, action: (tx: IDBTransaction) => Promise<T>, ensureCommitted: boolean = false): Promise<T> {
-    let promise = action(tx);
-    if (!ensureCommitted) {
-      promise
-          .then(() => tx.commit())
-          .catch(() => tx.abort());
-      return promise;
-    } else {
-      return promise
-          .then(res => (tx.commit(), res))
-          .catch(e => {
-            tx.abort();
-            throw e;
-          });
-    }
   }
 }

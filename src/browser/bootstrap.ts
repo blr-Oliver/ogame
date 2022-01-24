@@ -1,3 +1,7 @@
+import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
+import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
+import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
       .register('/sw.js', {
@@ -12,3 +16,18 @@ if ('serviceWorker' in navigator) {
 } else {
   console.error('Service workers not supported.')
 }
+
+const galaxySupport = new IDBGalaxyRepositorySupport();
+const repositoryProvider: IDBRepositoryProvider = new IDBRepositoryProvider(window.indexedDB, 'ogame', {
+  'galaxy': galaxySupport
+});
+
+repositoryProvider
+    .getRepository<IDBGalaxyRepository>('galaxy')
+    .then(repo => repo.load(1, 1))
+    .then(report => {
+      console.log(`Info available:`, report);
+    })
+    .catch(e => {
+      console.error(e);
+    });
