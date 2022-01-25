@@ -37,10 +37,10 @@ export class Analyzer {
   }
 
   load(): Promise<ProcessedReport[]> {
-    return this.espionageRepo.findForInactiveTargets().then(pairs => {
-      this.coordinates = pairs.map(pair => pair[0]);
-      this.reports = pairs
-          .map(pair => ({meta: {}, ...pair[1]}) as ProcessedReport)
+    return this.espionageRepo.findForInactiveTargets().then(reports => {
+      this.coordinates = reports.map(report => report.coordinates);
+      this.reports = reports
+          .map(report => ({meta: {}, ...report}) as ProcessedReport)
           .filter(report => {
             let to = report.coordinates;
             if (!report.fleet || !report.defense) {

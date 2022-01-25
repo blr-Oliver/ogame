@@ -27,13 +27,13 @@ export interface SpaceBody {
   coordinates: Coordinates;
 }
 
-export function sameCoordinates(first: Coordinates, second: Coordinates): boolean {
-  if (!first && !second) return true;
-  if (first && !second || !first && second) return false;
-  return first.galaxy === second.galaxy
-      && first.system === second.system
-      && first.position === second.position
-      && (first.type == second.type || !first.type || !second.type);
+export function coordinateComparator(a: Coordinates, b: Coordinates): number {
+  return a.galaxy - b.galaxy || a.system - b.system || a.position - b.position || (a.type ?? CoordinateType.Planet) - (b.type ?? CoordinateType.Planet)
+}
+
+export function sameCoordinates(a?: Coordinates, b?: Coordinates): boolean {
+  if (a && b) return coordinateComparator(a, b) === 0;
+  return !a === !b;
 }
 
 export type ResearchType =

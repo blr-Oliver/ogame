@@ -1,4 +1,4 @@
-import {Buildings, Coordinates, Defense, DefensePartial, Fleet, FleetPartial, Mission, MissionType, Researches, Resources} from './types';
+import {Buildings, Coordinates, DefensePartial, FleetPartial, Mission, MissionType, Researches, Resources} from './types';
 
 export type ZeroOne = 0 | 1;
 
@@ -106,6 +106,7 @@ export interface EspionageReport {
   playerStatus: string;
   counterEspionage: number;
   activity: PlanetActivity;
+  parsedStatus: PlayerStatusInfo;
 
   resources: Resources;
   fleet?: FleetPartial;
@@ -114,9 +115,7 @@ export interface EspionageReport {
   researches?: Researches;
 }
 
-export interface StampedEspionageReport extends EspionageReport {
-  id: number;
-  timestamp: Date;
+export interface StampedEspionageReport extends EspionageReport, ShardHeader {
 }
 
 export interface ShardHeader {
@@ -127,8 +126,6 @@ export interface ShardHeader {
 
 export interface ShardedEspionageReport extends EspionageReport {
   source: ShardHeader[];
-  fleet?: Fleet;
-  defense?: Defense;
 }
 
 export interface ObserveParams {

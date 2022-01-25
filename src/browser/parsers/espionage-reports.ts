@@ -1,5 +1,5 @@
 import {map} from '../../common/common';
-import {StampedEspionageReport, StringNumberMap} from '../../common/report-types';
+import {PlayerStatusInfo, StampedEspionageReport, StringNumberMap} from '../../common/report-types';
 import {translateEntries} from '../../common/translate';
 import {parseLocalDate, parseOnlyNumbers} from './parsers-common';
 
@@ -53,6 +53,7 @@ export function parseReport(doc: DocumentFragment): StampedEspionageReport | und
       time: planetActivityTime
     },
     counterEspionage,
+    parsedStatus: {} as PlayerStatusInfo, // FIXME
     resources: {
       metal,
       crystal,

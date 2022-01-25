@@ -1,7 +1,7 @@
 import {deduplicate} from '../../common';
 import {GalaxySlot, GalaxySlotInfo, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
 import {GalaxyRepository} from '../../repository-types';
-import {Coordinates, CoordinateType} from '../../types';
+import {coordinateComparator, Coordinates, CoordinateType} from '../../types';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
 
@@ -15,11 +15,6 @@ const {
   upsertAll
 } = IDBUtils;
 
-// TODO find better place for this function
-function coordinateComparator(a: Coordinates, b: Coordinates): number {
-  return a.galaxy - b.galaxy || a.system - b.system || a.position - b.position || (a.type ?? CoordinateType.Planet) - (b.type ?? CoordinateType.Planet)
-}
-
 /*
   galaxy-report
     keyPath: galaxy, system, timestamp
@@ -29,7 +24,7 @@ function coordinateComparator(a: Coordinates, b: Coordinates): number {
     indexes:
       parent: galaxy, system, timestamp
       timestamp: timestamp, galaxy, system
-      inactive: player.status.inactive, player.status.vacation, player.status.admin
+      inactive: player.status.vacation, player.status.admin, player.status.inactive
 */
 export class IDBGalaxyRepository extends IDBRepository implements GalaxyRepository {
   static readonly SYSTEM_STORE = 'galaxy-report';
@@ -38,7 +33,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
   static readonly SLOT_TIMESTAMP_INDEX = 'timestamp';
   static readonly SLOT_INACTIVE_INDEX = 'inactive';
 
-  private static readonly INACTIVE_QUERY: IDBKeyRange = IDBKeyRange.bound([PlayerInactivity.Inactive, 0, 0], [PlayerInactivity.InactiveLong, 0, 0]);
+  private static readonly INACTIVE_QUERY: IDBKeyRange = IDBKeyRange.bound([0, 0, PlayerInactivity.Inactive], [0, 0, PlayerInactivity.InactiveLong]);
 
   constructor(db: IDBDatabase) {
     super(db);

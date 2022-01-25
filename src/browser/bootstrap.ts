@@ -1,4 +1,5 @@
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
+import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
 import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 
@@ -18,8 +19,10 @@ if ('serviceWorker' in navigator) {
 }
 
 const galaxySupport = new IDBGalaxyRepositorySupport();
+const espionageSupport = new IDBEspionageRepositorySupport();
 const repositoryProvider: IDBRepositoryProvider = new IDBRepositoryProvider(window.indexedDB, 'ogame', {
-  'galaxy': galaxySupport
+  'galaxy': galaxySupport,
+  'espionage': espionageSupport
 });
 
 repositoryProvider

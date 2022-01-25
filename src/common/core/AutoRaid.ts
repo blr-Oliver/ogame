@@ -17,7 +17,7 @@ export class AutoRaid {
     harvestEspionage: false
   };
 
-  private data: [Coordinates, ProcessedReport][] = [];
+  private data: ProcessedReport[] = [];
 
   constructor(private context: GameContext,
               private mapper: Mapper,
@@ -29,8 +29,8 @@ export class AutoRaid {
     if (this.state.maxSlots <= 0) return;
     (this.state.harvestEspionage ? this.checkSpyReports() : Promise.resolve(null)).then(() => {
       (this.data.length ? Promise.resolve(this.data) : this.reloadData())
-          .then(pairs => {
-            this.data = pairs as [Coordinates, ProcessedReport][];
+          .then(reports => {
+            this.data = reports as ProcessedReport[];
             this.performNextLaunches();
           });
     })
@@ -45,7 +45,7 @@ export class AutoRaid {
     });
   }
 
-  private reloadData(): Promise<[Coordinates, ShardedEspionageReport][]> {
+  private reloadData(): Promise<ShardedEspionageReport[]> {
     this.state.status = 'checking galaxy info';
     return this.galaxyRepo
         .findStaleSystemsWithTargets(this.mapper.observe.normalTimeout)
@@ -65,14 +65,12 @@ export class AutoRaid {
     const researches = this.context.getResearches();
     this.state.status = 'rating reports';
 
-    this.data.forEach(pair => {
-      pair[1] = this.processReport(pair[0], pair[1]);
-    });
+    this.data.forEach(report => this.processReport(report));
 
     this.data.sort((a, b) =>
-        +(b[1].infoLevel < 0) - +(a[1].infoLevel < 0) || /*dummies first*/
-        b[1].meta.rating! - a[1].meta.rating! ||
-        a[1].meta.distance! - b[1].meta.distance!
+        +(b.infoLevel < 0) - +(a.infoLevel < 0) || /*dummies first*/
+        b.meta.rating! - a.meta.rating! ||
+        a.meta.distance! - b.meta.distance!
     );
 
     this.state.status = 'fetching events';
@@ -88,7 +86,7 @@ export class AutoRaid {
 
       this.state.status = 'picking targets';
       for (let i = 0; i < this.data.length && missionsToGo > 0; ++i) {
-        let report = this.data[i][1], meta = report.meta, to = report.coordinates;
+        let report = this.data[i], meta = report.meta, to = report.coordinates;
         if (meta.excluded) continue;
         if (report.infoLevel >= 4 && meta.requiredTransports! < this.state.minRaid) continue;
         if (report.infoLevel < 0 /*dummy*/ || meta.old! / meta.flightTime! > 0.5 || meta.old! > 3600) {
@@ -176,9 +174,9 @@ export class AutoRaid {
 
   private excludeActiveTargets(raidEvents: FlightEvent[]) {
     let excluded = raidEvents.map(event => event.to);
-    this.data.forEach(pair => {
-      if (pair[1] && excluded.some(target => sameCoordinates(target, pair[0])))
-        pair[1].meta.excluded = true;
+    this.data.forEach(report => {
+      if (report && excluded.some(target => sameCoordinates(target, report.coordinates)))
+        report.meta.excluded = true;
     })
   }
 
@@ -198,11 +196,13 @@ export class AutoRaid {
       ) return false;
 
       const to = event.to;
-      return this.data.some(pair => sameCoordinates(pair[0], to));
+      return this.data.some(report => sameCoordinates(report.coordinates, to));
     });
   }
 
-  private processReport(to: Coordinates, report: ShardedEspionageReport | ProcessedReport): ProcessedReport {
+  // TODO this seems not necessary to return anything
+  private processReport(report: ShardedEspionageReport | ProcessedReport): ProcessedReport {
+    const to: Coordinates = report.coordinates;
     const nearestBody = this.context.getNearestBody(to);
     const researches = this.context.getResearches();
     if (!report) {

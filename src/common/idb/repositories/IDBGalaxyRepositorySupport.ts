@@ -14,7 +14,7 @@ export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBGalax
     indexes:
       parent: galaxy, system, timestamp
       timestamp: timestamp, galaxy, system
-      inactive: player.status.inactive, player.status.vacation, player.status.admin
+      inactive: player.status.vacation, player.status.admin, player.status.inactive
   */
   init(tx: IDBTransaction, oldVersion: number, newVersion: number): void {
     let db: IDBDatabase = tx.db;
@@ -30,6 +30,6 @@ export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBGalax
     });
     let parentIndex = slotStore.createIndex(IDBGalaxyRepository.SLOT_PARENT_INDEX, ['galaxy', 'system', 'timestamp'], {unique: false});
     let timestampIndex = slotStore.createIndex(IDBGalaxyRepository.SLOT_TIMESTAMP_INDEX, ['timestamp', 'galaxy', 'system'], {unique: false});
-    let inactiveIndex = slotStore.createIndex(IDBGalaxyRepository.SLOT_INACTIVE_INDEX, ['player.status.inactive', 'player.status.vacation', 'player.status.admin'], {unique: false});
+    let inactiveIndex = slotStore.createIndex(IDBGalaxyRepository.SLOT_INACTIVE_INDEX, ['player.status.vacation', 'player.status.admin', 'player.status.inactive'], {unique: false});
   }
 }

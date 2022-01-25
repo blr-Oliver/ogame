@@ -126,7 +126,7 @@ export class SqlEspionageRepository implements EspionageRepository {
     });
   }
 
-  findForInactiveTargets(): Promise<[Coordinates, ShardedEspionageReport][]> {
+  findForInactiveTargets(): Promise<ShardedEspionageReport[]> {
     return db.query<any[]>({ // TODO define type for "raw" data
       sql:
           `select s.galaxy, s.system, s.position, r.*
@@ -148,7 +148,7 @@ export class SqlEspionageRepository implements EspionageRepository {
       nestTables: true
     }).then((rows: any[]) => {
       if (!rows || !rows.length) return [];
-      let result: [Coordinates, ShardedEspionageReport][] = [];
+      let result: ShardedEspionageReport[] = [];
       let lastCoordinates: Coordinates = extractObject(rows[0]['s'], COORDINATES_MAPPING);
       let lastIndex = 0;
       for (let i = 0; i <= rows.length; ++i) {
@@ -156,7 +156,7 @@ export class SqlEspionageRepository implements EspionageRepository {
         if (!sameCoordinates(lastCoordinates, coordinates)) {
           let report = this.collectReport(rows.slice(lastIndex, i).map(row => row['r']));
           if (report) {
-            result.push([lastCoordinates, report]);
+            result.push(report);
             lastCoordinates = coordinates;
             lastIndex = i;
           }
