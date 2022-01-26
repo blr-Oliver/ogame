@@ -1,7 +1,4 @@
-import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
-import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
-import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
-import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
+import {PingPongMessageEvent, PingPongMessagePort} from '../common/message/PingPongMessagePort';
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
@@ -18,6 +15,7 @@ if ('serviceWorker' in navigator) {
   console.error('Service workers not supported.')
 }
 
+/*
 const galaxySupport = new IDBGalaxyRepositorySupport();
 const espionageSupport = new IDBEspionageRepositorySupport();
 const repositoryProvider: IDBRepositoryProvider = new IDBRepositoryProvider(window.indexedDB, 'ogame', {
@@ -34,3 +32,16 @@ repositoryProvider
     .catch(e => {
       console.error(e);
     });
+*/
+
+
+if (navigator.serviceWorker.controller) {
+  PingPongMessagePort.handshake('exchange', navigator.serviceWorker.controller!, navigator.serviceWorker)
+      .then(exchange => {
+        (window as any).exchange = exchange;
+        exchange.onmessage = (e: PingPongMessageEvent) => {
+          let s = String(e.data);
+          console.log(`In main page from worker: ${s}`);
+        }
+      });
+}

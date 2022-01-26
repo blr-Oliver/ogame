@@ -27,7 +27,7 @@ const config = {
   output: {
     asyncChunks: false,
     chunkFormat: 'module',
-    clean: true,
+    clean: false,
     iife: false,
     path: path.resolve('./dist/browser'),
     filename: '[name].js'

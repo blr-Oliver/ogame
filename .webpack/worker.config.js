@@ -25,7 +25,7 @@ const config = {
     asyncChunks: false,
     chunkFormat: 'array-push',
     chunkLoading: false,
-    clean: true,
+    clean: false,
     iife: false,
     path: path.resolve('./dist'), // yes, must be root
     filename: '[name].js',
