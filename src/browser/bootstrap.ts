@@ -1,4 +1,4 @@
-import {PingPongMessageEvent, PingPongMessagePort} from '../common/message/PingPongMessagePort';
+import {ReplyingMessageEvent, ReplyingMessagePort} from '../common/message/ReplyingMessagePort';
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
@@ -36,10 +36,10 @@ repositoryProvider
 
 
 if (navigator.serviceWorker.controller) {
-  PingPongMessagePort.handshake('exchange', navigator.serviceWorker.controller!, navigator.serviceWorker)
+  ReplyingMessagePort.connect('exchange', navigator.serviceWorker.controller!, navigator.serviceWorker)
       .then(exchange => {
         (window as any).exchange = exchange;
-        exchange.onmessage = (e: PingPongMessageEvent) => {
+        exchange.onmessage = (e: ReplyingMessageEvent) => {
           let s = String(e.data);
           console.log(`In main page from worker: ${s}`);
         }
