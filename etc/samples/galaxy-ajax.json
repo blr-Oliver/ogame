@@ -1,0 +1,988 @@
+{
+  "reservedPositions": [],
+  "phalanxToken": "a0a60b026f225e179a688fa0d2975808",
+  "spySystemToken": "4abb9501e187a16061e7fa1b89e65fe7",
+  "filterSettings": {
+    "filter_empty": false,
+    "filter_inactive": false,
+    "filter_newbie": false,
+    "filter_strong": false,
+    "filter_vacation": false
+  },
+  "system": {
+    "availableProbes": 0,
+    "availableRecyclers": 0,
+    "availablePathfinders": 0,
+    "availableMissiles": 0,
+    "usedFleetSlots": 0,
+    "maximumFleetSlots": 1,
+    "canColonize": false,
+    "canExpedition": false,
+    "canSystemPhalanx": false,
+    "canSystemEspionage": false,
+    "canSwitchGalaxy": true,
+    "canFly": true,
+    "switchGalaxyDeuteriumCosts": 10,
+    "settingsProbeCount": 1,
+    "currentPlanetId": 33807552,
+    "playerId": 117033,
+    "hasAdmiral": false,
+    "isOutlaw": false,
+    "showOutlawWarning": false,
+    "slotsColonized": 4,
+    "hasBirthdayPlanet": false,
+    "galaxy": 7,
+    "system": 329,
+    "toGalaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329",
+    "galaxyContent": [
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 1,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the proximity to sun, collection of solar energy is highly efficient. However, planets in this position tend to be small and provide only small amounts of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 2,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the proximity to sun, collection of solar energy is highly efficient. However, planets in this position tend to be small and provide only small amounts of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 3,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the proximity to sun, collection of solar energy is highly efficient. However, planets in this position tend to be small and provide only small amounts of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 4,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 5,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 6,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 7,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Generally the biggest planets of the solar system lie in this position. Sun provides enough energy and a sufficient deuterium sources can be anticipated.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 8,
+        "planets": [
+          {
+            "playerId": 117004,
+            "planetId": 33805658,
+            "planetName": "Burzum",
+            "imageInformation": "water_8",
+            "fleet": [],
+            "planetType": 1,
+            "isDestroyed": false,
+            "activity": {
+              "showMinutes": true,
+              "showActivity": 60,
+              "idleTime": 53
+            },
+            "availableMissions": [
+              {
+                "missionType": 3,
+                "name": "Transport",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=8&type=1&mission=3"
+              },
+              {
+                "missionType": 6,
+                "name": "Espionage",
+                "canSpy": true,
+                "reportId": "",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=8&type=1&mission=6",
+                "reportLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=messages&messageId=0&tabid=20&ajax=1"
+              },
+              {
+                "missionType": 1,
+                "name": "Attack",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=8&type=1&mission=1"
+              }
+            ]
+          },
+          {
+            "planetId": 33809983,
+            "planetName": "debris field",
+            "imageInformation": "debris_1",
+            "planetType": 2,
+            "fleet": [],
+            "requiredShips": 1,
+            "resources": {
+              "metal": {
+                "name": "Metal",
+                "amount": 3600
+              },
+              "crystal": {
+                "name": "Crystal",
+                "amount": 3600
+              }
+            },
+            "availableMissions": [
+              {
+                "missionType": 8,
+                "name": "Harvest"
+              }
+            ],
+            "recyclePossible": false
+          }
+        ],
+        "player": {
+          "playerId": 117004,
+          "playerName": "Commodore Proteus",
+          "nameAbbreviations": [
+            "inactive"
+          ],
+          "allianceId": 500023,
+          "allianceName": "DISCOVERY",
+          "allianceTag": "DNR",
+          "isAllianceMember": false,
+          "rank": {
+            "hasRank": false,
+            "rankTitle": "",
+            "rankClass": ""
+          },
+          "highscorePositionPlayer": 214,
+          "highscorePositionAlliance": "14",
+          "isAdmin": false,
+          "isActive": false,
+          "isBanned": false,
+          "isOnVacation": false,
+          "isLongInactive": false,
+          "isInactive": true,
+          "isOutlaw": false,
+          "isNewbie": false,
+          "isBuddy": false,
+          "isStrong": false,
+          "isHonorableTarget": false,
+          "phalanx": {
+            "inactive": false,
+            "title": "",
+            "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ajax&component=phalanx&galaxy=7&system=329&position=8&ajax=1"
+          },
+          "actions": {
+            "highscore": {
+              "available": true,
+              "title": "Ranking",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=highscore&site=3&searchRelId=117004"
+            },
+            "buddies": {
+              "available": true,
+              "title": "Buddy request to player",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=buddies&action=7&id=117004&ajax=1",
+              "supportIcon": false
+            },
+            "ignore": {
+              "available": true,
+              "title": "Ignore player",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=117004"
+            },
+            "message": {
+              "available": true,
+              "title": "Write message",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=chat&playerId=117004",
+              "disabledChatBar": true
+            },
+            "alliance": {
+              "available": true,
+              "infoPageTitle": "Alliance Page",
+              "infoPageLink": "allianceInfo.php?allianceId=500023",
+              "applicationTitle": "apply",
+              "applicationLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=alliance&bewerbung=500023",
+              "highscoreTitle": "14",
+              "highscoreLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=highscore&site=1&category=2&searchRelId=500023",
+              "memberCount": 3,
+              "allianceClassCss": "alliance_class small explorer",
+              "allianceClassName": "Researchers"
+            }
+          }
+        },
+        "availableMissions": [],
+        "actions": {
+          "canWrite": true,
+          "canBuddyRequest": true,
+          "canEspionage": true,
+          "canSendProbes": true,
+          "canMissileAttack": false,
+          "missileAttackLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ajax&component=missileattacklayer&galaxy=7&system=329&position=8",
+          "canPhalanx": false,
+          "canBeIgnored": true
+        },
+        "positionFilters": "inactive_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 9,
+        "planets": [
+          {
+            "playerId": 117004,
+            "planetId": 33806320,
+            "planetName": "Gnosis",
+            "imageInformation": "water_9",
+            "fleet": [],
+            "planetType": 1,
+            "isDestroyed": false,
+            "activity": {
+              "showMinutes": true,
+              "showActivity": 60,
+              "idleTime": 53
+            },
+            "availableMissions": [
+              {
+                "missionType": 3,
+                "name": "Transport",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=9&type=1&mission=3"
+              },
+              {
+                "missionType": 6,
+                "name": "Espionage",
+                "canSpy": true,
+                "reportId": "",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=9&type=1&mission=6",
+                "reportLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=messages&messageId=0&tabid=20&ajax=1"
+              },
+              {
+                "missionType": 1,
+                "name": "Attack",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=9&type=1&mission=1"
+              }
+            ]
+          },
+          {
+            "planetId": 33809116,
+            "planetName": "debris field",
+            "imageInformation": "debris_1",
+            "planetType": 2,
+            "fleet": [],
+            "requiredShips": 1,
+            "resources": {
+              "metal": {
+                "name": "Metal",
+                "amount": 600
+              },
+              "crystal": {
+                "name": "Crystal",
+                "amount": 600
+              }
+            },
+            "availableMissions": [
+              {
+                "missionType": 8,
+                "name": "Harvest"
+              }
+            ],
+            "recyclePossible": false
+          },
+          {
+            "playerId": 117004,
+            "planetId": 33808805,
+            "planetName": "Moon",
+            "size": "3784",
+            "imageInformation": "moon_a",
+            "fleet": [],
+            "planetType": 3,
+            "isDestroyed": false,
+            "activity": {
+              "showMinutes": true,
+              "showActivity": false,
+              "idleTime": null
+            },
+            "availableMissions": [
+              {
+                "missionType": 3,
+                "name": "Transport",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=9&type=3&mission=3"
+              },
+              {
+                "missionType": 6,
+                "name": "Espionage",
+                "canSpy": true,
+                "reportId": "",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=9&type=3&mission=6",
+                "reportLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=messages&messageId=0&tabid=20&ajax=1"
+              },
+              {
+                "missionType": 1,
+                "name": "Attack",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=9&type=3&mission=1"
+              },
+              {
+                "missionType": 9,
+                "name": "Moon Destruction",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=9&type=3&mission=9"
+              }
+            ]
+          }
+        ],
+        "player": {
+          "playerId": 117004,
+          "playerName": "Commodore Proteus",
+          "nameAbbreviations": [
+            "inactive"
+          ],
+          "allianceId": 500023,
+          "allianceName": "DISCOVERY",
+          "allianceTag": "DNR",
+          "isAllianceMember": false,
+          "rank": {
+            "hasRank": false,
+            "rankTitle": "",
+            "rankClass": ""
+          },
+          "highscorePositionPlayer": 214,
+          "highscorePositionAlliance": "14",
+          "isAdmin": false,
+          "isActive": false,
+          "isBanned": false,
+          "isOnVacation": false,
+          "isLongInactive": false,
+          "isInactive": true,
+          "isOutlaw": false,
+          "isNewbie": false,
+          "isBuddy": false,
+          "isStrong": false,
+          "isHonorableTarget": false,
+          "phalanx": {
+            "inactive": false,
+            "title": "",
+            "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ajax&component=phalanx&galaxy=7&system=329&position=9&ajax=1"
+          },
+          "actions": {
+            "highscore": {
+              "available": true,
+              "title": "Ranking",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=highscore&site=3&searchRelId=117004"
+            },
+            "buddies": {
+              "available": true,
+              "title": "Buddy request to player",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=buddies&action=7&id=117004&ajax=1",
+              "supportIcon": false
+            },
+            "ignore": {
+              "available": true,
+              "title": "Ignore player",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=117004"
+            },
+            "message": {
+              "available": true,
+              "title": "Write message",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=chat&playerId=117004",
+              "disabledChatBar": true
+            },
+            "alliance": {
+              "available": true,
+              "infoPageTitle": "Alliance Page",
+              "infoPageLink": "allianceInfo.php?allianceId=500023",
+              "applicationTitle": "apply",
+              "applicationLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=alliance&bewerbung=500023",
+              "highscoreTitle": "14",
+              "highscoreLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=highscore&site=1&category=2&searchRelId=500023",
+              "memberCount": 3,
+              "allianceClassCss": "alliance_class small explorer",
+              "allianceClassName": "Researchers"
+            }
+          }
+        },
+        "availableMissions": [],
+        "actions": {
+          "canWrite": true,
+          "canBuddyRequest": true,
+          "canEspionage": true,
+          "canSendProbes": true,
+          "canMissileAttack": false,
+          "missileAttackLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ajax&component=missileattacklayer&galaxy=7&system=329&position=9",
+          "canPhalanx": false,
+          "canBeIgnored": true
+        },
+        "positionFilters": "inactive_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 10,
+        "planets": [
+          {
+            "playerId": 117004,
+            "planetId": 33807982,
+            "planetName": "Akvan",
+            "imageInformation": "ice_10",
+            "fleet": [],
+            "planetType": 1,
+            "isDestroyed": false,
+            "activity": {
+              "showMinutes": true,
+              "showActivity": 60,
+              "idleTime": 53
+            },
+            "availableMissions": [
+              {
+                "missionType": 3,
+                "name": "Transport",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=10&type=1&mission=3"
+              },
+              {
+                "missionType": 6,
+                "name": "Espionage",
+                "canSpy": true,
+                "reportId": "",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=10&type=1&mission=6",
+                "reportLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=messages&messageId=0&tabid=20&ajax=1"
+              },
+              {
+                "missionType": 1,
+                "name": "Attack",
+                "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&galaxy=7&system=329&position=10&type=1&mission=1"
+              }
+            ]
+          }
+        ],
+        "player": {
+          "playerId": 117004,
+          "playerName": "Commodore Proteus",
+          "nameAbbreviations": [
+            "inactive"
+          ],
+          "allianceId": 500023,
+          "allianceName": "DISCOVERY",
+          "allianceTag": "DNR",
+          "isAllianceMember": false,
+          "rank": {
+            "hasRank": false,
+            "rankTitle": "",
+            "rankClass": ""
+          },
+          "highscorePositionPlayer": 214,
+          "highscorePositionAlliance": "14",
+          "isAdmin": false,
+          "isActive": false,
+          "isBanned": false,
+          "isOnVacation": false,
+          "isLongInactive": false,
+          "isInactive": true,
+          "isOutlaw": false,
+          "isNewbie": false,
+          "isBuddy": false,
+          "isStrong": false,
+          "isHonorableTarget": false,
+          "phalanx": {
+            "inactive": false,
+            "title": "",
+            "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ajax&component=phalanx&galaxy=7&system=329&position=10&ajax=1"
+          },
+          "actions": {
+            "highscore": {
+              "available": true,
+              "title": "Ranking",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=highscore&site=3&searchRelId=117004"
+            },
+            "buddies": {
+              "available": true,
+              "title": "Buddy request to player",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=buddies&action=7&id=117004&ajax=1",
+              "supportIcon": false
+            },
+            "ignore": {
+              "available": true,
+              "title": "Ignore player",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=ignorelist&action=1&id=117004"
+            },
+            "message": {
+              "available": true,
+              "title": "Write message",
+              "link": "https://s156-en.ogame.gameforge.com/game/index.php?page=chat&playerId=117004",
+              "disabledChatBar": true
+            },
+            "alliance": {
+              "available": true,
+              "infoPageTitle": "Alliance Page",
+              "infoPageLink": "allianceInfo.php?allianceId=500023",
+              "applicationTitle": "apply",
+              "applicationLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=alliance&bewerbung=500023",
+              "highscoreTitle": "14",
+              "highscoreLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=highscore&site=1&category=2&searchRelId=500023",
+              "memberCount": 3,
+              "allianceClassCss": "alliance_class small explorer",
+              "allianceClassName": "Researchers"
+            }
+          }
+        },
+        "availableMissions": [],
+        "actions": {
+          "canWrite": true,
+          "canBuddyRequest": true,
+          "canEspionage": true,
+          "canSendProbes": true,
+          "canMissileAttack": false,
+          "missileAttackLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ajax&component=missileattacklayer&galaxy=7&system=329&position=10",
+          "canPhalanx": false,
+          "canBeIgnored": true
+        },
+        "positionFilters": "inactive_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 11,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 12,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 13,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the vast distance to sun, collection of solar energy is limited. However these planets usually provide significant sources of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 14,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the vast distance to sun, collection of solar energy is limited. However these planets usually provide significant sources of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 329,
+        "position": 15,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=0901b7c78015db59c4402399361ec591",
+            "galaxyLink": "https://s156-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=329"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the vast distance to sun, collection of solar energy is limited. However these planets usually provide significant sources of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>It is not possible to colonise a planet without a colony ship.</div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      }
+    ]
+  },
+  "success": true,
+  "resources": {
+    "resources": {
+      "metal": {
+        "amount": 12442.541666666668,
+        "storage": 20000,
+        "baseProduction": 0.009722222222222222,
+        "tooltip": "Metal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:</th>\n                <td><span class=\"\">12.442</span></td>\n            </tr>\n            <tr>\n                <th>Storage capacity:</th>\n                <td><span class=\"\">20.000</span></td>\n            </tr>\n            <tr>\n                <th>Current production:</th>\n                <td><span class=\"undermark\">+35</span></td>\n            </tr>\n            <tr>\n                <th>Den Capacity:</th>\n                <td><span class=\"overermark\">0</span></td>\n            </tr>\n        </table>"
+      },
+      "crystal": {
+        "amount": 6946.770833333333,
+        "storage": 10000,
+        "baseProduction": 0.004166666666666667,
+        "tooltip": "Crystal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:</th>\n                <td><span class=\"\">6.946</span></td>\n            </tr>\n            <tr>\n                <th>Storage capacity:</th>\n                <td><span class=\"\">10.000</span></td>\n            </tr>\n            <tr>\n                <th>Current production:</th>\n                <td><span class=\"undermark\">+15</span></td>\n            </tr>\n            <tr>\n                <th>Den Capacity:</th>\n                <td><span class=\"overermark\">0</span></td>\n            </tr>\n        </table>"
+      },
+      "deuterium": {
+        "amount": 0,
+        "storage": 10000,
+        "baseProduction": 0,
+        "tooltip": "Deuterium|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:</th>\n                <td><span class=\"\">0</span></td>\n            </tr>\n            <tr>\n                <th>Storage capacity:</th>\n                <td><span class=\"\">10.000</span></td>\n            </tr>\n            <tr>\n                <th>Current production:</th>\n                <td><span class=\"overmark\">0</span></td>\n            </tr>\n            <tr>\n                <th>Den Capacity:</th>\n                <td><span class=\"overermark\">0</span></td>\n            </tr>\n        </table>"
+      },
+      "energy": {
+        "amount": 0,
+        "tooltip": "Energy|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:</th>\n                <td><span class=\"\">0</span></td>\n            </tr>\n            <tr>\n                <th>Current production:</th>\n                <td><span class=\"overmark\">0</span></td>\n            </tr>\n            <tr>\n                <th>Consumption:</th>\n                <td><span class=\"overmark\">0</span></td>\n            </tr>\n        </table>"
+      },
+      "darkmatter": {
+        "amount": 8000,
+        "tooltip": "Dark Matter|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:</th>\n                <td><span class=\"\">8.000</span></td>\n            </tr>\n            <tr>\n                <th>Purchased:</th>\n                <td><span class=\"\">0</span></td>\n            </tr>\n            <tr>\n                <th>Found:</th>\n                <td><span class=\"\">8.000</span></td>\n            </tr>\n        </table>"
+      }
+    },
+    "honorScore": 0,
+    "techs": {
+      "1": {
+        "techId": 1,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "2": {
+        "techId": 2,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "3": {
+        "techId": 3,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "4": {
+        "techId": 4,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "12": {
+        "techId": 12,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "212": {
+        "techId": 212,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "217": {
+        "techId": 217,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      }
+    }
+  },
+  "components": [],
+  "newAjaxToken": "bbd042b4adce596decf595c59df169eb"
+}

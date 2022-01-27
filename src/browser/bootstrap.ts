@@ -1,4 +1,8 @@
-import {ReplyingMessageEvent, ReplyingMessagePort} from '../common/message/ReplyingMessagePort';
+import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
+import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
+import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
+import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
+import {ReplyingMessagePort} from '../common/message/ReplyingMessagePort';
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
@@ -15,7 +19,6 @@ if ('serviceWorker' in navigator) {
   console.error('Service workers not supported.')
 }
 
-/*
 const galaxySupport = new IDBGalaxyRepositorySupport();
 const espionageSupport = new IDBEspionageRepositorySupport();
 const repositoryProvider: IDBRepositoryProvider = new IDBRepositoryProvider(window.indexedDB, 'ogame', {
@@ -25,23 +28,16 @@ const repositoryProvider: IDBRepositoryProvider = new IDBRepositoryProvider(wind
 
 repositoryProvider
     .getRepository<IDBGalaxyRepository>('galaxy')
-    .then(repo => repo.load(1, 1))
-    .then(report => {
-      console.log(`Info available:`, report);
+    .then(repo => {
+      (window as any).galaxyRepo = repo;
     })
     .catch(e => {
       console.error(e);
     });
-*/
-
 
 if (navigator.serviceWorker.controller) {
   ReplyingMessagePort.connect('exchange', navigator.serviceWorker.controller!, navigator.serviceWorker)
       .then(exchange => {
         (window as any).exchange = exchange;
-        exchange.onmessage = (e: ReplyingMessageEvent) => {
-          let s = String(e.data);
-          console.log(`In main page from worker: ${s}`);
-        }
       });
 }

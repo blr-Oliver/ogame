@@ -67,7 +67,7 @@ export interface DebrisGalaxyInfo {
 export interface PlayerGalaxyInfo {
   id: number | string;
   name: string;
-  rawStatus: string;
+  rawStatus?: string;
   status?: PlayerStatusInfo; // TODO make it required
   rank?: number; // some players (admins) do not have rank
 }
@@ -90,7 +90,7 @@ export interface AllianceGalaxyInfo {
   name: string;
   shortName: string;
   rank: number;
-  members: number;
+  members?: number;
 }
 
 export interface PlanetActivity {
