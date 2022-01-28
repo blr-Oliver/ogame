@@ -4,6 +4,7 @@ import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
 import {parseReport, parseReportList} from '../browser/parsers/espionage-reports';
 import {parseEventList} from '../browser/parsers/event-list';
 import {parseGalaxy} from '../browser/parsers/galaxy-reports';
+import {processAll, waitUntil} from '../common/common';
 import {FlightEvent, GalaxySystemInfo, Mapper, ObserveParams, StampedEspionageReport} from '../common/report-types';
 import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
 import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
@@ -116,17 +117,14 @@ export class LegacyMapper implements Mapper {
 
   observeAllSystems(systems: Coordinates[]): Promise<GalaxySystemInfo[]> {
     // TODO maybe bulk store to GalaxyRepository instead of chain?
-    let storeTasks: Promise<void>[] = [];
-    return systems
-        .reduce((chain, coords) => chain.then(list =>
-            this.viewGalaxy(coords.galaxy, coords.system)
-                .then(system => {
-                  storeTasks.push(this.galaxyRepo.store(system));
-                  list.push(system);
-                  return list;
-                })
-        ), Promise.resolve([] as GalaxySystemInfo[]))
-        .then(list => Promise.all(storeTasks).then(() => list));
+    let storeChain: Promise<any> = Promise.resolve();
+    let result = processAll(systems, coords => {
+      let infoPromise: Promise<GalaxySystemInfo> = this.viewGalaxy(coords.galaxy, coords.system);
+      storeChain = storeChain.then(() => infoPromise.then(info => this.galaxyRepo.store(info)));
+      return infoPromise;
+    });
+
+    return waitUntil(result, storeChain);
   }
 
   continueObserve() {
@@ -205,22 +203,15 @@ export class LegacyMapper implements Mapper {
   loadAllReports(): Promise<StampedEspionageReport[]> {
     return this.loadReportList().then(idList => {
           this.reportIdList = idList;
-          return idList.reduce((chain, id) => chain.then(list =>
-              this.loadReport(id).then(report => {
-                if (!report) {
-                  this.reportIdList.shift();
-                  return this.deleteReport(id).then(() => list);
-                } else return this.espionageRepo.store(report)
-                    .then(() => {
-                      this.reportIdList.shift();
-                      return this.deleteReport(id)
-                          .then(() => {
-                            list.push(report);
-                            return list;
-                          });
-                    })
-              })
-          ), Promise.resolve([] as StampedEspionageReport[]));
+          return processAll(idList, id =>
+              this.loadReport(id)
+                  .then(report => {
+                    let beforeDelete: Promise<any> = report ? this.espionageRepo.store(report) : Promise.resolve();
+                    return beforeDelete
+                        .then(() => this.deleteReport(id))
+                        .then(() => this.reportIdList.shift())
+                        .then(() => report);
+                  }));
         }
     ).then(result => {
       if (!result.length) return result;

@@ -9,3 +9,19 @@ export function deduplicate<T>(list: T[], compareFn?: (a: T, b: T) => number): T
     return res;
   }, [] as T[]);
 }
+
+export function processAll<T, R>(input: T[], action: (item: T) => Promise<R | undefined>, parallel: boolean = false): Promise<R[]> {
+  if (parallel)
+    return Promise.all(input.map(item => action(item)))
+        .then(result => result.filter(x => !!x));
+  else
+    return input.reduce((chain: Promise<R[]>, item: T) =>
+            chain
+                .then(list => action(item)
+                    .then(result => (result ?? list.push(result), list))),
+        Promise.resolve([]) as Promise<R[]>);
+}
+
+export function waitUntil<T>(primary: Promise<T>, ...others: Promise<any>[]): Promise<T> {
+  return primary.then((result: T) => Promise.all(others).then(() => result));
+}
