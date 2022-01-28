@@ -11,6 +11,19 @@ import {dumpFile} from '../standalone/files';
 
 type Form = { [key: string]: string | number };
 
+export interface Fetcher {
+  fetch(options: RequestOptions, firstByteOnly?: boolean): Promise<request.Response>;
+}
+
+export interface RequestOptions {
+  url: string;
+  method?: string;
+  query?: any;
+  body?: any;
+  headers?: { [name: string]: string };
+  redirect?: boolean;
+}
+
 export class LegacyMapper implements Mapper {
   static readonly LOBBY_DOMAIN_URL = 'lobby-api.ogame.gameforge.com';
   static readonly LOBBY_LOGIN_URL = 'https://' + LegacyMapper.LOBBY_DOMAIN_URL + '/users';
@@ -46,7 +59,8 @@ export class LegacyMapper implements Mapper {
   reportIdList: number[] = [];
 
   constructor(private espionageRepo: EspionageRepository,
-              private galaxyRepo: GalaxyRepository) {
+              private galaxyRepo: GalaxyRepository,
+              private fetcher: Fetcher) {
     const cookieStore = new MemoryCookieStore();
     this.jar = new CookieJar(cookieStore);
     this.requestJar = request.jar(cookieStore);
@@ -56,6 +70,7 @@ export class LegacyMapper implements Mapper {
   }
 
   useCookie(cookieString: string | string[], url: string = LegacyMapper.GAME_DOMAIN) {
+    // TODO this is related only to cookieJar and legacy fetcher; should move this there
     if (typeof (cookieString) === 'string')
       cookieString = [cookieString];
     if (cookieString) {
@@ -72,30 +87,31 @@ export class LegacyMapper implements Mapper {
   }
 
   ping(): Promise<request.Response> {
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
       method: 'GET',
-      followRedirect: false
+      redirect: false
     });
   }
 
   viewGalaxy(galaxy: number, system: number): Promise<GalaxySystemInfo> {
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
       method: 'POST',
       json: true,
-      qs: {
+      query: {
         page: 'galaxyContent',
         ajax: 1
       },
-      form: {
+      body: {
         galaxy: galaxy,
         system: system
       }
-    }).then(galaxyResponse => {
-      let timestamp: Date = galaxyResponse.headers.date ? new Date(galaxyResponse.headers.date) : new Date();
-      return parseGalaxy(JSDOM.fragment(galaxyResponse.body['galaxy']), timestamp);
-    });
+    } as RequestOptions)
+        .then(galaxyResponse => {
+          let timestamp: Date = galaxyResponse.headers.date ? new Date(galaxyResponse.headers.date) : new Date();
+          return parseGalaxy(JSDOM.fragment(galaxyResponse.body['galaxy']), timestamp);
+        });
   }
 
   observeAllSystems(systems: Coordinates[]): Promise<GalaxySystemInfo[]> {
@@ -103,11 +119,12 @@ export class LegacyMapper implements Mapper {
     let storeTasks: Promise<void>[] = [];
     return systems
         .reduce((chain, coords) => chain.then(list =>
-            this.viewGalaxy(coords.galaxy, coords.system).then(system => {
-              storeTasks.push(this.galaxyRepo.store(system));
-              list.push(system);
-              return list;
-            })
+            this.viewGalaxy(coords.galaxy, coords.system)
+                .then(system => {
+                  storeTasks.push(this.galaxyRepo.store(system));
+                  list.push(system);
+                  return list;
+                })
         ), Promise.resolve([] as GalaxySystemInfo[]))
         .then(list => Promise.all(storeTasks).then(() => list));
   }
@@ -130,57 +147,54 @@ export class LegacyMapper implements Mapper {
         } else {
           let galaxyNext: number = nextTarget.galaxy;
           let systemNext: number = nextTarget.system;
-          this.viewGalaxy(galaxyNext, systemNext).then(result => {
-            this.galaxyRepo.store(result).then(() => {
-              params.pause = false;
-              params.galaxyLast = galaxyNext;
-              params.systemLast = systemNext;
-              this.observeNext = setTimeout(() => this.continueObserve(), 0);
-            });
-          });
+          this.viewGalaxy(galaxyNext, systemNext)
+              .then(info => this.galaxyRepo.store(info))
+              .then(() => {
+                params.pause = false;
+                params.galaxyLast = galaxyNext;
+                params.systemLast = systemNext;
+                this.observeNext = setTimeout(() => this.continueObserve(), 0);
+              });
         }
-      })
+      });
     }
   }
 
   loadReportList(): Promise<number[]> {
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
       method: 'GET',
-      qs: {
+      query: {
         page: 'messages',
         tab: 20,
         ajax: 1
       }
-    }).then(response => {
-      return parseReportList(JSDOM.fragment(response.body));
-    }).then(idList => {
-      return idList.sort();
-    });
+    })
+        .then(response => parseReportList(JSDOM.fragment(response.body)))
+        .then(idList => idList.sort());
   }
 
   loadReport(id: number): Promise<StampedEspionageReport | undefined> {
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
-      qs: {
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
+      query: {
         page: 'messages',
         messageId: id,
         tabid: 20,
         ajax: 1
       }
-    }).then(response => {
-      return parseReport(JSDOM.fragment(response.body));
-    });
+    })
+        .then(response => parseReport(JSDOM.fragment(response.body)));
   }
 
   deleteReport(id: number): Promise<void> {
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
       method: 'POST',
-      qs: {
+      query: {
         page: 'messages'
       },
-      form: {
+      body: {
         messageId: id,
         action: 103,
         ajax: 1
@@ -215,13 +229,13 @@ export class LegacyMapper implements Mapper {
   }
 
   loadEvents(): Promise<FlightEvent[]> {
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
-      qs: {
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
+      query: {
         page: 'eventList',
         ajax: 1
       }
-    }, false).then(response => {
+    }).then(response => {
       try {
         return parseEventList(JSDOM.fragment(response.body));
       } catch (ex) {
@@ -234,12 +248,8 @@ export class LegacyMapper implements Mapper {
   launch(mission: Mission): Promise<number> {
     const form: Form = {};
     return this.fleetStep1(mission)
-        .then(() => {
-          return this.fleetStep2(form, mission);
-        })
-        .then(() => {
-          return this.fleetStep3(form, mission)
-        })
+        .then(() => this.fleetStep2(form, mission))
+        .then(() => this.fleetStep3(form, mission))
         .then(step3 => {
           let document = new JSDOM(step3.body).window.document;
           let token = document.querySelector('input[name="token"]')!.getAttribute('value')!;
@@ -253,10 +263,10 @@ export class LegacyMapper implements Mapper {
     let queryParams: any = {page: 'fleet1'};
     if (mission.from)
       queryParams.cp = mission.from;
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
       method: 'GET',
-      qs: queryParams
+      query: queryParams
     }, true);
   }
 
@@ -266,11 +276,11 @@ export class LegacyMapper implements Mapper {
       form[ShipTypeId[shipType]] = mission.fleet[shipType]!;
     }
 
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
       method: 'POST',
-      qs: {page: 'fleet2'},
-      form: form
+      query: {page: 'fleet2'},
+      body: form
     }, true);
   }
 
@@ -281,12 +291,12 @@ export class LegacyMapper implements Mapper {
     form['type'] = mission.to.type || CoordinateType.Planet;
     form['speed'] = mission.speed || 10;
 
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
       method: 'POST',
-      qs: {page: 'fleet3'},
-      form: form
-    }, false);
+      query: {page: 'fleet3'},
+      body: form
+    });
   }
 
   private fleetStepCommit(form: Form, mission: Mission, token: string) {
@@ -301,58 +311,35 @@ export class LegacyMapper implements Mapper {
       form['deuterium'] = mission.cargo.deut || 0;
     }
 
-    return this.asPromise({
-      uri: LegacyMapper.GAME_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.GAME_URL,
       method: 'POST',
-      qs: form,
-      form: {token: token}
+      query: form,
+      body: {token: token}
     }, true);
   }
 
   loginLobby(): Promise<string> {
-    return this.asPromise({
-      uri: LegacyMapper.LOBBY_LOGIN_URL,
+    return this.fetcher.fetch({
+      url: LegacyMapper.LOBBY_LOGIN_URL,
       method: 'POST',
-      form: {
+      body: {
         'credentials[email]': 'vasily.liaskovsky@gmail.com',
         'credentials[password]': 'LemKoTir',
         autologin: false,
         language: 'ru',
         kid: ''
       }
-    }).then(() => {
-      return this.asPromise({
-        uri: 'https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=101497&server[language]=ru&server[number]=148',
-        json: true
-      }).then(response => response.body['url']);
-    }).then(url => {
-      return this.asPromise({
-        uri: url
-      }).then(response => {
-        console.log(response.body.length);
-        return 'ok';
-      });
-    });
-  }
-
-  private asPromise(options: request.Options, firstByteOnly = false): Promise<request.Response> {
-    if (!options.jar)
-      options.jar = this.requestJar;
-    if (firstByteOnly)
-      return new Promise((resolve, reject) => {
-        let req = request(options);
-        req.on('response', response => {
-          req.destroy();
-          resolve(response);
+    }).then(() =>
+        this.fetcher.fetch({
+          url: 'https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=101497&server[language]=ru&server[number]=148',
+          json: true
+        } as RequestOptions))
+        .then(response => response.body['url'] as string)
+        .then(url => this.fetcher.fetch({url: url}))
+        .then(response => {
+          console.log(response.body.length);
+          return 'ok';
         });
-        req.on('error', reject);
-      });
-    else
-      return new Promise((resolve, reject) => {
-        request(options, (error, response) => {
-          if (error) reject(error);
-          else resolve(response);
-        });
-      });
   }
 }

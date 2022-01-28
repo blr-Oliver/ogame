@@ -9,6 +9,7 @@ import {CoordinateType} from '../common/types';
 import {SqlEspionageRepository} from '../standalone/repository/SqlEspionageRepository';
 import {SqlGalaxyRepository} from '../standalone/repository/SqlGalaxyRepository';
 import {StaticGameContext} from '../standalone/StaticGameContext';
+import {LegacyFetcher} from './legacy-fetcher';
 import {LegacyMapper} from './LegacyMapper';
 
 const app = express();
@@ -17,7 +18,8 @@ const port = 8080;
 const gameContext = new StaticGameContext();
 const espionageRepo = new SqlEspionageRepository();
 const galaxyRepo = new SqlGalaxyRepository();
-const mapper = new LegacyMapper(espionageRepo, galaxyRepo);
+const fetcher = new LegacyFetcher();
+const mapper = new LegacyMapper(espionageRepo, galaxyRepo, fetcher);
 const scanner = new Scanner(gameContext, mapper);
 const autoRaid = new AutoRaid(gameContext, mapper, espionageRepo, galaxyRepo);
 const analyzer = new Analyzer(gameContext, mapper, espionageRepo, galaxyRepo);
