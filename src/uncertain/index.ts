@@ -9,6 +9,7 @@ import {CoordinateType} from '../common/types';
 import {SqlEspionageRepository} from '../standalone/repository/SqlEspionageRepository';
 import {SqlGalaxyRepository} from '../standalone/repository/SqlGalaxyRepository';
 import {StaticGameContext} from '../standalone/StaticGameContext';
+import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {LegacyFetcher} from './legacy-fetcher';
 import {LegacyMapper} from './LegacyMapper';
 
@@ -19,7 +20,8 @@ const gameContext = new StaticGameContext();
 const espionageRepo = new SqlEspionageRepository();
 const galaxyRepo = new SqlGalaxyRepository();
 const fetcher = new LegacyFetcher();
-const mapper = new LegacyMapper(espionageRepo, galaxyRepo, fetcher);
+const espionageReportScrapper = new EspionageReportScrapper(espionageRepo, fetcher);
+const mapper = new LegacyMapper(galaxyRepo, fetcher);
 const scanner = new Scanner(gameContext, mapper);
 const autoRaid = new AutoRaid(gameContext, mapper, espionageRepo, galaxyRepo);
 const analyzer = new Analyzer(gameContext, mapper, espionageRepo, galaxyRepo);
@@ -143,8 +145,8 @@ app.get('/dump', (req, res) => {
 
 app.get('/espionage', (req, res) => {
   if ('continue' in req.query)
-    mapper.loadAllReports();
-  res.json(mapper.reportIdList);
+    espionageReportScrapper.loadAllReports();
+  res.json(espionageReportScrapper.loadingQueue);
 });
 
 app.get('/scan', (req, res) => {

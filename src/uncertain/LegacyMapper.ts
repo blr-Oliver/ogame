@@ -1,12 +1,11 @@
 import {JSDOM} from 'jsdom';
 import * as request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
-import {parseReport, parseReportList} from '../browser/parsers/espionage-reports';
 import {parseEventList} from '../browser/parsers/event-list';
 import {parseGalaxy} from '../browser/parsers/galaxy-reports';
 import {processAll, waitUntil} from '../common/common';
-import {FlightEvent, GalaxySystemInfo, Mapper, ObserveParams, StampedEspionageReport} from '../common/report-types';
-import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
+import {FlightEvent, GalaxySystemInfo, Mapper, ObserveParams} from '../common/report-types';
+import {GalaxyRepository} from '../common/repository-types';
 import {Coordinates, CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
 import {dumpFile} from '../standalone/files';
 
@@ -57,10 +56,8 @@ export class LegacyMapper implements Mapper {
   };
 
   private observeNext: NodeJS.Timeout | null = null;
-  reportIdList: number[] = [];
 
-  constructor(private espionageRepo: EspionageRepository,
-              private galaxyRepo: GalaxyRepository,
+  constructor(private galaxyRepo: GalaxyRepository,
               private fetcher: Fetcher) {
     const cookieStore = new MemoryCookieStore();
     this.jar = new CookieJar(cookieStore);
@@ -156,67 +153,6 @@ export class LegacyMapper implements Mapper {
         }
       });
     }
-  }
-
-  loadReportList(): Promise<number[]> {
-    return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
-      method: 'GET',
-      query: {
-        page: 'messages',
-        tab: 20,
-        ajax: 1
-      }
-    })
-        .then(response => parseReportList(JSDOM.fragment(response.body)))
-        .then(idList => idList.sort());
-  }
-
-  loadReport(id: number): Promise<StampedEspionageReport | undefined> {
-    return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
-      query: {
-        page: 'messages',
-        messageId: id,
-        tabid: 20,
-        ajax: 1
-      }
-    })
-        .then(response => parseReport(JSDOM.fragment(response.body)));
-  }
-
-  deleteReport(id: number): Promise<void> {
-    return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
-      method: 'POST',
-      query: {
-        page: 'messages'
-      },
-      body: {
-        messageId: id,
-        action: 103,
-        ajax: 1
-      }
-    }).then(() => void 0);
-  }
-
-  loadAllReports(): Promise<StampedEspionageReport[]> {
-    return this.loadReportList().then(idList => {
-          this.reportIdList = idList;
-          return processAll(idList, id =>
-              this.loadReport(id)
-                  .then(report => {
-                    let beforeDelete: Promise<any> = report ? this.espionageRepo.store(report) : Promise.resolve();
-                    return beforeDelete
-                        .then(() => this.deleteReport(id))
-                        .then(() => this.reportIdList.shift())
-                        .then(() => report);
-                  }));
-        }
-    ).then(result => {
-      if (!result.length) return result;
-      return this.loadAllReports().then(nextPage => (result.push(...nextPage), result));
-    });
   }
 
   loadEvents(): Promise<FlightEvent[]> {
