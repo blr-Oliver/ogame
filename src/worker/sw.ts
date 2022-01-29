@@ -7,6 +7,7 @@ import {GalaxyRepository} from '../common/repository-types';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {DelegatingEventTarget} from './DelegatingEventTarget';
 import {LocationServerContext} from './LocationServerContext';
+import {NavigatorGameContext} from './NavigatorGameContext';
 
 declare var self: ServiceWorkerGlobalScope;
 
@@ -21,6 +22,7 @@ const repositoryProvider: IDBRepositoryProvider = new IDBRepositoryProvider(self
   'galaxy': galaxySupport
 });
 const serverContext = new LocationServerContext(self.location);
+const gameContext = new NavigatorGameContext();
 const fetcher = new NativeFetcher();
 const galaxyParser = new JSONGalaxyParser();
 let galaxyRepo: GalaxyRepository;
@@ -29,10 +31,12 @@ let galaxyObserver: GalaxyObserver;
 repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy')
     .then(repo => {
       galaxyRepo = repo;
-      return galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
+      return galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext, gameContext);
     })
-    .then(observer => observer.observeSystem(5, 200))
-    .then(report => console.log(report));
+    .then(observer => {
+      observer.settings.pause = false;
+      observer.continueObserve();
+    });
 
 self.addEventListener('message', e => shim.handleEvent(e));
 self.addEventListener('fetch', (e: FetchEvent) => {

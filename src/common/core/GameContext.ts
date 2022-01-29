@@ -4,6 +4,14 @@ import {FlightCalculator} from './FlightCalculator';
 export abstract class GameContext {
   abstract getResearches(): Researches;
   abstract getBodies(): SpaceBody[];
+  readonly maxGalaxy: number;
+  readonly maxSystem: number;
+
+  constructor(maxGalaxy: number, maxSystem: number) {
+    this.maxGalaxy = maxGalaxy;
+    this.maxSystem = maxSystem;
+  }
+
   getNearestBody(coordinates: Coordinates): SpaceBody {
     let bodies = this.getBodies();
     let nearestDistance = Infinity, nearestBody: SpaceBody = bodies[0];
@@ -15,15 +23,5 @@ export abstract class GameContext {
       }
     }
     return nearestBody;
-  }
-  /**
-   * @deprecated getBodies should be used instead
-   */
-  getCoordinates(): { [key: number]: Coordinates } {
-    let bodies = this.getBodies();
-    return bodies.reduce((result, body) => {
-      result[body.id] = body.coordinates;
-      return result;
-    }, {} as { [key: number]: Coordinates })
   }
 }

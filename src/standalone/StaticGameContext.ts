@@ -76,6 +76,9 @@ const PLANETS: SpaceBody[] = [
 ];
 
 export class StaticGameContext extends GameContext {
+  constructor() {
+    super(7, 499);
+  }
   getBodies(): SpaceBody[] {
     return PLANETS;
   }

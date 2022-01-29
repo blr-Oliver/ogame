@@ -128,18 +128,6 @@ export interface ShardedEspionageReport extends EspionageReport {
   source: ShardHeader[];
 }
 
-export interface ObserveParams {
-  pause: boolean;
-  galaxyMin: number;
-  galaxyMax: number;
-  galaxyLast: number | null;
-  systemMin: number;
-  systemMax: number;
-  systemLast: number | null;
-  emptyTimeout: number;
-  normalTimeout: number;
-}
-
 export interface Mapper {
   loadEvents(): Promise<FlightEvent[]>;
   launch(mission: Mission): Promise<any>;

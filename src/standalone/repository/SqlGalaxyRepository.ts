@@ -59,10 +59,10 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     return this.load(coordinates.galaxy, coordinates.system);
   }
 
-  findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null,
-                normalTimeout: number, emptyTimeout: number): Promise<Coordinates | undefined> {
+  findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, normalTimeout: number, emptyTimeout: number,
+                galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
     return db.query<any[]>({ // TODO define type for "raw" data
-      sql:
+      sql:  // TODO check if it is still correct
           `select galaxy, system, null as 'position' from galaxy_report where
               galaxy >= ${galaxyMin} and galaxy <= ${galaxyMax} and system >= ${systemMin} and system <= ${systemMax}
               and (galaxy = ${galaxyLast || 0} and system > ${systemLast || 0} or galaxy > ${galaxyLast || 0})
@@ -80,6 +80,10 @@ export class SqlGalaxyRepository implements GalaxyRepository {
              where (player_status like '%i%' or player_status like '%I%')
              and player_status not like '%РО%' and player_status not like '%A%'`
     }).then((rows: any[]) => rows.map(row => extractObject(row, COORDINATES_MAPPING)));
+  }
+
+  findNextMissing(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, maxSystem: number, galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
+    return Promise.resolve(undefined); // TODO
   }
 
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {

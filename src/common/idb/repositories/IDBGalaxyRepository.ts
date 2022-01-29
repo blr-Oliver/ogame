@@ -15,9 +15,13 @@ const {
   upsertAll
 } = IDBUtils;
 
+type CoordinatesKey = [galaxy: number, system: number];
+
 /*
   galaxy-report
     keyPath: galaxy, system, timestamp
+    indexes:
+      coordinates: galaxy, system
 
   galaxy-report-slot
     keyPath: galaxy, system, position, timestamp
@@ -28,6 +32,7 @@ const {
 */
 export class IDBGalaxyRepository extends IDBRepository implements GalaxyRepository {
   static readonly SYSTEM_STORE = 'galaxy-report';
+  static readonly SYSTEM_COORDINATES_INDEX = 'coordinates';
   static readonly SLOT_STORE = 'galaxy-report-slot';
   static readonly SLOT_PARENT_INDEX = 'parent';
   static readonly SLOT_TIMESTAMP_INDEX = 'timestamp';
@@ -64,22 +69,19 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     });
   }
 
-  /*
-  (galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null, normalTimeout: number, emptyTimeout: number) => Promise<...>
-  (galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null, normalTimeout: number, emptyTimeout: number) => Promise<...>
-   */
-  findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, galaxyLast: number | null, systemLast: number | null, normalTimeout: number, emptyTimeout: number): Promise<Coordinates | undefined> {
+  findNextStale(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, normalTimeout: number, emptyTimeout: number, galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
       let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
-      if (galaxyLast != null) {
-        galaxyMin = galaxyLast;
-        if (systemLast != null)
-          systemMin = systemLast;
+      let upper: IDBValidKey = [toGalaxy, toSystem, MAX_DATE];
+      let lower: IDBValidKey, query: IDBKeyRange;
+      if (galaxyLast && systemLast) {
+        lower = [galaxyLast, systemLast, MAX_DATE];
+        query = IDBKeyRange.bound(lower, upper, true);
+      } else {
+        lower = [fromGalaxy, fromSystem, MIN_DATE];
+        query = IDBKeyRange.bound(lower, upper);
       }
-      let lower: IDBValidKey = [galaxyMin, systemMin, MIN_DATE];
-      let upper: IDBValidKey = [galaxyMax, systemMax, MAX_DATE];
-      let query: IDBKeyRange = IDBKeyRange.bound(lower, upper);
       const now = Date.now();
       return getTopMatching<GalaxySystemInfo>(systemStore, 1, report => {
         let age = (now - report.timestamp!.getTime()) / 1000;
@@ -93,6 +95,44 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
           });
     });
   }
+
+  findNextMissing(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, maxSystem: number, galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
+    return this.withTransaction(tx, tx => {
+      const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
+      const lastKey: CoordinatesKey = [toGalaxy, toSystem];
+      let candidate: CoordinatesKey | undefined;
+      if (galaxyLast && systemLast) {
+        candidate = IDBGalaxyRepository.nextCoordinatesKey([galaxyLast, systemLast], lastKey, maxSystem);
+        if (!candidate) return Promise.resolve(undefined);
+      } else
+        candidate = [fromGalaxy, fromSystem];
+      return getTopMatchingFromIndex<GalaxySystemInfo>(systemStore, IDBGalaxyRepository.SYSTEM_COORDINATES_INDEX, 1,
+          (report) => {
+            let currentKey: CoordinatesKey = [report.galaxy, report.system];
+            if (currentKey[0] === candidate![0] && currentKey[1] === candidate![1]) {
+              candidate = IDBGalaxyRepository.nextCoordinatesKey(currentKey, lastKey, maxSystem);
+              return false;
+            }
+            return true;
+          }, IDBKeyRange.lowerBound(candidate), 'nextunique')
+          .then(() => candidate && {
+            galaxy: candidate[0],
+            system: candidate[1],
+            position: 0
+          });
+    });
+  }
+
+  private static nextCoordinatesKey(key: CoordinatesKey, to: CoordinatesKey, maxSystem: number): CoordinatesKey | undefined {
+    let next: CoordinatesKey = [key[0], key[1] + 1];
+    if (next[1] > maxSystem) {
+      next[0]++;
+      next[1] = 1;
+    }
+    if (next[0] < to[0] || next[0] === to[0] && next[1] <= to[1]) return next;
+  }
+
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SLOT_STORE], 'readonly');
     return this.withTransaction(tx, tx => {

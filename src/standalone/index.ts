@@ -75,29 +75,32 @@ app.get('/galaxy', (req, res) => {
     galaxyParams = [galaxyParams];
   if (typeof (systemParams) === 'string')
     systemParams = [systemParams];
+  const settings = galaxyObserver.settings;
+  if (!settings.from) settings.from = {};
+  if (!settings.to) settings.to = {};
   if (galaxyParams) {
     let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 7);
     if (galaxy.length) {
-      galaxyObserver.observe.galaxyMin = Math.min(...galaxy);
-      galaxyObserver.observe.galaxyMax = Math.max(...galaxy);
+      settings.from.galaxy = Math.min(...galaxy);
+      settings.to.galaxy = Math.max(...galaxy);
     }
   }
   if (systemParams) {
     let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 499);
     if (system.length) {
-      galaxyObserver.observe.systemMin = Math.min(...system);
-      galaxyObserver.observe.systemMax = Math.max(...system);
+      settings.from.system = Math.min(...system);
+      settings.to.system = Math.max(...system);
     }
   }
 
   if ('pause' in req.query) {
-    galaxyObserver.observe.pause = true;
+    settings.pause = true;
   } else if ('continue' in req.query) {
-    galaxyObserver.observe.pause = false;
+    settings.pause = false;
     galaxyObserver.continueObserve();
   }
 
-  res.json(galaxyObserver.observe);
+  res.json(settings);
 });
 
 

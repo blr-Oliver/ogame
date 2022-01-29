@@ -23,6 +23,7 @@ export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBGalax
       autoIncrement: false,
       keyPath: ['galaxy', 'system', 'timestamp']
     });
+    let coordinatesIndex = systemStore.createIndex(IDBGalaxyRepository.SYSTEM_COORDINATES_INDEX, ['galaxy', 'system'], {unique: false});
 
     let slotStore = db.createObjectStore(IDBGalaxyRepository.SLOT_STORE, {
       autoIncrement: false,
