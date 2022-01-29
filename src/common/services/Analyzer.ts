@@ -1,9 +1,9 @@
-import {Calculator} from '../Calculator';
-import {FlightCalculator} from '../FlightCalculator';
+import {Calculator} from '../core/Calculator';
+import {FlightCalculator} from '../core/FlightCalculator';
+import {GameContext} from '../core/GameContext';
 import {Mapper, ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
 import {Coordinates, MissionType} from '../types';
-import {GameContext} from './GameContext';
 
 export interface ReportMetaInfo {
   nearestPlanetId?: number;

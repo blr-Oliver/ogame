@@ -1,9 +1,9 @@
-import {processAll} from '../common/common';
-import {Fetcher} from '../common/core/Fetcher';
-import {ServerContext} from '../common/core/ServerContext';
-import {EspionageReportParser} from '../common/parsers';
-import {StampedEspionageReport} from '../common/report-types';
-import {EspionageRepository} from '../common/repository-types';
+import {processAll} from '../common';
+import {Fetcher} from '../core/Fetcher';
+import {ServerContext} from '../core/ServerContext';
+import {EspionageReportParser} from '../parsers';
+import {StampedEspionageReport} from '../report-types';
+import {EspionageRepository} from '../repository-types';
 
 export class EspionageReportScrapper {
   loadingQueue: number[] = []; // TODO handle queue contents more reliably

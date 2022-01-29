@@ -1,7 +1,7 @@
-import {FlightCalculator} from '../FlightCalculator';
+import {FlightCalculator} from '../core/FlightCalculator';
+import {GameContext} from '../core/GameContext';
 import {Mapper} from '../report-types';
 import {Coordinates, MissionType} from '../types';
-import {GameContext} from './GameContext';
 
 export class Scanner {
   targets: Coordinates[] = [];

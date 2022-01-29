@@ -2,12 +2,12 @@ import {JSDOM} from 'jsdom';
 import {DOMEspionageReportParser} from '../browser/parsers/espionage-reports';
 import {DOMGalaxyParser} from '../browser/parsers/galaxy-reports';
 import {HtmlParser} from '../browser/parsers/HtmlParser';
-import {Analyzer} from '../common/core/Analyzer';
-import {AutoRaid} from '../common/core/AutoRaid';
-import {Scanner} from '../common/core/Scanner';
 import {ServerContext} from '../common/core/ServerContext';
-import {EspionageReportScrapper} from '../uncertain/EspionageReportScrapper';
-import {GalaxyObserver} from '../uncertain/GalaxyObserver';
+import {Analyzer} from '../common/services/Analyzer';
+import {AutoRaid} from '../common/services/AutoRaid';
+import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
+import {GalaxyObserver} from '../common/services/GalaxyObserver';
+import {Scanner} from '../common/services/Scanner';
 import {LegacyMapper} from '../uncertain/LegacyMapper';
 import {LegacyFetcher} from './LegacyFetcher';
 import {SqlEspionageRepository} from './repository/SqlEspionageRepository';
@@ -32,7 +32,7 @@ export const gameContext = new StaticGameContext();
 export const espionageRepo = new SqlEspionageRepository();
 export const galaxyRepo = new SqlGalaxyRepository();
 export const htmlParser: HtmlParser = {
-  parse(body: string): Document | DocumentFragment {
+  parse(body: string): DocumentFragment {
     return JSDOM.fragment(body);
   }
 }

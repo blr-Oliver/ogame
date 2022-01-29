@@ -1,10 +1,10 @@
-import {processAll, waitUntil} from '../common/common';
-import {Fetcher} from '../common/core/Fetcher';
-import {ServerContext} from '../common/core/ServerContext';
-import {GalaxyParser} from '../common/parsers';
-import {GalaxySystemInfo, ObserveParams} from '../common/report-types';
-import {GalaxyRepository} from '../common/repository-types';
-import {Coordinates} from '../common/types';
+import {processAll, waitUntil} from '../common';
+import {Fetcher} from '../core/Fetcher';
+import {ServerContext} from '../core/ServerContext';
+import {GalaxyParser} from '../parsers';
+import {GalaxySystemInfo, ObserveParams} from '../report-types';
+import {GalaxyRepository} from '../repository-types';
+import {Coordinates} from '../types';
 
 export class GalaxyObserver {
   readonly observe: ObserveParams = {

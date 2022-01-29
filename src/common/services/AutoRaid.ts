@@ -1,12 +1,12 @@
-import {EspionageReportScrapper} from '../../uncertain/EspionageReportScrapper';
-import {GalaxyObserver} from '../../uncertain/GalaxyObserver';
-import {Calculator} from '../Calculator';
-import {FlightCalculator} from '../FlightCalculator';
+import {Calculator} from '../core/Calculator';
+import {FlightCalculator} from '../core/FlightCalculator';
+import {GameContext} from '../core/GameContext';
 import {FlightEvent, GalaxySystemInfo, Mapper, ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
 import {Coordinates, MissionType, sameCoordinates} from '../types';
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
-import {GameContext} from './GameContext';
+import {EspionageReportScrapper} from './EspionageReportScrapper';
+import {GalaxyObserver} from './GalaxyObserver';
 
 export class AutoRaid {
   state: any = {

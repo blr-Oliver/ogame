@@ -1,4 +1,4 @@
-import {Coordinates, Fleet, FleetPartial, Researches, ResearchType, ShipType, Speed} from './types';
+import {Coordinates, Fleet, FleetPartial, Researches, ResearchType, ShipType, Speed} from '../types';
 
 export class FlightCalculator {
   static readonly FLIGHT_MULTIPLIER = 2;

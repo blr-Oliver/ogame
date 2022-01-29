@@ -3,12 +3,22 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
 import {CoordinateType} from '../common/types';
-import {analyzer, autoRaid, espionageRepo, espionageReportScrapper, fetcher, galaxyObserver, galaxyRepo, GAME_DOMAIN, mapper, scanner} from './init-components';
+import {
+  analyzer,
+  autoRaid,
+  espionageRepo,
+  espionageReportScrapper,
+  fetcher,
+  galaxyObserver,
+  galaxyRepo,
+  mapper,
+  scanner,
+  serverContext
+} from './init-components';
 
 const app = express();
 const port = 8080;
 
-// TODO init (and inject?) all components
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('json replacer', function (this: any, key: string, value: any) {
   if (this[key] instanceof Date) // direct test on value doesn't work
@@ -177,6 +187,6 @@ function useCookiesIfPresent(req: express.Request, res: express.Response, next: 
 }
 
 function addCORSHeader(req: express.Request, res: express.Response, next: express.NextFunction) {
-  res.setHeader('access-control-allow-origin', `https://${GAME_DOMAIN}`);
+  res.setHeader('access-control-allow-origin', `https://${serverContext.domain}`);
   next();
 }

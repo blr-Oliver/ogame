@@ -1,5 +1,5 @@
-import {FlightCalculator} from '../FlightCalculator';
 import {Coordinates, Researches, SpaceBody} from '../types';
+import {FlightCalculator} from './FlightCalculator';
 
 export abstract class GameContext {
   abstract getResearches(): Researches;
