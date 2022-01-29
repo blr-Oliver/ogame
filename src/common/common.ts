@@ -13,12 +13,12 @@ export function deduplicate<T>(list: T[], compareFn?: (a: T, b: T) => number): T
 export function processAll<T, R>(input: T[], action: (item: T) => Promise<R | undefined>, parallel: boolean = false): Promise<R[]> {
   if (parallel)
     return Promise.all(input.map(item => action(item)))
-        .then(result => result.filter(x => !!x));
+        .then(result => result.filter(x => !!x) as R[]);
   else
     return input.reduce((chain: Promise<R[]>, item: T) =>
             chain
                 .then(list => action(item)
-                    .then(result => (result ?? list.push(result), list))),
+                    .then(result => (result && list.push(result), list))),
         Promise.resolve([]) as Promise<R[]>);
 }
 
