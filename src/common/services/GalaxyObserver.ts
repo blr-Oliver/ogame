@@ -32,20 +32,26 @@ export class GalaxyObserver {
       url: this.serverContext.gameUrl,
       method: 'POST',
       query: {
-        page: 'galaxyContent',
-        ajax: 1
+        page: 'ingame',
+        component: 'galaxy',
+        action: 'fetchGalaxyContent',
+        ajax: 1,
+        asJson: 1
       },
       body: {
         galaxy: galaxy,
         system: system
+      },
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
       }
     })
         .then(response => {
           let timestamp: Date = response.headers.has('date') ? new Date(response.headers.get('date')!) : new Date();
-          return response.json()
-              .then(json => this.parser.parseGalaxy(json['galaxy'], timestamp))
+          return response.text().then(text => this.parser.parseGalaxy(text, timestamp))
         });
   }
+
 
   observeAllSystems(systems: Coordinates[]): Promise<GalaxySystemInfo[]> {
     // TODO maybe bulk store to GalaxyRepository instead of chain?

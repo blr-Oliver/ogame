@@ -1,0 +1,15 @@
+POST /game/index.php?page=ingame&component=galaxy&action=fetchGalaxyContent&ajax=1&asJson=1 HTTP/1.1
+Host: s156-en.ogame.gameforge.com
+Connection: keep-alive
+Content-Length: 19
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
+Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+Accept: */*
+Origin: https://s156-en.ogame.gameforge.com
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://s156-en.ogame.gameforge.com/sw.js
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9,ru;q=0.8,be;q=0.7
+Cookie: locale=en; maximizeId=null; gf-token-production=546ba129-31a9-4de5-9471-70a35304c9ed; __auc=8a6d2f8417e6534c6d0a43174ad; gf-cookie-consent-4449562312=|7|1; pc_idt=AJFK0R0YvoiaH8fK7qQSmKM8hit9PsspTKSD_gkOjJLXl1ot-M0BhcV2uVptsITkMaO5QchzizdHWRLKi71Ne-UMA8Ohsh889NIDLceriFnho7s0DphS1ub_JvDQqkIl7_Gt-KlwFrz1x5wzCDiJ35ixnKvkjkAM0Fq6aw; _ga=GA1.2.1096011494.1643253917; PHPSESSID=782f1972e75e0d7fb91522f00dee9932a0a50a7d; __asc=7c41a9cc17ea4b5408b337369dd; prsess_117033=93afe8332522e1b11b1800671493a338

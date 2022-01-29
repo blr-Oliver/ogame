@@ -1,64 +1,43 @@
-import {extractGalaxy} from '../browser/parsers/galaxy-report-extractor';
+import {extractGalaxy, JSONGalaxyParser} from '../browser/parsers/galaxy-report-extractor';
+import {NativeFetcher} from '../common/core/NativeFetcher';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
 import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
-import {ReplyingMessagePort} from '../common/message/ReplyingMessagePort';
+import {GalaxyRepository} from '../common/repository-types';
+import {GalaxyObserver} from '../common/services/GalaxyObserver';
+import {DelegatingEventTarget} from './DelegatingEventTarget';
+import {LocationServerContext} from './LocationServerContext';
 
 declare var self: ServiceWorkerGlobalScope;
-
-class DelegatingEventTarget extends EventTarget {
-  constructor() {
-    super();
-  }
-  handleEvent(e: Event) {
-    // @ts-ignore
-    let clone = new e.constructor(e.type, e);
-    this.dispatchEvent(clone);
-  }
-}
-
-interface ClientExchange {
-  connection?: ReplyingMessagePort;
-  promise: Promise<ReplyingMessagePort>;
-}
 
 interface RequestCapture {
   request: Request;
   response: Response;
 }
 
-let clientConnections: { [clientId: string]: ClientExchange } = {};
-let shim = new DelegatingEventTarget();
-
+const shim = new DelegatingEventTarget();
 const galaxySupport = new IDBGalaxyRepositorySupport();
 const repositoryProvider: IDBRepositoryProvider = new IDBRepositoryProvider(self.indexedDB, 'ogame', {
   'galaxy': galaxySupport
 });
+const serverContext = new LocationServerContext(self.location);
+const fetcher = new NativeFetcher();
+const galaxyParser = new JSONGalaxyParser();
+let galaxyRepo: GalaxyRepository;
+let galaxyObserver: GalaxyObserver;
+
+repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy')
+    .then(repo => {
+      galaxyRepo = repo;
+      return galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
+    })
+    .then(observer => observer.observeSystem(5, 200))
+    .then(report => console.log(report));
 
 self.addEventListener('message', e => shim.handleEvent(e));
 self.addEventListener('fetch', (e: FetchEvent) => {
-  const clientId = e.clientId;
-  maybeConnect(clientId);
   spyGalaxyRequest(e);
 });
-
-function maybeConnect(clientId: string) {
-  if (!(clientId in clientConnections)) {
-    self.clients.get(clientId)
-        .then(client => {
-          if (client) {
-            if (clientConnections[clientId] == null) {
-              let exchange: ClientExchange = clientConnections[clientId] = {
-                promise: ReplyingMessagePort.connect('exchange', client, shim)
-              };
-              exchange.promise.then(connection => {
-                exchange.connection = connection;
-              });
-            }
-          }
-        });
-  }
-}
 
 function spyGalaxyRequest(e: FetchEvent) {
   let request = e.request;
