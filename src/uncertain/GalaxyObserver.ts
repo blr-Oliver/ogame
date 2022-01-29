@@ -2,10 +2,10 @@ import {JSDOM} from 'jsdom';
 import {parseGalaxy} from '../browser/parsers/galaxy-reports';
 import {processAll, waitUntil} from '../common/common';
 import {Fetcher} from '../common/core/Fetcher';
+import {ServerContext} from '../common/core/ServerContext';
 import {GalaxySystemInfo, ObserveParams} from '../common/report-types';
 import {GalaxyRepository} from '../common/repository-types';
 import {Coordinates} from '../common/types';
-import {LegacyMapper} from './LegacyMapper';
 
 export class GalaxyObserver {
   readonly observe: ObserveParams = {
@@ -23,12 +23,13 @@ export class GalaxyObserver {
   private observeNext: any | null = null;
 
   constructor(private galaxyRepo: GalaxyRepository,
-              private fetcher: Fetcher) {
+              private fetcher: Fetcher,
+              private serverContext: ServerContext) {
   }
 
   observeSystem(galaxy: number, system: number): Promise<GalaxySystemInfo> {
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       method: 'POST',
       query: {
         page: 'galaxyContent',

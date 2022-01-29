@@ -1,6 +1,7 @@
 import {JSDOM} from 'jsdom';
 import {parseEventList} from '../browser/parsers/event-list';
 import {Fetcher, ResponseFacade} from '../common/core/Fetcher';
+import {ServerContext} from '../common/core/ServerContext';
 import {FlightEvent, Mapper} from '../common/report-types';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
 import {dumpFile} from '../standalone/files';
@@ -8,17 +9,13 @@ import {dumpFile} from '../standalone/files';
 type Form = { [key: string]: string | number };
 
 export class LegacyMapper implements Mapper {
-  static readonly LOBBY_DOMAIN_URL = 'lobby-api.ogame.gameforge.com';
-  static readonly LOBBY_LOGIN_URL = 'https://' + LegacyMapper.LOBBY_DOMAIN_URL + '/users';
-  static readonly GAME_DOMAIN = 's148-ru.ogame.gameforge.com';
-  static readonly GAME_URL = 'https://' + LegacyMapper.GAME_DOMAIN + '/game/index.php';
-
-  constructor(private fetcher: Fetcher) {
+  constructor(private fetcher: Fetcher,
+              private serverContext: ServerContext) {
   }
 
   ping(): Promise<ResponseFacade> {
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       method: 'GET',
       redirect: false
     });
@@ -26,7 +23,7 @@ export class LegacyMapper implements Mapper {
 
   loadEvents(): Promise<FlightEvent[]> {
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       query: {
         page: 'eventList',
         ajax: 1
@@ -61,7 +58,7 @@ export class LegacyMapper implements Mapper {
     if (mission.from)
       queryParams.cp = mission.from;
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       method: 'GET',
       query: queryParams
     }, true);
@@ -74,7 +71,7 @@ export class LegacyMapper implements Mapper {
     }
 
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       method: 'POST',
       query: {page: 'fleet2'},
       body: form
@@ -89,7 +86,7 @@ export class LegacyMapper implements Mapper {
     form['speed'] = mission.speed || 10;
 
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       method: 'POST',
       query: {page: 'fleet3'},
       body: form
@@ -109,7 +106,7 @@ export class LegacyMapper implements Mapper {
     }
 
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       method: 'POST',
       query: form,
       body: {token: token}
@@ -118,7 +115,7 @@ export class LegacyMapper implements Mapper {
 
   loginLobby(): Promise<string> {
     return this.fetcher.fetch({
-      url: LegacyMapper.LOBBY_LOGIN_URL,
+      url: this.serverContext.lobbyLoginUrl,
       method: 'POST',
       body: {
         'credentials[email]': 'vasily.liaskovsky@gmail.com',

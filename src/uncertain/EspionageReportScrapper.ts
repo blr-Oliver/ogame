@@ -2,20 +2,21 @@ import {JSDOM} from 'jsdom';
 import {parseReport, parseReportList} from '../browser/parsers/espionage-reports';
 import {processAll} from '../common/common';
 import {Fetcher} from '../common/core/Fetcher';
+import {ServerContext} from '../common/core/ServerContext';
 import {StampedEspionageReport} from '../common/report-types';
 import {EspionageRepository} from '../common/repository-types';
-import {LegacyMapper} from './LegacyMapper';
 
 export class EspionageReportScrapper {
   loadingQueue: number[] = []; // TODO handle queue contents more reliably
 
   constructor(private espionageRepo: EspionageRepository,
-              private fetcher: Fetcher) {
+              private fetcher: Fetcher,
+              private serverContext: ServerContext) {
   }
 
   loadReportList(): Promise<number[]> {
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       method: 'GET',
       query: {
         page: 'messages',
@@ -30,7 +31,7 @@ export class EspionageReportScrapper {
 
   loadReport(id: number): Promise<StampedEspionageReport | undefined> {
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       query: {
         page: 'messages',
         messageId: id,
@@ -44,7 +45,7 @@ export class EspionageReportScrapper {
 
   deleteReport(id: number): Promise<void> {
     return this.fetcher.fetch({
-      url: LegacyMapper.GAME_URL,
+      url: this.serverContext.gameUrl,
       method: 'POST',
       query: {
         page: 'messages'

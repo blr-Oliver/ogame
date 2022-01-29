@@ -2,31 +2,11 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
-import {Analyzer} from '../common/core/Analyzer';
-import {AutoRaid} from '../common/core/AutoRaid';
-import {Scanner} from '../common/core/Scanner';
 import {CoordinateType} from '../common/types';
-import {LegacyFetcher} from '../standalone/LegacyFetcher';
-import {SqlEspionageRepository} from '../standalone/repository/SqlEspionageRepository';
-import {SqlGalaxyRepository} from '../standalone/repository/SqlGalaxyRepository';
-import {StaticGameContext} from '../standalone/StaticGameContext';
-import {EspionageReportScrapper} from './EspionageReportScrapper';
-import {GalaxyObserver} from './GalaxyObserver';
-import {LegacyMapper} from './LegacyMapper';
+import {analyzer, autoRaid, espionageRepo, espionageReportScrapper, fetcher, galaxyObserver, galaxyRepo, GAME_DOMAIN, mapper, scanner} from './init-components';
 
 const app = express();
 const port = 8080;
-
-const gameContext = new StaticGameContext();
-const espionageRepo = new SqlEspionageRepository();
-const galaxyRepo = new SqlGalaxyRepository();
-const fetcher = new LegacyFetcher();
-const espionageReportScrapper = new EspionageReportScrapper(espionageRepo, fetcher);
-const galaxyObserver = new GalaxyObserver(galaxyRepo, fetcher);
-const mapper = new LegacyMapper(fetcher);
-const scanner = new Scanner(gameContext, mapper);
-const autoRaid = new AutoRaid(gameContext, mapper, espionageReportScrapper, galaxyObserver, espionageRepo, galaxyRepo);
-const analyzer = new Analyzer(gameContext, mapper, espionageRepo, galaxyRepo);
 
 // TODO init (and inject?) all components
 app.use(express.static(path.join(__dirname, 'public')));
@@ -197,6 +177,6 @@ function useCookiesIfPresent(req: express.Request, res: express.Response, next: 
 }
 
 function addCORSHeader(req: express.Request, res: express.Response, next: express.NextFunction) {
-  res.setHeader('access-control-allow-origin', `https://${LegacyMapper.GAME_DOMAIN}`);
+  res.setHeader('access-control-allow-origin', `https://${GAME_DOMAIN}`);
   next();
 }
