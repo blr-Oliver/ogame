@@ -1,81 +1,28 @@
 import {JSDOM} from 'jsdom';
-import * as request from 'request';
-import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
 import {parseEventList} from '../browser/parsers/event-list';
+import {Fetcher, ResponseFacade} from '../common/core/Fetcher';
 import {FlightEvent, Mapper} from '../common/report-types';
-import {GalaxyRepository} from '../common/repository-types';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
 import {dumpFile} from '../standalone/files';
 
 type Form = { [key: string]: string | number };
-
-export interface Fetcher {
-  fetch(options: RequestOptions, firstByteOnly?: boolean): Promise<request.Response>;
-}
-
-export interface RequestOptions {
-  url: string;
-  method?: string;
-  query?: any;
-  body?: any;
-  headers?: { [name: string]: string };
-  redirect?: boolean;
-}
 
 export class LegacyMapper implements Mapper {
   static readonly LOBBY_DOMAIN_URL = 'lobby-api.ogame.gameforge.com';
   static readonly LOBBY_LOGIN_URL = 'https://' + LegacyMapper.LOBBY_DOMAIN_URL + '/users';
   static readonly GAME_DOMAIN = 's148-ru.ogame.gameforge.com';
   static readonly GAME_URL = 'https://' + LegacyMapper.GAME_DOMAIN + '/game/index.php';
-  static blacklistCookie: { [key: string]: boolean } = {
-    tabBoxFleets: true,
-    visibleChats: true,
-    maximizeId: true,
-    __auc: true,
-    __asc: true,
-    _ga: true,
-    _gid: true,
-    _fbp: true
-  };
 
-  jar: CookieJar;
-  requestJar: request.CookieJar;
-
-  constructor(private galaxyRepo: GalaxyRepository,
-              private fetcher: Fetcher) {
-    const cookieStore = new MemoryCookieStore();
-    this.jar = new CookieJar(cookieStore);
-    this.requestJar = request.jar(cookieStore);
-    request.defaults({
-      jar: this.requestJar
-    });
+  constructor(private fetcher: Fetcher) {
   }
 
-  useCookie(cookieString: string | string[], url: string = LegacyMapper.GAME_DOMAIN) {
-    // TODO this is related only to cookieJar and legacy fetcher; should move this there
-    if (typeof (cookieString) === 'string')
-      cookieString = [cookieString];
-    if (cookieString) {
-      for (let item of cookieString) {
-        let cookies = item.split(/;\s*/);
-        for (let cookie of cookies) {
-          let parsed = Cookie.parse(cookie);
-          if (parsed && !LegacyMapper.blacklistCookie[parsed.key]) {
-            this.requestJar.setCookie(cookie, url);
-          }
-        }
-      }
-    }
-  }
-
-  ping(): Promise<request.Response> {
+  ping(): Promise<ResponseFacade> {
     return this.fetcher.fetch({
       url: LegacyMapper.GAME_URL,
       method: 'GET',
       redirect: false
     });
   }
-
 
   loadEvents(): Promise<FlightEvent[]> {
     return this.fetcher.fetch({
@@ -84,30 +31,32 @@ export class LegacyMapper implements Mapper {
         page: 'eventList',
         ajax: 1
       }
-    }).then(response => {
-      try {
-        return parseEventList(JSDOM.fragment(response.body));
-      } catch (ex) {
-        dumpFile(`../../etc/samples/auto/events-${Date.now()}.html`, response.body);
-        return Promise.reject(ex);
-      }
-    });
+    })
+        .then(response => response.text())
+        .then(body => {
+          try {
+            return parseEventList(JSDOM.fragment(body));
+          } catch (ex) {
+            dumpFile(`../../etc/samples/auto/events-${Date.now()}.html`, body);
+            return Promise.reject(ex);
+          }
+        });
   }
 
-  launch(mission: Mission): Promise<number> {
+  launch(mission: Mission): Promise<any> {
     const form: Form = {};
     return this.fleetStep1(mission)
         .then(() => this.fleetStep2(form, mission))
         .then(() => this.fleetStep3(form, mission))
-        .then(step3 => {
-          let document = new JSDOM(step3.body).window.document;
+        .then(step3 => step3.text())
+        .then(body => {
+          let document = new JSDOM(body).window.document;
           let token = document.querySelector('input[name="token"]')!.getAttribute('value')!;
           return this.fleetStepCommit(form, mission, token);
-        })
-        .then(response => response.statusCode); // TODO return fleet id
+        });// TODO return fleet id
   }
 
-  private fleetStep1(mission: Mission): Promise<request.Response> {
+  private fleetStep1(mission: Mission): Promise<ResponseFacade> {
     let queryParams: any = {page: 'fleet1'};
     if (mission.from)
       queryParams.cp = mission.from;
@@ -118,7 +67,7 @@ export class LegacyMapper implements Mapper {
     }, true);
   }
 
-  private fleetStep2(form: Form, mission: Mission): Promise<request.Response> {
+  private fleetStep2(form: Form, mission: Mission): Promise<ResponseFacade> {
     for (let key in mission.fleet) {
       let shipType = key as ShipType;
       form[ShipTypeId[shipType]] = mission.fleet[shipType]!;
@@ -132,7 +81,7 @@ export class LegacyMapper implements Mapper {
     }, true);
   }
 
-  private fleetStep3(form: Form, mission: Mission): Promise<request.Response> {
+  private fleetStep3(form: Form, mission: Mission): Promise<ResponseFacade> {
     form['galaxy'] = mission.to.galaxy;
     form['system'] = mission.to.system;
     form['position'] = mission.to.position;
@@ -180,14 +129,11 @@ export class LegacyMapper implements Mapper {
       }
     }).then(() =>
         this.fetcher.fetch({
-          url: 'https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=101497&server[language]=ru&server[number]=148',
-          json: true
-        } as RequestOptions))
-        .then(response => response.body['url'] as string)
+          url: 'https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=101497&server[language]=ru&server[number]=148'
+        }))
+        .then(response => response.json())
+        .then(json => json['url'] as string)
         .then(url => this.fetcher.fetch({url: url}))
-        .then(response => {
-          console.log(response.body.length);
-          return 'ok';
-        });
+        .then(login => 'ok');
   }
 }

@@ -6,12 +6,12 @@ import {Analyzer} from '../common/core/Analyzer';
 import {AutoRaid} from '../common/core/AutoRaid';
 import {Scanner} from '../common/core/Scanner';
 import {CoordinateType} from '../common/types';
+import {LegacyFetcher} from '../standalone/LegacyFetcher';
 import {SqlEspionageRepository} from '../standalone/repository/SqlEspionageRepository';
 import {SqlGalaxyRepository} from '../standalone/repository/SqlGalaxyRepository';
 import {StaticGameContext} from '../standalone/StaticGameContext';
 import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {GalaxyObserver} from './GalaxyObserver';
-import {LegacyFetcher} from './legacy-fetcher';
 import {LegacyMapper} from './LegacyMapper';
 
 const app = express();
@@ -23,9 +23,9 @@ const galaxyRepo = new SqlGalaxyRepository();
 const fetcher = new LegacyFetcher();
 const espionageReportScrapper = new EspionageReportScrapper(espionageRepo, fetcher);
 const galaxyObserver = new GalaxyObserver(galaxyRepo, fetcher);
-const mapper = new LegacyMapper(galaxyRepo, fetcher);
+const mapper = new LegacyMapper(fetcher);
 const scanner = new Scanner(gameContext, mapper);
-const autoRaid = new AutoRaid(gameContext, mapper, espionageRepo, galaxyRepo);
+const autoRaid = new AutoRaid(gameContext, mapper, espionageReportScrapper, galaxyObserver, espionageRepo, galaxyRepo);
 const analyzer = new Analyzer(gameContext, mapper, espionageRepo, galaxyRepo);
 
 // TODO init (and inject?) all components
@@ -59,7 +59,7 @@ app.get('/display/report/:galaxy/:system/:position/:type?', (req, res) => {
 
 app.get('/cookies', (req, res) => {
   if ('url' in req.query) {
-    let cookies: Cookie[] = mapper.requestJar.getCookies(String(req.query['url']));
+    let cookies: Cookie[] = fetcher.requestJar.getCookies(String(req.query['url']));
     if ('relay' in req.query) {
       let relayCode = cookies.map(c => `document.cookie="${[`${c.key}=${c.value}`, `path=${c.path}`].join('; ')}";`).join('\n');
       res.send(relayCode);
@@ -67,12 +67,12 @@ app.get('/cookies', (req, res) => {
       res.json({cookies});
     }
   } else
-    res.json(mapper.jar);
+    res.json(fetcher.jar);
 });
 
 app.get('/ping', (req, res, next) => {
   mapper.ping().then(response => {
-    let statusCode = response.statusCode;
+    let statusCode = response.status;
     console.log(`ping -> ${statusCode}`);
     res.json(statusCode);
   }).then(next);
@@ -191,7 +191,7 @@ function useCookiesIfPresent(req: express.Request, res: express.Response, next: 
     if (bodyCookie)
       mergedCookies = mergedCookies.concat(bodyCookie);
     if (mergedCookies.length)
-      mapper.useCookie(mergedCookies, (req.params['url'] || req.query['url'] || req.headers.referer) as string);
+      fetcher.useCookie(mergedCookies, (req.params['url'] || req.query['url'] || req.headers.referer) as string);
   }
   next();
 }

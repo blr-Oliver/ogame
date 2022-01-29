@@ -142,7 +142,7 @@ export interface ObserveParams {
 
 export interface Mapper {
   loadEvents(): Promise<FlightEvent[]>;
-  launch(mission: Mission): Promise<number>;
+  launch(mission: Mission): Promise<any>;
 }
 
 export interface StringNumberMap {

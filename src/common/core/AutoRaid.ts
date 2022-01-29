@@ -1,3 +1,5 @@
+import {EspionageReportScrapper} from '../../uncertain/EspionageReportScrapper';
+import {GalaxyObserver} from '../../uncertain/GalaxyObserver';
 import {Calculator} from '../Calculator';
 import {FlightCalculator} from '../FlightCalculator';
 import {FlightEvent, GalaxySystemInfo, Mapper, ShardedEspionageReport} from '../report-types';
@@ -21,6 +23,8 @@ export class AutoRaid {
 
   constructor(private context: GameContext,
               private mapper: Mapper,
+              private espionageReportScrapper: EspionageReportScrapper,
+              private galaxyObserver: GalaxyObserver,
               private espionageRepo: EspionageRepository,
               private galaxyRepo: GalaxyRepository) {
   }
@@ -38,7 +42,7 @@ export class AutoRaid {
 
   private checkSpyReports(): Promise<void> {
     this.state.status = 'reading reports';
-    return this.mapper.loadAllReports().then((allReports) => {
+    return this.espionageReportScrapper.loadAllReports().then((allReports) => {
       this.state.harvestEspionage = false;
       if (allReports.length)
         this.data = [];
@@ -48,12 +52,12 @@ export class AutoRaid {
   private reloadData(): Promise<ShardedEspionageReport[]> {
     this.state.status = 'checking galaxy info';
     return this.galaxyRepo
-        .findStaleSystemsWithTargets(this.mapper.observe.normalTimeout)
+        .findStaleSystemsWithTargets(this.galaxyObserver.observe.normalTimeout)
         .then(systems => {
           if (!systems.length)
             return [] as GalaxySystemInfo[];
           this.state.status = 'refreshing galaxy info';
-          return this.mapper.observeAllSystems(systems);
+          return this.galaxyObserver.observeAllSystems(systems);
         })
         .then((/*freshGalaxies*/) => {
           this.state.status = 'fetching existing reports';

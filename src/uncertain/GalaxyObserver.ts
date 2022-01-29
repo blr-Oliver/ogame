@@ -1,10 +1,11 @@
 import {JSDOM} from 'jsdom';
 import {parseGalaxy} from '../browser/parsers/galaxy-reports';
 import {processAll, waitUntil} from '../common/common';
+import {Fetcher} from '../common/core/Fetcher';
 import {GalaxySystemInfo, ObserveParams} from '../common/report-types';
 import {GalaxyRepository} from '../common/repository-types';
 import {Coordinates} from '../common/types';
-import {Fetcher, LegacyMapper, RequestOptions} from './LegacyMapper';
+import {LegacyMapper} from './LegacyMapper';
 
 export class GalaxyObserver {
   readonly observe: ObserveParams = {
@@ -29,7 +30,6 @@ export class GalaxyObserver {
     return this.fetcher.fetch({
       url: LegacyMapper.GAME_URL,
       method: 'POST',
-      json: true,
       query: {
         page: 'galaxyContent',
         ajax: 1
@@ -38,10 +38,11 @@ export class GalaxyObserver {
         galaxy: galaxy,
         system: system
       }
-    } as RequestOptions)
-        .then(galaxyResponse => {
-          let timestamp: Date = galaxyResponse.headers.date ? new Date(galaxyResponse.headers.date) : new Date();
-          return parseGalaxy(JSDOM.fragment(galaxyResponse.body['galaxy']), timestamp);
+    })
+        .then(response => {
+          let timestamp: Date = response.headers.has('date') ? new Date(response.headers.get('date')!) : new Date();
+          return response.json()
+              .then(json => parseGalaxy(JSDOM.fragment(json['galaxy']), timestamp))
         });
   }
 

@@ -1,9 +1,10 @@
 import {JSDOM} from 'jsdom';
 import {parseReport, parseReportList} from '../browser/parsers/espionage-reports';
 import {processAll} from '../common/common';
+import {Fetcher} from '../common/core/Fetcher';
 import {StampedEspionageReport} from '../common/report-types';
 import {EspionageRepository} from '../common/repository-types';
-import {Fetcher, LegacyMapper} from './LegacyMapper';
+import {LegacyMapper} from './LegacyMapper';
 
 export class EspionageReportScrapper {
   loadingQueue: number[] = []; // TODO handle queue contents more reliably
@@ -22,7 +23,8 @@ export class EspionageReportScrapper {
         ajax: 1
       }
     })
-        .then(response => parseReportList(JSDOM.fragment(response.body)))
+        .then(response => response.text())
+        .then(body => parseReportList(JSDOM.fragment(body)))
         .then(idList => idList.sort());
   }
 
@@ -36,7 +38,8 @@ export class EspionageReportScrapper {
         ajax: 1
       }
     })
-        .then(response => parseReport(JSDOM.fragment(response.body)));
+        .then(response => response.text())
+        .then(body => parseReport(JSDOM.fragment(body)));
   }
 
   deleteReport(id: number): Promise<void> {
