@@ -1,13 +1,27 @@
 import {map} from '../../common/common';
+import {EspionageReportParser} from '../../common/parsers';
 import {PlayerStatusInfo, StampedEspionageReport, StringNumberMap} from '../../common/report-types';
 import {translateEntries} from '../../common/translate';
+import {HtmlParser} from './HtmlParser';
 import {parseLocalDate, parseOnlyNumbers} from './parsers-common';
 
-export function parseReportList(doc: DocumentFragment): number[] {
+export class DOMEspionageReportParser implements EspionageReportParser {
+  constructor(private readonly htmlParser: HtmlParser) {
+  }
+
+  parseReportList(body: string): number[] {
+    return parseReportList(this.htmlParser.parse(body));
+  }
+  parseReport(body: string): StampedEspionageReport | undefined {
+    return parseReport(this.htmlParser.parse(body));
+  }
+}
+
+export function parseReportList(doc: ParentNode): number[] {
   return map(doc.querySelectorAll('li[data-msg-id]')!, (el: Element) => +el.getAttribute('data-msg-id')!);
 }
 
-export function parseReport(doc: DocumentFragment): StampedEspionageReport | undefined {
+export function parseReport(doc: ParentNode): StampedEspionageReport | undefined {
   if (doc.querySelector('.espionageDefText')) return; // hostile espionage
   let id = +doc.querySelector('[data-msg-id]')!.getAttribute('data-msg-id')!;
   let timestamp = parseLocalDate(doc.querySelector('.msg_date')!.textContent!.trim());

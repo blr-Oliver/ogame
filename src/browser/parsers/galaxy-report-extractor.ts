@@ -1,3 +1,4 @@
+import {GalaxyParser} from '../../common/parsers';
 import {
   AllianceGalaxyInfo,
   DebrisGalaxyInfo,
@@ -10,6 +11,12 @@ import {
   PlayerStatusInfo
 } from '../../common/report-types';
 import {CoordinateType} from '../../common/types';
+
+export class JSONGalaxyParser implements GalaxyParser {
+  parseGalaxy(body: string, timestamp?: Date): GalaxySystemInfo {
+    return extractGalaxy(JSON.parse(body), timestamp);
+  }
+}
 
 function extractStatusInfo(rawPlayer: any): PlayerStatusInfo {
   return {

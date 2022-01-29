@@ -1,8 +1,7 @@
-import {JSDOM} from 'jsdom';
-import {parseGalaxy} from '../browser/parsers/galaxy-reports';
 import {processAll, waitUntil} from '../common/common';
 import {Fetcher} from '../common/core/Fetcher';
 import {ServerContext} from '../common/core/ServerContext';
+import {GalaxyParser} from '../common/parsers';
 import {GalaxySystemInfo, ObserveParams} from '../common/report-types';
 import {GalaxyRepository} from '../common/repository-types';
 import {Coordinates} from '../common/types';
@@ -22,7 +21,8 @@ export class GalaxyObserver {
 
   private observeNext: any | null = null;
 
-  constructor(private galaxyRepo: GalaxyRepository,
+  constructor(private repo: GalaxyRepository,
+              private parser: GalaxyParser,
               private fetcher: Fetcher,
               private serverContext: ServerContext) {
   }
@@ -43,7 +43,7 @@ export class GalaxyObserver {
         .then(response => {
           let timestamp: Date = response.headers.has('date') ? new Date(response.headers.get('date')!) : new Date();
           return response.json()
-              .then(json => parseGalaxy(JSDOM.fragment(json['galaxy']), timestamp))
+              .then(json => this.parser.parseGalaxy(json['galaxy'], timestamp))
         });
   }
 
@@ -52,7 +52,7 @@ export class GalaxyObserver {
     let storeChain: Promise<any> = Promise.resolve();
     let result = processAll(systems, coords => {
       let infoPromise: Promise<GalaxySystemInfo> = this.observeSystem(coords.galaxy, coords.system);
-      storeChain = storeChain.then(() => infoPromise.then(info => this.galaxyRepo.store(info)));
+      storeChain = storeChain.then(() => infoPromise.then(info => this.repo.store(info)));
       return infoPromise;
     });
 
@@ -67,7 +67,7 @@ export class GalaxyObserver {
     }
     if (!params.pause) {
       params.pause = true;
-      this.galaxyRepo.findNextStale(
+      this.repo.findNextStale(
           params.galaxyMin, params.galaxyMax, params.systemMin, params.systemMax, params.galaxyLast, params.systemLast,
           params.normalTimeout, params.emptyTimeout
       ).then(nextTarget => {
@@ -78,7 +78,7 @@ export class GalaxyObserver {
           let galaxyNext: number = nextTarget.galaxy;
           let systemNext: number = nextTarget.system;
           this.observeSystem(galaxyNext, systemNext)
-              .then(info => this.galaxyRepo.store(info))
+              .then(info => this.repo.store(info))
               .then(() => {
                 params.pause = false;
                 params.galaxyLast = galaxyNext;

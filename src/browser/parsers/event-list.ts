@@ -1,9 +1,20 @@
+import {EventListParser} from '../../common/parsers';
 import {FlightEvent, StringNumberMap} from '../../common/report-types';
 import {translateEntries} from '../../common/translate';
 import {CoordinateType, FleetPartial, MissionType, Resources} from '../../common/types';
+import {HtmlParser} from './HtmlParser';
 import {parseCoordinates, parseOnlyNumbers} from './parsers-common';
 
-export function parseEventList(doc: DocumentFragment): FlightEvent[] {
+export class DOMEventListParser implements EventListParser {
+  constructor(private readonly htmlParser: HtmlParser) {
+  }
+
+  parseEventList(body: string): FlightEvent[] {
+    return parseEventList(this.htmlParser.parse(body));
+  }
+}
+
+export function parseEventList(doc: ParentNode): FlightEvent[] {
   let eventTable: HTMLTableElement | null = doc.querySelector('#eventContent');
   if (!eventTable) return [];
   let result: FlightEvent[] = [];

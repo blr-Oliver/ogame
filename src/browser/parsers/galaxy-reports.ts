@@ -1,3 +1,4 @@
+import {GalaxyParser} from '../../common/parsers';
 import {
   AllianceGalaxyInfo,
   DebrisGalaxyInfo,
@@ -7,9 +8,19 @@ import {
   PlanetGalaxyInfo,
   PlayerGalaxyInfo
 } from '../../common/report-types';
+import {HtmlParser} from './HtmlParser';
 import {parseOnlyNumbers} from './parsers-common';
 
-export function parseGalaxy(doc: DocumentFragment, timestamp: Date = new Date()): GalaxySystemInfo {
+export class DOMGalaxyParser implements GalaxyParser {
+  constructor(private readonly htmlParser: HtmlParser) {
+  }
+
+  parseGalaxy(body: string, timestamp?: Date): GalaxySystemInfo {
+    return parseGalaxy(this.htmlParser.parse(body), timestamp);
+  }
+}
+
+export function parseGalaxy(doc: ParentNode, timestamp: Date = new Date()): GalaxySystemInfo {
   const table: HTMLTableElement = doc.querySelector('#galaxytable')!;
   const galaxy = +table.getAttribute('data-galaxy')!;
   const system = +table.getAttribute('data-system')!;

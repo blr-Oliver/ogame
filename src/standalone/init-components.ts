@@ -1,3 +1,7 @@
+import {JSDOM} from 'jsdom';
+import {DOMEspionageReportParser} from '../browser/parsers/espionage-reports';
+import {DOMGalaxyParser} from '../browser/parsers/galaxy-reports';
+import {HtmlParser} from '../browser/parsers/HtmlParser';
 import {Analyzer} from '../common/core/Analyzer';
 import {AutoRaid} from '../common/core/AutoRaid';
 import {Scanner} from '../common/core/Scanner';
@@ -27,9 +31,16 @@ export const serverContext: ServerContext = {
 export const gameContext = new StaticGameContext();
 export const espionageRepo = new SqlEspionageRepository();
 export const galaxyRepo = new SqlGalaxyRepository();
+export const htmlParser: HtmlParser = {
+  parse(body: string): Document | DocumentFragment {
+    return JSDOM.fragment(body);
+  }
+}
+export const espionageReportParser = new DOMEspionageReportParser(htmlParser);
+export const galaxyParser = new DOMGalaxyParser(htmlParser);
 export const fetcher = new LegacyFetcher();
-export const espionageReportScrapper = new EspionageReportScrapper(espionageRepo, fetcher, serverContext);
-export const galaxyObserver = new GalaxyObserver(galaxyRepo, fetcher, serverContext);
+export const espionageReportScrapper = new EspionageReportScrapper(espionageRepo, espionageReportParser, fetcher, serverContext);
+export const galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
 export const mapper = new LegacyMapper(fetcher, serverContext);
 export const scanner = new Scanner(gameContext, mapper);
 export const autoRaid = new AutoRaid(gameContext, mapper, espionageReportScrapper, galaxyObserver, espionageRepo, galaxyRepo);
