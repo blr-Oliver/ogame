@@ -10,6 +10,7 @@ import {SqlEspionageRepository} from '../standalone/repository/SqlEspionageRepos
 import {SqlGalaxyRepository} from '../standalone/repository/SqlGalaxyRepository';
 import {StaticGameContext} from '../standalone/StaticGameContext';
 import {EspionageReportScrapper} from './EspionageReportScrapper';
+import {GalaxyObserver} from './GalaxyObserver';
 import {LegacyFetcher} from './legacy-fetcher';
 import {LegacyMapper} from './LegacyMapper';
 
@@ -21,6 +22,7 @@ const espionageRepo = new SqlEspionageRepository();
 const galaxyRepo = new SqlGalaxyRepository();
 const fetcher = new LegacyFetcher();
 const espionageReportScrapper = new EspionageReportScrapper(espionageRepo, fetcher);
+const galaxyObserver = new GalaxyObserver(galaxyRepo, fetcher);
 const mapper = new LegacyMapper(galaxyRepo, fetcher);
 const scanner = new Scanner(gameContext, mapper);
 const autoRaid = new AutoRaid(gameContext, mapper, espionageRepo, galaxyRepo);
@@ -86,26 +88,26 @@ app.get('/galaxy', (req, res) => {
   if (galaxyParams) {
     let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 7);
     if (galaxy.length) {
-      mapper.observe.galaxyMin = Math.min(...galaxy);
-      mapper.observe.galaxyMax = Math.max(...galaxy);
+      galaxyObserver.observe.galaxyMin = Math.min(...galaxy);
+      galaxyObserver.observe.galaxyMax = Math.max(...galaxy);
     }
   }
   if (systemParams) {
     let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 499);
     if (system.length) {
-      mapper.observe.systemMin = Math.min(...system);
-      mapper.observe.systemMax = Math.max(...system);
+      galaxyObserver.observe.systemMin = Math.min(...system);
+      galaxyObserver.observe.systemMax = Math.max(...system);
     }
   }
 
   if ('pause' in req.query) {
-    mapper.observe.pause = true;
+    galaxyObserver.observe.pause = true;
   } else if ('continue' in req.query) {
-    mapper.observe.pause = false;
-    mapper.continueObserve();
+    galaxyObserver.observe.pause = false;
+    galaxyObserver.continueObserve();
   }
 
-  res.json(mapper.observe);
+  res.json(galaxyObserver.observe);
 });
 
 

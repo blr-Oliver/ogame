@@ -141,8 +141,6 @@ export interface ObserveParams {
 }
 
 export interface Mapper {
-  observe: ObserveParams;
-  observeAllSystems(systems: Coordinates[]): Promise<GalaxySystemInfo[]>;
   loadEvents(): Promise<FlightEvent[]>;
   launch(mission: Mission): Promise<number>;
 }
