@@ -3,16 +3,16 @@ import {GalaxySlot, GalaxySlotInfo, GalaxySystemInfo, PlayerInactivity} from '..
 import {GalaxyRepository} from '../../repository-types';
 import {coordinateComparator, Coordinates, CoordinateType} from '../../types';
 import {IDBRepository} from '../IDBRepository';
-import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
+import {IDBUtils} from '../IDBUtils';
 
 const {
   headMatchKeyRange,
   getAllFromIndex,
   getFirst,
-  getTopMatching,
   getTopMatchingFromIndex,
   upsertOne,
-  upsertAll
+  upsertAll,
+  drainWithTransform
 } = IDBUtils;
 
 type CoordinatesKey = [galaxy: number, system: number];
@@ -72,21 +72,27 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
   findNextStale(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, normalTimeout: number, emptyTimeout: number, galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
-      let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
-      let upper: IDBValidKey = [toGalaxy, toSystem, MAX_DATE];
+      const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
+      const cIndex: IDBIndex = systemStore.index(IDBGalaxyRepository.SYSTEM_COORDINATES_INDEX);
+      let upper: IDBValidKey = [toGalaxy, toSystem];
       let lower: IDBValidKey, query: IDBKeyRange;
       if (galaxyLast && systemLast) {
-        lower = [galaxyLast, systemLast, MAX_DATE];
+        if (galaxyLast === toGalaxy && systemLast === toSystem)
+          return Promise.resolve(undefined);
+        lower = [galaxyLast, systemLast];
         query = IDBKeyRange.bound(lower, upper, true);
       } else {
-        lower = [fromGalaxy, fromSystem, MIN_DATE];
+        lower = [fromGalaxy, fromSystem];
         query = IDBKeyRange.bound(lower, upper);
       }
       const now = Date.now();
-      return getTopMatching<GalaxySystemInfo>(systemStore, 1, report => {
-        let age = (now - report.timestamp!.getTime()) / 1000;
-        return age >= (report.empty ? emptyTimeout : normalTimeout);
-      }, query)
+      return drainWithTransform<GalaxySystemInfo, GalaxySystemInfo>(cIndex.openCursor(query, 'nextunique'),
+          cReport => getFirst(systemStore, headMatchKeyRange([cReport.galaxy, cReport.system], 'Date'), 'prev'),
+          1,
+          report => {
+            let age = (now - report.timestamp!.getTime()) / 1000;
+            return age >= (report.empty ? emptyTimeout : normalTimeout);
+          })
           .then(reports => reports[0])
           .then(report => report && {
             galaxy: report.galaxy,

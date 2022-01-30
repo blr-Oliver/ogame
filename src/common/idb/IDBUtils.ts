@@ -169,7 +169,8 @@ export namespace IDBUtils {
     });
   }
 
-  function drainCursor<T>(cursorRequest: IDBRequest<IDBCursorWithValue | null>, limit: number = Infinity, test?: (item: T) => boolean): Promise<T[]> {
+  export function drainCursor<T>(cursorRequest: IDBRequest<IDBCursorWithValue | null>, limit: number = Infinity,
+                                 test?: (item: T) => boolean): Promise<T[]> {
     return new Promise<T[]>((resolve, reject) => {
       const data: T[] = [];
       let i = 0;
@@ -183,6 +184,32 @@ export namespace IDBUtils {
             ++i;
           }
           cursor.continue();
+        } else
+          resolve(data);
+      };
+      cursorRequest.onerror = e => reject(e);
+    });
+  }
+
+  export function drainWithTransform<R, T>(cursorRequest: IDBRequest<IDBCursorWithValue | null>,
+                                           transform: (item: R) => T | undefined | Promise<T | undefined>,
+                                           limit: number = Infinity,
+                                           test?: (item: T) => boolean): Promise<T[]> {
+    return new Promise<T[]>((resolve, reject) => {
+      const data: T[] = [];
+      let i = 0;
+
+      cursorRequest.onsuccess = () => {
+        const cursor: IDBCursorWithValue | null = cursorRequest.result;
+        if (cursor && i < limit) {
+          Promise.resolve(transform(cursor.value))
+              .then(item => {
+                if (item && (!test || test(item))) {
+                  data.push(item);
+                  ++i;
+                }
+                cursor.continue();
+              });
         } else
           resolve(data);
       };

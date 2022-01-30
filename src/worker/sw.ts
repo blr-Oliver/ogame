@@ -31,6 +31,10 @@ let galaxyObserver: GalaxyObserver;
 repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy')
     .then(repo => {
       galaxyRepo = repo;
+      /*
+      repo.findNextStale(1, 9, 1, 499, 3600 * 2, 3600 * 10)
+          .then(c => console.log(c));
+       */
       return galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext, gameContext);
     })
     .then(observer => {
