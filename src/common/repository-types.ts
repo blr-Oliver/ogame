@@ -14,8 +14,8 @@ export interface GalaxyRepository {
   loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | undefined>;
   findNextStale(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, normalTimeout: number, emptyTimeout: number,
                 galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined>;
-  findNextMissing(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, maxSystem: number,
-                  galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined>;
+  findAllStale(normalTimeout: number, emptyTimeout: number): Promise<Coordinates[]>;
+  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<Coordinates[]>;
   findInactiveTargets(): Promise<Coordinates[]>;
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]>;
   store(report: GalaxySystemInfo): Promise<any>;

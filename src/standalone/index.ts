@@ -3,7 +3,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
 import {CoordinateType} from '../common/types';
-import {analyzer, autoObserve, autoRaid, espionageRepo, espionageReportScrapper, fetcher, galaxyRepo, mapper, scanner, serverContext} from './init-components';
+import {
+  analyzer,
+  autoObserve,
+  autoRaid,
+  espionageRepo,
+  espionageReportScrapper,
+  fetcher,
+  galaxyRepo,
+  gameContext,
+  mapper,
+  scanner,
+  serverContext
+} from './init-components';
 
 const app = express();
 const port = 8080;
@@ -65,23 +77,19 @@ app.get('/galaxy', (req, res) => {
   if (typeof (systemParams) === 'string')
     systemParams = [systemParams];
   const settings = autoObserve.settings;
-  if (!settings.from) settings.from = {};
-  if (!settings.to) settings.to = {};
-  if (galaxyParams) {
-    let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 7);
-    if (galaxy.length) {
-      settings.from.galaxy = Math.min(...galaxy);
-      settings.to.galaxy = Math.max(...galaxy);
-    }
+  if (galaxyParams && systemParams) {
+    let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= gameContext.maxGalaxy);
+    let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= gameContext.maxSystem);
+    while (galaxy.length && system.length)
+      autoObserve.queue.push({
+        galaxy: galaxy.shift()!,
+        system: system.shift()!,
+        position: 0
+      });
   }
-  if (systemParams) {
-    let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= 499);
-    if (system.length) {
-      settings.from.system = Math.min(...system);
-      settings.to.system = Math.max(...system);
-    }
+  if ('delay' in req.query) {
+    settings.delay = +req.query['delay']!;
   }
-
   if ('pause' in req.query) {
     settings.pause = true;
   } else if ('continue' in req.query) {

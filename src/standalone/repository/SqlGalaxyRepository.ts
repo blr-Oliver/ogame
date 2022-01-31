@@ -82,8 +82,12 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     }).then((rows: any[]) => rows.map(row => extractObject(row, COORDINATES_MAPPING)));
   }
 
-  findNextMissing(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, maxSystem: number, galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
-    return Promise.resolve(undefined); // TODO
+  findAllStale(normalTimeout: number, emptyTimeout: number): Promise<Coordinates[]> {
+    return Promise.resolve([]); // TODO
+  }
+
+  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<Coordinates[]> {
+    return Promise.resolve([]); // TODO
   }
 
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {

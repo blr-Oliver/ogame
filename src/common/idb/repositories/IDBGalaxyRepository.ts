@@ -19,6 +19,9 @@ const {
 // TODO use continue() with a key parameter
 
 type CoordinatesKey = [galaxy: number, system: number];
+function compareCoordinatesKeys(a: CoordinatesKey, b: CoordinatesKey): number {
+  return a[0] - b[0] || a[1] - b[1];
+}
 
 /*
   galaxy-report
@@ -118,7 +121,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
           const cursor: IDBCursorWithValue | null = cursorRequest.result;
           if (cursor) {
             let item = cursor.value;
-            let key: number[] = getKey(item, cIndex.keyPath) as number[];
+            let key = getKey(item, cIndex.keyPath) as CoordinatesKey;
             if (test(item)) data.push(item);
             --key[1];
             cursor.continue(key);
@@ -131,6 +134,40 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     });
   }
 
+  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<Coordinates[]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
+    return this.withTransaction(tx, tx => {
+      const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
+      const cIndex: IDBIndex = systemStore.index(IDBGalaxyRepository.SYSTEM_COORDINATES_INDEX);
+      const key: CoordinatesKey = [1, 1];
+      const lastKey: CoordinatesKey = [maxGalaxy, maxSystem];
+      const advanceKey = this.getCoordinatesKeyIterator(maxSystem);
+      const cursorRequest = cIndex.openKeyCursor(IDBKeyRange.bound(key, lastKey), 'nextunique');
+      return new Promise<Coordinates[]>((resolve, reject) => {
+        const data: Coordinates[] = [];
+        function skipTo(limit: CoordinatesKey) {
+          while (compareCoordinatesKeys(key, limit) < 0) {
+            data.push({galaxy: key[0], system: key[1], position: 0});
+            advanceKey(key);
+          }
+        }
+        cursorRequest.onsuccess = () => {
+          const cursor: IDBCursor | null = cursorRequest.result;
+          if (cursor) {
+            skipTo(cursor.key as CoordinatesKey);
+            advanceKey(key);
+            cursor.continue(key);
+          } else {
+            advanceKey(lastKey);
+            skipTo(lastKey);
+            resolve(data);
+          }
+        };
+        cursorRequest.onerror = e => reject(e);
+      });
+    });
+  }
+
   private getStaleTest(now: number, normalTimeout: number, emptyTimeout: number): (item: GalaxySystemInfo) => boolean {
     return (report) => {
       let age = (now - report.timestamp!.getTime()) / 1000;
@@ -138,45 +175,14 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     };
   }
 
-  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<Coordinates[]> {
-    return Promise.resolve([]);
-  }
-
-  findNextMissing(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, maxSystem: number, galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
-    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
-    return this.withTransaction(tx, tx => {
-      const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
-      const lastKey: CoordinatesKey = [toGalaxy, toSystem];
-      let candidate: CoordinatesKey | undefined;
-      if (galaxyLast && systemLast) {
-        candidate = IDBGalaxyRepository.nextCoordinatesKey([galaxyLast, systemLast], lastKey, maxSystem);
-        if (!candidate) return Promise.resolve(undefined);
-      } else
-        candidate = [fromGalaxy, fromSystem];
-      return getTopMatchingFromIndex<GalaxySystemInfo>(systemStore, IDBGalaxyRepository.SYSTEM_COORDINATES_INDEX, 1,
-          (report) => {
-            let currentKey: CoordinatesKey = [report.galaxy, report.system];
-            if (currentKey[0] === candidate![0] && currentKey[1] === candidate![1]) {
-              candidate = IDBGalaxyRepository.nextCoordinatesKey(currentKey, lastKey, maxSystem);
-              return false;
-            }
-            return true;
-          }, IDBKeyRange.lowerBound(candidate), 'nextunique')
-          .then(() => candidate && {
-            galaxy: candidate[0],
-            system: candidate[1],
-            position: 0
-          });
-    });
-  }
-
-  private static nextCoordinatesKey(key: CoordinatesKey, to: CoordinatesKey, maxSystem: number): CoordinatesKey | undefined {
-    let next: CoordinatesKey = [key[0], key[1] + 1];
-    if (next[1] > maxSystem) {
-      next[0]++;
-      next[1] = 1;
-    }
-    if (next[0] < to[0] || next[0] === to[0] && next[1] <= to[1]) return next;
+  private getCoordinatesKeyIterator(maxSystem: number): (key: CoordinatesKey) => void {
+    return (key: CoordinatesKey) => {
+      ++key[1];
+      if (key[1] > maxSystem) {
+        ++key[0];
+        key[1] = 1;
+      }
+    };
   }
 
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {

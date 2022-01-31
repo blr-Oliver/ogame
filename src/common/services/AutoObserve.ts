@@ -3,19 +3,11 @@ import {GalaxyRepository} from '../repository-types';
 import {Coordinates} from '../types';
 import {GalaxyObserver} from './GalaxyObserver';
 
-export interface SystemCoordinates {
-  galaxy?: number;
-  system?: number
-}
-
 export interface ObserveSettings {
   pause: boolean;
   emptyTimeout: number;  // seconds
   normalTimeout: number; // seconds
   delay: number; // milliseconds
-  from?: SystemCoordinates;
-  to?: SystemCoordinates;
-  last?: Required<SystemCoordinates>;
 }
 
 export const DEFAULT_OBSERVE_SETTINGS: ObserveSettings = {
@@ -25,58 +17,48 @@ export const DEFAULT_OBSERVE_SETTINGS: ObserveSettings = {
   delay: 500
 };
 
-export class AutoObserve{
-  readonly settings: ObserveSettings = {...DEFAULT_OBSERVE_SETTINGS};
+export class AutoObserve {
   private observeNext: any | null = null;
+  readonly settings: ObserveSettings = {...DEFAULT_OBSERVE_SETTINGS};
+  readonly queue: Coordinates[] = [];
 
   constructor(private repo: GalaxyRepository,
               private gameContext: GameContext,
               private observer: GalaxyObserver) {
   }
 
-
   continueObserve() {
-    const s = this.settings;
     if (this.observeNext) {
       clearTimeout(this.observeNext);
       this.observeNext = null;
     }
-    if (!s.pause) {
-      this.tryFind()
-          .then(next => {
-            if (!next && s.last) return this.tryFind(true)
-            else return next;
-          })
-          .then(next => {
-            if (next) {
-              this.observer.observeC(next)
-                  .then(() => {
-                    s.last = {
-                      galaxy: next.galaxy,
-                      system: next.system
-                    }
-                    this.observeNext = setTimeout(() => this.continueObserve(), s.delay);
-                  });
-            } else {
-              // TODO schedule long timeout where systems become stale once again
-              s.pause = true;
-              s.last = undefined;
-            }
-          });
+    if (!this.settings.pause) {
+      if (this.queue.length) {
+        let next: Coordinates = this.queue.shift()!;
+        this.observer.observeC(next)
+            .catch(e => this.queue.push(next));
+        this.observeNext = setTimeout(() => this.observeNext(), this.settings.delay);
+      } else
+        this.fillQueue()
+            .then(() => {
+              if (!this.queue.length)
+                this.observeNext = setTimeout(() => this.observeNext(), this.settings.normalTimeout / 100);
+              else this.continueObserve();
+            });
     }
   }
 
-  tryFind(restart: boolean = false): Promise<Coordinates | undefined> {
-    const s = this.settings;
-    const maxS = this.gameContext.maxSystem;
-    const fromG = s.from?.galaxy || 1;
-    const toG = s.to?.galaxy || this.gameContext.maxGalaxy;
-    const fromS = s.from?.system || 1;
-    const toS = s.to?.system || maxS;
-    const gLast = restart ? undefined : s.last?.galaxy;
-    const sLast = restart ? undefined : s.last?.system;
-    return this.repo.findNextMissing(fromG, toG, fromS, toS, maxS, gLast, sLast)
-        .then(c => c || this.repo.findNextStale(fromG, toG, fromS, toS, s.normalTimeout, s.emptyTimeout, gLast, sLast));
+  private fillQueue(): Promise<void> {
+    return Promise.all([
+      this.repo.findAllMissing(this.gameContext.maxGalaxy, this.gameContext.maxSystem),
+      this.repo.findAllStale(this.settings.normalTimeout, this.settings.emptyTimeout)
+    ]).then(([missing, stale]) => {
+      let i = this.queue.length;
+      this.queue.length += missing.length + stale.length;
+      for (let j = 0; j < missing.length; ++i, ++j)
+        this.queue[i] = missing[j];
+      for (let j = 0; j < stale.length; ++i, ++j)
+        this.queue[i] = stale[j];
+    });
   }
-
 }

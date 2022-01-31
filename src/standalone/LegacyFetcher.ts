@@ -2,7 +2,7 @@ import {IncomingHttpHeaders} from 'http';
 import * as request from 'request';
 import {Cookie, CookieJar, MemoryCookieStore} from 'tough-cookie';
 import {Fetcher, HeadersFacade, RequestFacade, ResponseFacade} from '../common/core/Fetcher';
-import {LegacyMapper} from '../uncertain/LegacyMapper';
+import {GAME_DOMAIN} from './init-components';
 
 export class LegacyFetcher implements Fetcher {
   readonly jar: CookieJar;
@@ -55,7 +55,7 @@ export class LegacyFetcher implements Fetcher {
       });
   }
 
-  useCookie(cookieString: string | string[], domain: string = LegacyMapper.GAME_DOMAIN) {
+  useCookie(cookieString: string | string[], domain: string = GAME_DOMAIN) {
     // TODO this is related only to cookieJar and legacy fetcher; should move this there
     if (typeof (cookieString) === 'string')
       cookieString = [cookieString];
