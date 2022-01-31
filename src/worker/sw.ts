@@ -4,6 +4,7 @@ import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
 import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 import {GalaxyRepository} from '../common/repository-types';
+import {AutoObserve} from '../common/services/AutoObserve';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {DelegatingEventTarget} from './DelegatingEventTarget';
 import {LocationServerContext} from './LocationServerContext';
@@ -27,20 +28,18 @@ const fetcher = new NativeFetcher();
 const galaxyParser = new JSONGalaxyParser();
 let galaxyRepo: GalaxyRepository;
 let galaxyObserver: GalaxyObserver;
+let autoObserve: AutoObserve;
 
 repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy')
     .then(repo => {
       galaxyRepo = repo;
-      /*
-      repo.findNextStale(1, 9, 1, 499, 3600 * 2, 3600 * 10)
-          .then(c => console.log(c));
-       */
-      return galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext, gameContext);
+      galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
+      return autoObserve = new AutoObserve(galaxyRepo, gameContext, galaxyObserver);
     })
-    .then(observer => {
-      observer.settings.pause = false;
-      observer.settings.delay = 0;
-      observer.continueObserve();
+    .then(autoObserve => {
+      autoObserve.settings.pause = false;
+      autoObserve.settings.delay = 0;
+      autoObserve.continueObserve();
     });
 
 self.addEventListener('message', e => shim.handleEvent(e));

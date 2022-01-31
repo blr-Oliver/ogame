@@ -3,18 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
 import {CoordinateType} from '../common/types';
-import {
-  analyzer,
-  autoRaid,
-  espionageRepo,
-  espionageReportScrapper,
-  fetcher,
-  galaxyObserver,
-  galaxyRepo,
-  mapper,
-  scanner,
-  serverContext
-} from './init-components';
+import {analyzer, autoObserve, autoRaid, espionageRepo, espionageReportScrapper, fetcher, galaxyRepo, mapper, scanner, serverContext} from './init-components';
 
 const app = express();
 const port = 8080;
@@ -75,7 +64,7 @@ app.get('/galaxy', (req, res) => {
     galaxyParams = [galaxyParams];
   if (typeof (systemParams) === 'string')
     systemParams = [systemParams];
-  const settings = galaxyObserver.settings;
+  const settings = autoObserve.settings;
   if (!settings.from) settings.from = {};
   if (!settings.to) settings.to = {};
   if (galaxyParams) {
@@ -97,7 +86,7 @@ app.get('/galaxy', (req, res) => {
     settings.pause = true;
   } else if ('continue' in req.query) {
     settings.pause = false;
-    galaxyObserver.continueObserve();
+    autoObserve.continueObserve();
   }
 
   res.json(settings);

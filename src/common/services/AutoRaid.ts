@@ -52,7 +52,7 @@ export class AutoRaid {
   private reloadData(): Promise<ShardedEspionageReport[]> {
     this.state.status = 'checking galaxy info';
     return this.galaxyRepo
-        .findStaleSystemsWithTargets(this.galaxyObserver.settings.normalTimeout)
+        .findStaleSystemsWithTargets(3600 * 2) //TODO expose this setting somewhere
         .then(systems => {
           if (!systems.length)
             return [] as GalaxySystemInfo[];
