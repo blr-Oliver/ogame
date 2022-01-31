@@ -6,6 +6,7 @@ import {IDBRepository} from '../IDBRepository';
 import {IDBUtils} from '../IDBUtils';
 
 const {
+  getKey,
   headMatchKeyRange,
   getAllFromIndex,
   getFirst,
@@ -14,6 +15,8 @@ const {
   upsertAll,
   drainWithTransform
 } = IDBUtils;
+
+// TODO use continue() with a key parameter
 
 type CoordinatesKey = [galaxy: number, system: number];
 
@@ -102,6 +105,43 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     });
   }
 
+  findAllStale(normalTimeout: number, emptyTimeout: number): Promise<Coordinates[]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
+    return this.withTransaction(tx, tx => {
+      const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
+      const cIndex: IDBIndex = systemStore.index(IDBGalaxyRepository.SYSTEM_COORDINATES_INDEX);
+      const cursorRequest = cIndex.openCursor(headMatchKeyRange([], 'number', 'number'), 'prev');
+      const test = this.getStaleTest(Date.now(), normalTimeout, emptyTimeout);
+      return new Promise<GalaxySystemInfo[]>((resolve, reject) => {
+        const data: GalaxySystemInfo[] = [];
+        cursorRequest.onsuccess = () => {
+          const cursor: IDBCursorWithValue | null = cursorRequest.result;
+          if (cursor) {
+            let item = cursor.value;
+            let key: number[] = getKey(item, cIndex.keyPath) as number[];
+            if (test(item)) data.push(item);
+            --key[1];
+            cursor.continue(key);
+          } else
+            resolve(data);
+        };
+        cursorRequest.onerror = e => reject(e);
+      })
+          .then(reports => reports.map(r => ({galaxy: r.galaxy, system: r.system, position: 0})));
+    });
+  }
+
+  private getStaleTest(now: number, normalTimeout: number, emptyTimeout: number): (item: GalaxySystemInfo) => boolean {
+    return (report) => {
+      let age = (now - report.timestamp!.getTime()) / 1000;
+      return age >= (report.empty ? emptyTimeout : normalTimeout);
+    };
+  }
+
+  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<Coordinates[]> {
+    return Promise.resolve([]);
+  }
+
   findNextMissing(fromGalaxy: number, toGalaxy: number, fromSystem: number, toSystem: number, maxSystem: number, galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
@@ -155,6 +195,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
           .then(coordinates => deduplicate(coordinates));
     });
   }
+
   load(galaxy: number, system: number): Promise<GalaxySystemInfo | undefined> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
@@ -162,9 +203,11 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
       return getFirst(systemStore, headMatchKeyRange([galaxy, system], 'Date'), 'prev');
     });
   }
+
   loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | undefined> {
     return this.load(coordinates.galaxy, coordinates.system);
   }
+
   store(report: GalaxySystemInfo): Promise<IDBValidKey> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE, IDBGalaxyRepository.SLOT_STORE], 'readwrite');
     return this.withTransaction(tx, tx => {

@@ -34,10 +34,15 @@ repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy')
     .then(repo => {
       galaxyRepo = repo;
       galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
+      repo.findAllStale(3600 * 2, 3600 * 36)
+          .then(coordinates => {
+            console.log(coordinates);
+            galaxyObserver.observeAll(coordinates, false, true);
+          });
       return autoObserve = new AutoObserve(galaxyRepo, gameContext, galaxyObserver);
     })
     .then(autoObserve => {
-      autoObserve.settings.pause = false;
+      autoObserve.settings.pause = true;
       autoObserve.settings.delay = 0;
       autoObserve.continueObserve();
     });
