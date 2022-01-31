@@ -25,3 +25,10 @@ export function processAll<T, R>(input: T[], action: (item: T) => Promise<R | un
 export function waitUntil<T>(primary: Promise<T>, ...others: Promise<any>[]): Promise<T> {
   return primary.then((result: T) => Promise.all(others).then(() => result));
 }
+
+export function after<T>(primary: Promise<T>, secondary: (r: T) => Promise<any>, parallel: boolean = false): Promise<T> {
+  if (!parallel)
+    return primary.then(r => secondary(r).then(() => r));
+  primary.then(r => secondary(r));
+  return primary;
+}

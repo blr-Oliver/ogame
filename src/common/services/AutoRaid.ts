@@ -57,7 +57,7 @@ export class AutoRaid {
           if (!systems.length)
             return [] as GalaxySystemInfo[];
           this.state.status = 'refreshing galaxy info';
-          return this.galaxyObserver.observeAllSystems(systems);
+          return this.galaxyObserver.observeAll(systems, true, true);
         })
         .then((/*freshGalaxies*/) => {
           this.state.status = 'fetching existing reports';

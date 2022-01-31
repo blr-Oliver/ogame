@@ -39,6 +39,7 @@ repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy')
     })
     .then(observer => {
       observer.settings.pause = false;
+      observer.settings.delay = 0;
       observer.continueObserve();
     });
 

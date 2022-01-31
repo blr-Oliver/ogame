@@ -1,5 +1,5 @@
-import {processAll, waitUntil} from '../common';
-import {Fetcher} from '../core/Fetcher';
+import {after, processAll, waitUntil} from '../common';
+import {Fetcher, RequestFacade} from '../core/Fetcher';
 import {GameContext} from '../core/GameContext';
 import {ServerContext} from '../core/ServerContext';
 import {GalaxyParser} from '../parsers';
@@ -30,6 +30,7 @@ export const DEFAULT_OBSERVE_SETTINGS: ObserveSettings = {
 };
 
 export class GalaxyObserver {
+  private readonly requestTemplate: RequestFacade;
   readonly settings: ObserveSettings = {...DEFAULT_OBSERVE_SETTINGS};
 
   private observeNext: any | null = null;
@@ -39,11 +40,7 @@ export class GalaxyObserver {
               private fetcher: Fetcher,
               private serverContext: ServerContext,
               private gameContext: GameContext) {
-  }
-
-  observeSystem(galaxy: number, system: number): Promise<GalaxySystemInfo> {
-    // TODO tie request strategy with parsing strategy
-    return this.fetcher.fetch({
+    this.requestTemplate = {
       url: this.serverContext.gameUrl,
       method: 'POST',
       query: {
@@ -53,36 +50,50 @@ export class GalaxyObserver {
         ajax: 1,
         asJson: 1
       },
-      body: {
-        galaxy: galaxy,
-        system: system
-      },
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
       }
-    })
+    }
+  }
+
+  observe(galaxy: number, system: number, parallelSave: boolean = false, skipSave: boolean = false): Promise<GalaxySystemInfo> {
+    // TODO tie request strategy with parsing strategy
+    const options: RequestFacade = {
+      ...this.requestTemplate,
+      body: {
+        galaxy: galaxy,
+        system: system
+      }
+    };
+    const reportPromise = this.fetcher.fetch(options)
         .then(response => {
           let timestamp: Date = response.headers.has('date') ? new Date(response.headers.get('date')!) : new Date();
           return response.text().then(text => this.parser.parseGalaxy(text, timestamp))
-        })
-        .then(report => {
-          this.repo.store(report); // not waiting
-          console.log([report.galaxy, report.system]);
-          return report;
         });
+    return skipSave ? reportPromise : after(reportPromise, report => this.repo.store(report), parallelSave);
   }
 
+  observeC(system: Coordinates, parallelSave: boolean = false, skipSave: boolean = false): Promise<GalaxySystemInfo> {
+    return this.observe(system.galaxy, system.system, parallelSave, skipSave);
+  }
 
-  observeAllSystems(systems: Coordinates[]): Promise<GalaxySystemInfo[]> {
+  observeAll(systems: Coordinates[], parallel: boolean = false, parallelSave: boolean = false, skipWaitingSave: boolean = false, skipSave: boolean = false): Promise<GalaxySystemInfo[]> {
     // TODO maybe bulk store to GalaxyRepository instead of chain?
-    let storeChain: Promise<any> = Promise.resolve();
-    let result = processAll(systems, coords => {
-      let infoPromise: Promise<GalaxySystemInfo> = this.observeSystem(coords.galaxy, coords.system);
-      storeChain = storeChain.then(() => infoPromise.then(info => this.repo.store(info)));
-      return infoPromise;
-    });
-
-    return waitUntil(result, storeChain);
+    if (skipSave) return processAll(systems, coords => this.observeC(coords, true, true), parallel);
+    if (parallelSave) {
+      if (skipWaitingSave)
+        return processAll(systems, coords => this.observeC(coords, true, false), parallel);
+      else {
+        let saveTasks: Promise<any>[] = [];
+        let observeTask = processAll(systems, coords => {
+          let infoPromise: Promise<GalaxySystemInfo> = this.observeC(coords, true, true);
+          saveTasks.push(infoPromise.then(report => this.repo.store(report)));
+          return infoPromise;
+        }, parallel);
+        return waitUntil(observeTask, ...saveTasks);
+      }
+    } else
+      return processAll(systems, coords => this.observeC(coords, false, false), parallel);
   }
 
   continueObserve() {
@@ -99,13 +110,11 @@ export class GalaxyObserver {
           })
           .then(next => {
             if (next) {
-              let galaxyNext: number = next.galaxy;
-              let systemNext: number = next.system;
-              this.observeSystem(galaxyNext, systemNext)
+              this.observeC(next)
                   .then(() => {
                     s.last = {
-                      galaxy: galaxyNext,
-                      system: systemNext
+                      galaxy: next.galaxy,
+                      system: next.system
                     }
                     this.observeNext = setTimeout(() => this.continueObserve(), s.delay);
                   });
