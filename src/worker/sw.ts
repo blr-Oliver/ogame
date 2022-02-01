@@ -1,5 +1,6 @@
 import {extractGalaxy, JSONGalaxyParser} from '../browser/parsers/galaxy-report-extractor';
 import {NativeFetcher} from '../common/core/NativeFetcher';
+import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
 import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
@@ -24,7 +25,7 @@ const repositoryProvider: IDBRepositoryProvider = new IDBRepositoryProvider(self
 });
 const serverContext = new LocationServerContext(self.location);
 const gameContext = new NavigatorGameContext();
-const fetcher = new NativeFetcher();
+const fetcher = new RestrainedFetcher(new NativeFetcher());
 const galaxyParser = new JSONGalaxyParser();
 let galaxyRepo: GalaxyRepository;
 let galaxyObserver: GalaxyObserver;
