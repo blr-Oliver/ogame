@@ -21,6 +21,7 @@ export class AutoObserve {
   private observeNext: any | null = null;
   readonly settings: ObserveSettings = {...DEFAULT_OBSERVE_SETTINGS};
   readonly queue: Coordinates[] = [];
+  processing = 0;
 
   constructor(private repo: GalaxyRepository,
               private gameContext: GameContext,
@@ -35,16 +36,24 @@ export class AutoObserve {
     if (!this.settings.pause) {
       if (this.queue.length) {
         let next: Coordinates = this.queue.shift()!;
+        ++this.processing;
         this.observer.observeC(next)
-            .catch(e => this.queue.push(next));
-        this.observeNext = setTimeout(() => this.observeNext(), this.settings.delay);
-      } else
-        this.fillQueue()
-            .then(() => {
-              if (!this.queue.length)
-                this.observeNext = setTimeout(() => this.observeNext(), this.settings.normalTimeout / 100);
-              else this.continueObserve();
+            .then(() => --this.processing, e => {
+              --this.processing;
+              this.queue.push(next);
             });
+        this.observeNext = setTimeout(() => this.continueObserve(), this.settings.delay);
+      } else {
+        if (this.processing <= 0) {
+          this.fillQueue()
+              .then(() => {
+                if (!this.queue.length)
+                  this.observeNext = setTimeout(() => this.continueObserve(), this.settings.normalTimeout / 100);
+                else this.continueObserve();
+              });
+        } else
+          this.observeNext = setTimeout(() => this.continueObserve(), this.settings.normalTimeout / 100);
+      }
     }
   }
 
