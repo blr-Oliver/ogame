@@ -26,7 +26,7 @@ export function parseGalaxy(doc: ParentNode, timestamp: Date = new Date()): Gala
   const system = +table.getAttribute('data-system')!;
   const rows = table.tBodies[0].rows;
   let result: GalaxySystemInfo = {
-    galaxy, system, timestamp, slots: Array(15), empty: false
+    galaxy, system, timestamp, slots: Array(16), empty: false
   };
   for (let i = 0; i < 15; ++i)
     result.slots[i] = {
@@ -36,6 +36,7 @@ export function parseGalaxy(doc: ParentNode, timestamp: Date = new Date()): Gala
       timestamp,
       ...parseRow(rows[i])
     };
+  // TODO add deep space debris as 16th slot
   result.empty = result.slots.every(x => !x);
   return result;
 }

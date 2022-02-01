@@ -19,7 +19,7 @@ export class GalaxyRequestMonitor {
       spyRequest(e)
           .then(({response}) => {
             let timestamp: Date = response.headers.has('date') ? new Date(response.headers.get('date')!) : new Date();
-            return response.json()
+            return response.text()
                 .then(rawData => this.parser.parseGalaxy(rawData, timestamp));
           })
           .then(galaxyInfo => this.repo.store(galaxyInfo));

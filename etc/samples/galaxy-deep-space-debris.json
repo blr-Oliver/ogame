@@ -1,0 +1,648 @@
+{
+  "reservedPositions": [],
+  "phalanxToken": "2b8b1a5ddc50356fbe48e91ec84cc764",
+  "spySystemToken": "ff45aeda4574b4b7b7246de00f6aa9df",
+  "filterSettings": {
+    "filter_empty": false,
+    "filter_inactive": false,
+    "filter_newbie": false,
+    "filter_strong": false,
+    "filter_vacation": false
+  },
+  "system": {
+    "availableProbes": 20,
+    "availableRecyclers": 0,
+    "availablePathfinders": 0,
+    "availableMissiles": 0,
+    "usedFleetSlots": 4,
+    "maximumFleetSlots": 7,
+    "canColonize": false,
+    "canExpedition": true,
+    "canSystemPhalanx": false,
+    "canSystemEspionage": false,
+    "canSwitchGalaxy": true,
+    "canFly": true,
+    "switchGalaxyDeuteriumCosts": 10,
+    "settingsProbeCount": 1,
+    "currentPlanetId": 33807552,
+    "playerId": 117033,
+    "hasAdmiral": true,
+    "isOutlaw": false,
+    "showOutlawWarning": false,
+    "slotsColonized": 0,
+    "hasBirthdayPlanet": false,
+    "galaxy": 7,
+    "system": 350,
+    "toGalaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350",
+    "galaxyContent": [
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 1,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the proximity to sun, collection of solar energy is highly efficient. However, planets in this position tend to be small and provide only small amounts of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 2,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the proximity to sun, collection of solar energy is highly efficient. However, planets in this position tend to be small and provide only small amounts of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 3,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the proximity to sun, collection of solar energy is highly efficient. However, planets in this position tend to be small and provide only small amounts of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 4,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 5,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 6,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 7,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Generally the biggest planets of the solar system lie in this position. Sun provides enough energy and a sufficient deuterium sources can be anticipated.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 8,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Generally the biggest planets of the solar system lie in this position. Sun provides enough energy and a sufficient deuterium sources can be anticipated.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 9,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Generally the biggest planets of the solar system lie in this position. Sun provides enough energy and a sufficient deuterium sources can be anticipated.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 10,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 11,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 12,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Normally, in this Position, there are balanced planets with sufficient sources of deuterium, a good supply of solar energy and enough room for development.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 13,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the vast distance to sun, collection of solar energy is limited. However these planets usually provide significant sources of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 14,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the vast distance to sun, collection of solar energy is limited. However these planets usually provide significant sources of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 15,
+        "planets": [],
+        "player": {
+          "playerId": 99999,
+          "playerName": "deep space"
+        },
+        "availableMissions": [
+          {
+            "missionType": 0,
+            "planetMovePossible": true,
+            "moveAction": "prepareMove",
+            "title": "Relocate",
+            "darkMatterCost": 240000,
+            "sufficientDarkMatter": false,
+            "moveLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&action=planetMove&moveAction=prepareMove&ajax=1&asJson=1&token=e74a7283f22a92c22b95536bddeace00",
+            "galaxyLink": "https:\/\/s156-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=7&system=350"
+          },
+          {
+            "missionType": 7,
+            "link": "#",
+            "description": "Colonisation<br>Due to the vast distance to sun, collection of solar energy is limited. However these planets usually provide significant sources of deuterium.<br>You do not possess sufficient technology. You have to do further research in astrotechnology to colonise a new planet.<br><div style='display: flex;align-items: center;'><img src='\/cdn\/img\/galaxy\/activity.gif' style=''\/>It is not possible to colonise a planet without a colony ship.<\/div>"
+          }
+        ],
+        "actions": [],
+        "positionFilters": "empty_filter"
+      },
+      {
+        "galaxy": 7,
+        "system": 350,
+        "position": 16,
+        "planets": {
+          "planetId": 33800810,
+          "planetName": "debris field",
+          "imageInformation": "debris_1",
+          "planetType": 2,
+          "fleet": [],
+          "requiredShips": 13,
+          "resources": {
+            "metal": {
+              "name": "Metal",
+              "amount": 64200
+            },
+            "crystal": {
+              "name": "Crystal",
+              "amount": 63200
+            }
+          },
+          "availableMissions": [
+            {
+              "missionType": 8,
+              "name": "Harvest"
+            }
+          ],
+          "recyclePossible": false
+        },
+        "availableMissions": [],
+        "actions": []
+      }
+    ]
+  },
+  "success": true,
+  "resources": {
+    "resources": {
+      "metal": {
+        "amount": 153.280333333333,
+        "storage": 20000,
+        "baseProduction": 0.009722222222222222,
+        "tooltip": "Metal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">141<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">20.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+1.268<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">264<\/span><\/td>\n            <\/tr>\n        <\/table>"
+      },
+      "crystal": {
+        "amount": 2931745,
+        "storage": 10000,
+        "baseProduction": 0.004166666666666667,
+        "tooltip": "Crystal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"overmark\">2.931.745<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"overmark\">10.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"overmark\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>"
+      },
+      "deuterium": {
+        "amount": 3902.9417777777776,
+        "storage": 10000,
+        "baseProduction": 0,
+        "tooltip": "Deuterium|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">3.898<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">10.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+405<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>"
+      },
+      "energy": {
+        "amount": 12,
+        "tooltip": "Energy|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">12<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+843<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"overmark\">-831<\/span><\/td>\n            <\/tr>\n        <\/table>"
+      },
+      "darkmatter": {
+        "amount": 8000,
+        "tooltip": "Dark Matter|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">8.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Purchased:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Found:<\/th>\n                <td><span class=\"\">8.000<\/span><\/td>\n            <\/tr>\n        <\/table>"
+      }
+    },
+    "honorScore": 0,
+    "techs": {
+      "1": {
+        "techId": 1,
+        "production": {
+          "metal": 0.34253333333333336,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0.08694444444444445
+        }
+      },
+      "2": {
+        "techId": 2,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "3": {
+        "techId": 3,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0.11262222222222223,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0.1438888888888889
+        }
+      },
+      "4": {
+        "techId": 4,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0.2342666666666667
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "12": {
+        "techId": 12,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "212": {
+        "techId": 212,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      },
+      "217": {
+        "techId": 217,
+        "production": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        },
+        "consumption": {
+          "metal": 0,
+          "crystal": 0,
+          "deuterium": 0,
+          "energy": 0
+        }
+      }
+    }
+  },
+  "components": [],
+  "newAjaxToken": "6c3d90d4160788242bdb64b157bbf14b"
+}

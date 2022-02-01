@@ -42,7 +42,7 @@ export class SqlGalaxyRepository implements GalaxyRepository {
       nestTables: true
     }).then((rows: any[]) => {
       if (rows.length) {
-        const slots: GalaxySlot[] = Array(15).fill(null);
+        const slots: GalaxySlot[] = Array(16).fill(null);
         const result: GalaxySystemInfo = {galaxy, system, slots, timestamp: rows[0]['r'].timestamp, empty: false};
         for (let i = 0; i < rows.length; ++i) {
           let rawSlot = rows[i]['s'];

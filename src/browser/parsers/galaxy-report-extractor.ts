@@ -71,7 +71,7 @@ function extractDebris(rawPlanet: any): DebrisGalaxyInfo {
 export function extractGalaxy(rawData: any, timestamp: Date = new Date()): GalaxySystemInfo {
   const galaxy = rawData.system.galaxy;
   const system = rawData.system.system;
-  const slots: GalaxySlot[] = Array(15);
+  const slots: GalaxySlot[] = Array(16);
   const rawSlots: any[] = rawData.system.galaxyContent;
   let empty = true;
   for (let i = 0; i < rawSlots.length; ++i) {
