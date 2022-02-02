@@ -16,10 +16,10 @@ export class GalaxyRequestMonitor {
         && url.searchParams.get('asJson') === '1'
         && url.searchParams.get('component') === 'galaxy'
     ) {
-      spyRequest(e)
+      spyRequest(e, false)
           .then(({response}) => {
-            let timestamp: Date = response.headers.has('date') ? new Date(response.headers.get('date')!) : new Date();
-            return response.text()
+            let timestamp: Date = response!.headers.has('date') ? new Date(response!.headers.get('date')!) : new Date();
+            return response!.text()
                 .then(rawData => this.parser.parseGalaxy(rawData, timestamp));
           })
           .then(galaxyInfo => this.repo.store(galaxyInfo));
