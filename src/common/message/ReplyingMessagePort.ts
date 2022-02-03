@@ -165,6 +165,10 @@ export class ReplyingMessagePort {
   }
 
   onmessage: ((this: ReplyingMessagePort, ev: ReplyingMessageEvent) => any) | null;
+
+  postMessage(message: any, ignoreReply: true, transfer?: Transferable[]): void;
+  postMessage(message: any, ignoreReply?: false, transfer?: Transferable[]): Promise<ReplyingMessageEvent>;
+  postMessage(message: any, ignoreReply: boolean, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void;
   postMessage(message: any, ignoreReply: boolean = false, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void {
     return this.doPost(message, undefined, ignoreReply, transfer);
   }
