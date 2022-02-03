@@ -1,3 +1,5 @@
+import {SystemCoordinates} from './types';
+
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =
     Function.prototype.call.bind(Array.prototype.map);
 
@@ -31,4 +33,11 @@ export function after<T>(primary: Promise<T>, secondary: (r: T) => Promise<any>,
     return primary.then(r => secondary(r).then(() => r));
   primary.then(r => secondary(r));
   return primary;
+}
+
+export function systemCoordinatesKey(c: SystemCoordinates): string {
+  return `${c[0]}:${c[1].toFixed().padStart(3, '0')}`;
+}
+export function compareCoordinatesKeys(a: SystemCoordinates, b: SystemCoordinates): number {
+  return a[0] - b[0] || a[1] - b[1];
 }

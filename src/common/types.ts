@@ -36,6 +36,10 @@ export function sameCoordinates(a?: Coordinates, b?: Coordinates): boolean {
   return !a === !b;
 }
 
+export function toSortableString(c: Coordinates): string {
+  return `[${c.galaxy.toFixed(0).padStart(2, '0')}:${c.system.toFixed(0).padStart(3, '0')}:${c.position.toFixed(0).padStart(2, '0')}:${c.type ?? CoordinateType.Planet}]`;
+}
+
 export type ResearchType =
     'energy' |
     'laser' |
@@ -132,3 +136,5 @@ export interface Mission {
   cargo?: Resources;
   holdTime?: number;
 }
+
+export type SystemCoordinates = [galaxy: number, system: number];

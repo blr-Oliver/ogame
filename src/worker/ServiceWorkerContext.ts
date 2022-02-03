@@ -15,6 +15,7 @@ import {GalaxyParser} from '../common/parsers';
 import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
 import {AutoObserve} from '../common/services/AutoObserve';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
+import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {GalaxyRequestMonitor} from './GalaxyRequestMonitor';
 import {NavigatorGameContext} from './NavigatorGameContext';
 
@@ -56,7 +57,11 @@ export class ServiceWorkerContext {
     const galaxyParser = new JSONGalaxyParser();
     const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyParser, fetcher, serverContext);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyParser);
-    const autoObserve = new AutoObserve(galaxyRepository, gameContext, galaxyObserver);
+    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, gameContext, {
+      timeout: 1800,
+      emptyTimeout: 18000,
+      delay: 10
+    });
 
     return Promise.resolve(new ServiceWorkerContext(
         eventShim,

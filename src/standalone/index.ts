@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
-import {CoordinateType} from '../common/types';
+import {CoordinateType, SystemCoordinates} from '../common/types';
 import {
   analyzer,
   autoObserve,
@@ -80,21 +80,18 @@ app.get('/galaxy', (req, res) => {
   if (galaxyParams && systemParams) {
     let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= gameContext.maxGalaxy);
     let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= gameContext.maxSystem);
+    let coords: SystemCoordinates[] = []
     while (galaxy.length && system.length)
-      autoObserve.queue.push({
-        galaxy: galaxy.shift()!,
-        system: system.shift()!,
-        position: 0
-      });
+      coords.push([galaxy.shift()!, system.shift()!]);
+    autoObserve.enqueue(...coords);
   }
   if ('delay' in req.query) {
     settings.delay = +req.query['delay']!;
   }
   if ('pause' in req.query) {
-    settings.pause = true;
+    autoObserve.pause()
   } else if ('continue' in req.query) {
-    settings.pause = false;
-    autoObserve.continueObserve();
+    autoObserve.continue();
   }
 
   res.json(settings);

@@ -4,12 +4,28 @@ export function serviceWorkerMain(self: ServiceWorkerGlobalScope, context: Servi
   const {
     eventShim,
     galaxyMonitor,
-    autoObserve
+    autoObserve,
+    galaxyRepository
   } = context;
 
   eventShim.addEventListener('fetch', (e: Event) => galaxyMonitor.spyGalaxyRequest(e as FetchEvent));
 
-  autoObserve.settings.pause = false;
-  autoObserve.settings.delay = 0;
-  autoObserve.continueObserve();
+  autoObserve.continue();
+
+  /*
+  galaxyRepository.findInactiveTargets()
+      .then(targets => {
+        const frequency = targets
+            .map(c => ({
+              c,
+              key: systemCoordinatesKey([c.galaxy, c.system])
+            }))
+            .sort((a, b) => a.key.localeCompare(b.key))
+            .reduce((counts, c) => {
+              counts[c.key] = (counts[c.key] || 0) + 1;
+              return counts;
+            }, {} as { [key: string]: number });
+        console.log(frequency);
+      });
+   */
 }

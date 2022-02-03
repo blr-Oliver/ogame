@@ -1,7 +1,7 @@
-import {deduplicate} from '../../common';
+import {compareCoordinatesKeys, deduplicate} from '../../common';
 import {GalaxySlot, GalaxySlotInfo, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
 import {GalaxyRepository} from '../../repository-types';
-import {coordinateComparator, Coordinates, CoordinateType} from '../../types';
+import {coordinateComparator, Coordinates, CoordinateType, SystemCoordinates} from '../../types';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils} from '../IDBUtils';
 
@@ -17,11 +17,6 @@ const {
 } = IDBUtils;
 
 // TODO use continue() with a key parameter
-
-type CoordinatesKey = [galaxy: number, system: number];
-function compareCoordinatesKeys(a: CoordinatesKey, b: CoordinatesKey): number {
-  return a[0] - b[0] || a[1] - b[1];
-}
 
 /*
   galaxy-report
@@ -121,7 +116,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
           const cursor: IDBCursorWithValue | null = cursorRequest.result;
           if (cursor) {
             let item = cursor.value;
-            let key = getKey(item, cIndex.keyPath) as CoordinatesKey;
+            let key = getKey(item, cIndex.keyPath) as SystemCoordinates;
             if (test(item)) data.push(item);
             --key[1];
             cursor.continue(key);
@@ -139,13 +134,13 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     return this.withTransaction(tx, tx => {
       const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
       const cIndex: IDBIndex = systemStore.index(IDBGalaxyRepository.SYSTEM_COORDINATES_INDEX);
-      const key: CoordinatesKey = [1, 1];
-      const lastKey: CoordinatesKey = [maxGalaxy, maxSystem];
+      const key: SystemCoordinates = [1, 1];
+      const lastKey: SystemCoordinates = [maxGalaxy, maxSystem];
       const advanceKey = this.getCoordinatesKeyIterator(maxSystem);
       const cursorRequest = cIndex.openKeyCursor(IDBKeyRange.bound(key, lastKey), 'nextunique');
       return new Promise<Coordinates[]>((resolve, reject) => {
         const data: Coordinates[] = [];
-        function skipTo(limit: CoordinatesKey) {
+        function skipTo(limit: SystemCoordinates) {
           while (compareCoordinatesKeys(key, limit) < 0) {
             data.push({galaxy: key[0], system: key[1], position: 0});
             advanceKey(key);
@@ -154,7 +149,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
         cursorRequest.onsuccess = () => {
           const cursor: IDBCursor | null = cursorRequest.result;
           if (cursor) {
-            skipTo(cursor.key as CoordinatesKey);
+            skipTo(cursor.key as SystemCoordinates);
             advanceKey(key);
             cursor.continue(key);
           } else {
@@ -175,8 +170,8 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     };
   }
 
-  private getCoordinatesKeyIterator(maxSystem: number): (key: CoordinatesKey) => void {
-    return (key: CoordinatesKey) => {
+  private getCoordinatesKeyIterator(maxSystem: number): (key: SystemCoordinates) => void {
+    return (key: SystemCoordinates) => {
       ++key[1];
       if (key[1] > maxSystem) {
         ++key[0];
