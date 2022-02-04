@@ -39,7 +39,7 @@ export class AutoObserveStub implements RemoteAutoObserve {
     this.settings = new AutoObserveSettingsStub(port);
   }
   get(): Promise<AutoObserveState> {
-    return remoteGet(this.port, ['.']);
+    return remoteGet(this.port, []);
   }
   getStatus(): Promise<Status> {
     return remoteGet(this.port, ['status']);

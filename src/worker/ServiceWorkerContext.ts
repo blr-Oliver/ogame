@@ -16,6 +16,7 @@ import {EspionageRepository, GalaxyRepository} from '../common/repository-types'
 import {AutoObserve} from '../common/services/AutoObserve';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
+import {ClientManager} from './ClientManager';
 import {GalaxyRequestMonitor} from './GalaxyRequestMonitor';
 import {NavigatorGameContext} from './NavigatorGameContext';
 
@@ -33,7 +34,8 @@ export class ServiceWorkerContext {
       readonly galaxyParser: GalaxyParser,
       readonly galaxyObserver: GalaxyObserver,
       readonly galaxyMonitor: GalaxyRequestMonitor,
-      readonly autoObserve: AutoObserve
+      readonly autoObserve: AutoObserve,
+      readonly clientManager: ClientManager
   ) {
   }
 
@@ -58,10 +60,11 @@ export class ServiceWorkerContext {
     const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyParser, fetcher, serverContext);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyParser);
     const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, gameContext, {
-      timeout: 1800,
-      emptyTimeout: 18000,
-      delay: 10
+      timeout: 3600 * 4,
+      emptyTimeout: 3600 * 24,
+      delay: 3000
     });
+    const clientManager = new ClientManager(eventShim, autoObserve);
 
     return Promise.resolve(new ServiceWorkerContext(
         eventShim,
@@ -76,7 +79,8 @@ export class ServiceWorkerContext {
         galaxyParser,
         galaxyObserver,
         galaxyMonitor,
-        autoObserve
+        autoObserve,
+        clientManager
     ));
   }
 }

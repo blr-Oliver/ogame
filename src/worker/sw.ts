@@ -1,4 +1,4 @@
-import {DelegatingEventTarget} from './DelegatingEventTarget';
+import {DelegatingEventTarget} from '../common/core/DelegatingEventTarget';
 import {serviceWorkerMain} from './main';
 import {ServiceWorkerContext} from './ServiceWorkerContext';
 

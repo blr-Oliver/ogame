@@ -5,12 +5,18 @@ export function serviceWorkerMain(self: ServiceWorkerGlobalScope, context: Servi
     eventShim,
     galaxyMonitor,
     autoObserve,
-    galaxyRepository
+    galaxyRepository,
+    clientManager
   } = context;
 
   eventShim.addEventListener('fetch', (e: Event) => galaxyMonitor.spyGalaxyRequest(e as FetchEvent));
 
   autoObserve.continue();
+  eventShim.addEventListener('message', e => {
+    const event: ExtendableMessageEvent = e as ExtendableMessageEvent;
+    if (event.source instanceof Client)
+      clientManager.connectIfNecessary(event.source);
+  });
 
   /*
   galaxyRepository.findInactiveTargets()

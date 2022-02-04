@@ -18,7 +18,9 @@ export interface ReplyingMessageEvent extends MessageEvent {
   readonly id: number;
   readonly previousId?: number;
   readonly port: ReplyingMessagePort;
-  reply: (message: any, ignoreReply?: boolean, transfer?: Transferable[]) => Promise<ReplyingMessageEvent> | void;
+  reply(message: any, ignoreReply: true, transfer?: Transferable[]): void;
+  reply(message: any, ignoreReply?: false, transfer?: Transferable[]): Promise<ReplyingMessageEvent>;
+  reply(message: any, ignoreReply?: boolean, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void;
 }
 
 const TYPE_CONNECT = 'connect';
@@ -168,7 +170,7 @@ export class ReplyingMessagePort {
 
   postMessage(message: any, ignoreReply: true, transfer?: Transferable[]): void;
   postMessage(message: any, ignoreReply?: false, transfer?: Transferable[]): Promise<ReplyingMessageEvent>;
-  postMessage(message: any, ignoreReply: boolean, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void;
+  postMessage(message: any, ignoreReply?: boolean, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void;
   postMessage(message: any, ignoreReply: boolean = false, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void {
     return this.doPost(message, undefined, ignoreReply, transfer);
   }
@@ -202,11 +204,13 @@ export class ReplyingMessagePort {
       previousId,
       port: this,
       reply: (message: any, ignoreReply?: boolean, transfer?: Transferable[]) => this.doPost(message, result.id, ignoreReply, transfer)
-    });
+    }) as ReplyingMessageEvent;
     return result;
   }
-
-  private doPost(message: any, previousId?: number, ignoreReply: boolean = false, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void {
+  private doPost(message: any, previousId: number | undefined, ignoreReply: true, transfer?: Transferable[]): void;
+  private doPost(message: any, previousId: number | undefined, ignoreReply?: false, transfer?: Transferable[]): Promise<ReplyingMessageEvent>;
+  private doPost(message: any, previousId: number | undefined, ignoreReply?: boolean, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void;
+  private doPost(message: any, previousId: number | undefined, ignoreReply: boolean = false, transfer?: Transferable[]): Promise<ReplyingMessageEvent> | void {
     let packet: Packet = {
       id: ++this.lastUsedId,
       previousId,
