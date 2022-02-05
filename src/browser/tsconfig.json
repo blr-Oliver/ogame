@@ -12,7 +12,9 @@
       "dom",
       "dom.iterable"
     ],
-    "types": []
+    "types": [
+      "web-locks-api"
+    ]
   },
   "include": [
     "./**/*"

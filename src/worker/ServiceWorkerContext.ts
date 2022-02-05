@@ -62,7 +62,7 @@ export class ServiceWorkerContext {
     const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, gameContext, {
       timeout: 3600 * 4,
       emptyTimeout: 3600 * 24,
-      delay: 3000
+      delay: 100
     });
     const clientManager = new ClientManager(eventShim, autoObserve);
 

@@ -1,13 +1,13 @@
 import {ReplyingMessagePort} from '../common/message/ReplyingMessagePort';
-import {AutoObserveStub} from '../common/remote/AutoObserveStub';
 
 if ('serviceWorker' in navigator) {
+  const url = '/sw.js';
   navigator.serviceWorker
-      .register('/sw.js', {
+      .register(url, {
         type: 'classic'
       })
       .then(reg => {
-        console.log('Registration succeeded. Scope is ' + reg.scope);
+        console.log(`Service worker from '${url}' registered. Scope is ${reg.scope}`);
       })
       .catch((error) => {
         console.error('Registration failed with ' + error);
@@ -16,10 +16,24 @@ if ('serviceWorker' in navigator) {
   console.error('Service workers not supported.')
 }
 
-if (navigator.serviceWorker.controller) {
-  ReplyingMessagePort.connect('exchange', navigator.serviceWorker.controller, navigator.serviceWorker)
-      .then(port => {
-        const autoObserve = new AutoObserveStub(port);
-        (window as any)['autoObserve'] = autoObserve;
-      });
-}
+navigator.serviceWorker.ready
+    .then(reg => {
+      console.log('Page controller is ready');
+      const target = reg.active!;
+      target.onstatechange = e => console.log(`Controller changed state to ${target.state}`)
+      ReplyingMessagePort.connect('exchange', target, reg)
+          .then(port => {
+            (window as any)['port'] = port;
+            console.log(`Port connected`);
+          });
+      const lockName = 'test-lock';
+      navigator.locks
+          .request(lockName, {mode: 'exclusive'}, () => new Promise<void>((resolve) => {
+            console.log(`Lock '${lockName}' taken by page successfully`);
+            resolve();
+          }))
+          .then(() => {
+            console.log(`Lock '${lockName}' released by page`);
+          });
+    });
+

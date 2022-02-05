@@ -11,7 +11,9 @@
       "webworker"
     ],
     "outDir": "../../dist/worker",
-    "types": []
+    "types": [
+      "web-locks-api"
+    ]
   },
   "include": [
     "./**/*"
