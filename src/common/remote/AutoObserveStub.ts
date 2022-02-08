@@ -1,4 +1,4 @@
-import {ReplyingMessagePort} from '../message/ReplyingMessagePort';
+import {ReplyingMessagePort} from '../message/ReplyingMessageChannel';
 import {AutoObserveSettings, AutoObserveState, Status} from '../services/AutoObserve';
 import {SystemCoordinates} from '../types';
 import {RemoteAutoObserve, RemoteAutoObserveSettings} from './RemoteAutoObserve';

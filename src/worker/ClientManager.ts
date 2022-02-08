@@ -1,11 +1,11 @@
-import {ReplyingMessagePort} from '../common/message/ReplyingMessagePort';
+import {ReplyingMessageChannel} from '../common/message/ReplyingMessageChannel';
 import {AutoObserveSkeleton} from '../common/remote/AutoObserveSkeleton';
 import {AutoObserve} from '../common/services/AutoObserve';
 
 export interface ClientConnection {
   autoObserveSkeleton?: AutoObserveSkeleton;
-  port?: ReplyingMessagePort;
-  promise: Promise<ReplyingMessagePort>;
+  port?: ReplyingMessageChannel;
+  promise: Promise<ReplyingMessageChannel>;
 }
 
 export class ClientManager {
@@ -17,16 +17,7 @@ export class ClientManager {
 
   connectIfNecessary(client: Client): ClientConnection {
     const clientId = client.id;
-    if (clientId in this.connections) return this.connections[clientId];
-    let promise = ReplyingMessagePort.connect('exchange', client, this.shim);
-    let connection: ClientConnection = {
-      promise: promise
-          .then(port => {
-            connection.port = port;
-            connection.autoObserveSkeleton = new AutoObserveSkeleton(port, this.autoObserve);
-            return port;
-          })
-    }
-    return this.connections[clientId] = connection;
+    // FIXME
+    return this.connections[clientId];
   }
 }

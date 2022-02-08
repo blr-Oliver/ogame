@@ -1,11 +1,11 @@
-import {ReplyingMessageEvent, ReplyingMessagePort} from '../message/ReplyingMessagePort';
+import {ReplyingMessageChannel, ReplyingMessageEvent} from '../message/ReplyingMessageChannel';
 import {AutoObserve, AutoObserveSettings, AutoObserveState} from '../services/AutoObserve';
 import {RemoteMessage} from './stub-skeleton';
 
 export class AutoObserveSkeleton {
-  constructor(private readonly port: ReplyingMessagePort,
+  constructor(private readonly port: ReplyingMessageChannel,
               private readonly delegate: AutoObserve) {
-    port.onmessage = e => this.handleMessage(e);
+    port.addEventListener('message', e => this.handleMessage(e));
   }
 
   private handleMessage(e: ReplyingMessageEvent) {
