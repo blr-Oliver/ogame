@@ -1,3 +1,8 @@
+import {getCurrentClientId} from '../common/client-id';
+import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
+import {AutoObserveStub} from '../common/remote/AutoObserveStub';
+import {ServiceWorkerConnector} from './ServiceWorkerConnector';
+
 if ('serviceWorker' in navigator) {
   const url = '/sw.js';
   navigator.serviceWorker
@@ -14,9 +19,9 @@ if ('serviceWorker' in navigator) {
   console.error('Service workers not supported.')
 }
 
-navigator.serviceWorker.ready
-    .then(reg => {
-      console.log('Page controller is ready');
-      const target = reg.active!;
-    });
+const factory = new ServiceWorkerConnector(() => getCurrentClientId(navigator.locks));
+const channel = new MessageChannelWithFactory(factory);
+const autoObserve = new AutoObserveStub(channel);
+
+(window as any)['autoObserve'] = autoObserve;
 

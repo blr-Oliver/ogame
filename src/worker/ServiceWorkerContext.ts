@@ -1,4 +1,5 @@
 import {JSONGalaxyParser} from '../browser/parsers/galaxy-report-extractor';
+import {getCurrentClientId} from '../common/client-id';
 import {Fetcher} from '../common/core/Fetcher';
 import {GameContext} from '../common/core/GameContext';
 import {LocationServerContext} from '../common/core/LocationServerContext';
@@ -22,7 +23,7 @@ import {NavigatorGameContext} from './NavigatorGameContext';
 
 export class ServiceWorkerContext {
   private constructor(
-      readonly eventShim: EventTarget,
+      readonly selfId: string,
       readonly fetcher: Fetcher,
       readonly serverContext: ServerContext,
       readonly gameContext: GameContext,
@@ -41,8 +42,9 @@ export class ServiceWorkerContext {
 
   static async init(
       self: ServiceWorkerGlobalScope,
-      eventShim: EventTarget
+      locks: LockManager
   ): Promise<ServiceWorkerContext> {
+    const selfId = await getCurrentClientId(locks);
     const fetcher = new RestrainedFetcher(new NativeFetcher());
     const serverContext = new LocationServerContext(self.location);
     const gameContext = new NavigatorGameContext();
@@ -64,10 +66,10 @@ export class ServiceWorkerContext {
       emptyTimeout: 3600 * 24,
       delay: 100
     });
-    const clientManager = new ClientManager(eventShim, autoObserve);
+    const clientManager = new ClientManager(self, selfId, locks, autoObserve);
 
-    return Promise.resolve(new ServiceWorkerContext(
-        eventShim,
+    return new ServiceWorkerContext(
+        selfId,
         fetcher,
         serverContext,
         gameContext,
@@ -81,6 +83,6 @@ export class ServiceWorkerContext {
         galaxyMonitor,
         autoObserve,
         clientManager
-    ));
+    );
   }
 }

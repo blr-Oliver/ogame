@@ -1,11 +1,11 @@
-import {ReplyingMessagePort} from '../message/ReplyingMessageChannel';
+import {ReplyingMessageChannel} from '../message/ReplyingMessageChannel';
 import {AutoObserveSettings, AutoObserveState, Status} from '../services/AutoObserve';
 import {SystemCoordinates} from '../types';
 import {RemoteAutoObserve, RemoteAutoObserveSettings} from './RemoteAutoObserve';
 import {remoteAssign, remoteGet, remoteInvoke, remoteSet} from './stub-skeleton';
 
 class AutoObserveSettingsStub implements RemoteAutoObserveSettings {
-  constructor(private readonly port: ReplyingMessagePort) {
+  constructor(private readonly port: ReplyingMessageChannel) {
   }
   get(): Promise<AutoObserveSettings> {
     return remoteGet(this.port, ['settings']);
@@ -35,32 +35,32 @@ class AutoObserveSettingsStub implements RemoteAutoObserveSettings {
 
 export class AutoObserveStub implements RemoteAutoObserve {
   readonly settings: RemoteAutoObserveSettings;
-  constructor(private readonly port: ReplyingMessagePort) {
-    this.settings = new AutoObserveSettingsStub(port);
+  constructor(private readonly channel: ReplyingMessageChannel) {
+    this.settings = new AutoObserveSettingsStub(channel);
   }
   get(): Promise<AutoObserveState> {
-    return remoteGet(this.port, []);
+    return remoteGet(this.channel, []);
   }
   getStatus(): Promise<Status> {
-    return remoteGet(this.port, ['status']);
+    return remoteGet(this.channel, ['status']);
   }
   getScheduledContinue(): Promise<Date | undefined> {
-    return remoteGet(this.port, ['scheduledContinue']);
+    return remoteGet(this.channel, ['scheduledContinue']);
   }
   getQueue(): Promise<SystemCoordinates[]> {
-    return remoteGet(this.port, ['queue']);
+    return remoteGet(this.channel, ['queue']);
   }
   getInProgress(): Promise<SystemCoordinates[]> {
-    return remoteGet(this.port, ['inProgress']);
+    return remoteGet(this.channel, ['inProgress']);
   }
 
   pause(): Promise<AutoObserveState> {
-    return remoteInvoke(this.port, ['pause']);
+    return remoteInvoke(this.channel, ['pause']);
   }
   continue(): Promise<AutoObserveState> {
-    return remoteInvoke(this.port, ['continue']);
+    return remoteInvoke(this.channel, ['continue']);
   }
   enqueue(...systems: SystemCoordinates[]): Promise<AutoObserveState> {
-    return remoteInvoke(this.port, ['enqueue'], ...systems);
+    return remoteInvoke(this.channel, ['enqueue'], ...systems);
   }
 }
