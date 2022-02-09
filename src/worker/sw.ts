@@ -5,8 +5,7 @@ import {ServiceWorkerContext} from './ServiceWorkerContext';
 declare var self: ServiceWorkerGlobalScope;
 
 const shim = new DelegatingEventTarget();
-self.addEventListener('message', e => shim.handleEvent(e));
-self.addEventListener('fetch', e => shim.handleEvent(e));
+shim.shim(self, 'message', 'fetch');
 
 ServiceWorkerContext.init(self, shim)
     .then(context => serviceWorkerMain(self, context));
