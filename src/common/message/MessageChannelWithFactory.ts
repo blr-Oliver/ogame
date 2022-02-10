@@ -1,5 +1,6 @@
 import {ReconnectableReplyingMessageChannel} from './ReconnectableReplyingMessageChannel';
-import {ChannelFactory, ReplyingMessageChannel, ReplyingMessageEvent, ReplyingMessagePortEventMap, Transferable} from './ReplyingMessageChannel';
+import {ChannelFactory, ReplyingMessageChannel, ReplyingMessagePortEventMap, Transferable} from './ReplyingMessageChannel';
+import {ReplyingMessageEvent} from './ReplyingMessageEvent';
 
 export interface Options {
   lazy?: boolean;
@@ -8,8 +9,8 @@ export interface Options {
 
 export class MessageChannelWithFactory<R = any, L = any> extends EventTarget implements ReconnectableReplyingMessageChannel<R, L> {
   private readonly options: Options;
-  #channel?: ReplyingMessageChannel<R, L>;
-  #connecting?: Promise<ReplyingMessageChannel<R, L>>;
+  private channel?: ReplyingMessageChannel<R, L>;
+  private connecting?: Promise<ReplyingMessageChannel<R, L>>;
 
   constructor(private readonly factory: ChannelFactory<R, L>, options?: Options) {
     super();
@@ -48,16 +49,16 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
   }
 
   close(): void {
-    if (this.#channel) {
-      this.#channel.close();
+    if (this.channel) {
+      this.channel.close();
       this.dispatchUnrecovered('close');
     }
   }
 
   reconnect(): Promise<ReconnectableReplyingMessageChannel<R, L>> {
-    if (this.#channel) {
-      this.#channel.close();
-      this.#channel = undefined;
+    if (this.channel) {
+      this.channel.close();
+      this.channel = undefined;
     }
 
     return this.connect()
@@ -65,13 +66,13 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
   }
 
   private connect(): Promise<ReplyingMessageChannel<R, L>> {
-    if (this.#channel) return Promise.resolve(this.#channel);
-    if (this.#connecting) return this.#connecting;
-    return this.#connecting = this.factory.connect()
+    if (this.channel) return Promise.resolve(this.channel);
+    if (this.connecting) return this.connecting;
+    return this.connecting = this.factory.connect()
         .then(channel => {
-          this.#channel = this.setupChannel(channel);
-          this.#connecting = undefined;
-          return this.#channel;
+          this.channel = this.setupChannel(channel);
+          this.connecting = undefined;
+          return this.channel;
         });
   }
 
@@ -86,9 +87,9 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
     if (this.options.auto)
       this.reconnect()
           .catch(() => this.dispatchUnrecovered('disconnect'));
-    else if (this.#channel) {
-      this.#channel.close();
-      this.#channel = undefined;
+    else if (this.channel) {
+      this.channel.close();
+      this.channel = undefined;
       this.dispatchUnrecovered('disconnect');
     }
   }

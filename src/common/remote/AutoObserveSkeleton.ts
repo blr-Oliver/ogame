@@ -1,4 +1,5 @@
-import {ReplyingMessageChannel, ReplyingMessageEvent} from '../message/ReplyingMessageChannel';
+import {ReplyingMessageChannel} from '../message/ReplyingMessageChannel';
+import {ReplyingMessageEvent} from '../message/ReplyingMessageEvent';
 import {AutoObserve, AutoObserveSettings, AutoObserveState} from '../services/AutoObserve';
 import {RemoteMessage} from './stub-skeleton';
 

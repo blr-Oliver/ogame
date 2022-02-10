@@ -78,7 +78,7 @@ export class ClientManager {
       id: this.selfId,
       port: remotePort
     }, [remotePort]);
-    WaitingRequestMessageChannel.connect(localPort, `${this.selfId}|${clientContext.remoteId}`, 1000)
+    WaitingRequestMessageChannel.connect(localPort, `${this.selfId}|${clientContext.remoteId}`, 3600 * 1000)
         .then(
             channel => this.setupChannel(channel, clientContext),
             error => console.error('timeout connecting in service worker'));

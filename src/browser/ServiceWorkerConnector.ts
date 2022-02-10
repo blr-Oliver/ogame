@@ -31,7 +31,7 @@ export class ServiceWorkerConnector implements ChannelFactory<any, any> {
     const remoteId: string = data.id;
     const port: MessagePort = data.port;
     const id = await this.idProvider();
-    return WaitingRequestMessageChannel.connect(port, `${id}|${remoteId}`, 1000)
+    return WaitingRequestMessageChannel.connect(port, `${id}|${remoteId}`, 3600 * 1000)
         .then(replyChannel => {
           this.setupChannel(replyChannel);
           return replyChannel;

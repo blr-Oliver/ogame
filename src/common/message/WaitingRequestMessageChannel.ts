@@ -1,4 +1,5 @@
-import {Packet, ReplyHandler, ReplyingMessageChannel, ReplyingMessageEvent, ReplyingMessagePortEventMap, Transferable} from './ReplyingMessageChannel';
+import {ReplyingMessageChannel, ReplyingMessagePortEventMap, Transferable} from './ReplyingMessageChannel';
+import {Packet, ReplyHandler, ReplyingMessageEvent} from './ReplyingMessageEvent';
 
 declare var navigator: { locks: LockManager };
 
@@ -9,18 +10,18 @@ interface WaitingRequest<R, L> {
 }
 
 export class WaitingRequestMessageChannel<R = any, L = any> extends EventTarget implements ReplyingMessageChannel<R, L> {
-  private readonly port: MessagePort;
-  readonly #remoteLockAbort: AbortController;
-  readonly #localLockHolder: (x: any) => void;
   readonly #replier: ReplyHandler<R, L> = (target, message, ignoreReply, transfer) => this.doPost(message, target.id, ignoreReply, transfer);
+  private readonly port: MessagePort;
+  private readonly remoteLockAbort: AbortController;
+  private readonly localLockHolder: (x: any) => void;
   private readonly queue: { [id: string]: WaitingRequest<R, L> };
   private lastUsedId: number = 0;
 
   private constructor(port: MessagePort, localLockHolder: (x: any) => void, pendingRemoteLock: Promise<any>, remoteLockWaiter: AbortController) {
     super();
     this.port = port;
-    this.#localLockHolder = localLockHolder;
-    this.#remoteLockAbort = remoteLockWaiter;
+    this.localLockHolder = localLockHolder;
+    this.remoteLockAbort = remoteLockWaiter;
     this.queue = {};
 
     pendingRemoteLock.then(
@@ -90,8 +91,8 @@ export class WaitingRequestMessageChannel<R = any, L = any> extends EventTarget 
     }
   }
   private releaseLocks() {
-    this.#remoteLockAbort.abort();
-    this.#localLockHolder(void 0);
+    this.remoteLockAbort.abort();
+    this.localLockHolder(void 0);
   }
   private shutdown(reason: 'close' | 'disconnect') {
     this.port.close();
