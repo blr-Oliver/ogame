@@ -15,13 +15,15 @@ if ('serviceWorker' in navigator) {
       .catch((error) => {
         console.error('Registration failed with ' + error);
       });
+  console.debug(`Creating components`);
+  const factory = new ServiceWorkerConnector(() => getCurrentClientId(navigator.locks));
+  console.debug(`Factory created`);
+  const channel = new MessageChannelWithFactory(factory);
+  console.debug(`Channel created (might be not ready)`);
+  const autoObserve = new AutoObserveStub(channel);
+  console.debug(`AutoObserve stub created (might be not ready)`);
+  (window as any)['autoObserve'] = autoObserve;
 } else {
   console.error('Service workers not supported.')
 }
-
-const factory = new ServiceWorkerConnector(() => getCurrentClientId(navigator.locks));
-const channel = new MessageChannelWithFactory(factory);
-const autoObserve = new AutoObserveStub(channel);
-
-(window as any)['autoObserve'] = autoObserve;
 

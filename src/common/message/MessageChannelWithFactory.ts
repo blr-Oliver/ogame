@@ -51,12 +51,14 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
   close(): void {
     if (this.channel) {
       this.channel.close();
+      this.channel = undefined;
       this.dispatchUnrecovered('close');
     }
   }
 
   reconnect(): Promise<ReconnectableReplyingMessageChannel<R, L>> {
     if (this.channel) {
+      console.debug(`MessageChannelWithFactory#reconnect: closing current channel`);
       this.channel.close();
       this.channel = undefined;
     }
@@ -66,10 +68,18 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
   }
 
   private connect(): Promise<ReplyingMessageChannel<R, L>> {
-    if (this.channel) return Promise.resolve(this.channel);
-    if (this.connecting) return this.connecting;
+    if (this.channel) {
+      console.debug(`MessageChannelWithFactory#connect: already connected`);
+      return Promise.resolve(this.channel);
+    }
+    if (this.connecting) {
+      console.debug(`MessageChannelWithFactory#connect: already connecting`);
+      return this.connecting;
+    }
+    console.debug(`MessageChannelWithFactory#connect: using factory to connect`);
     return this.connecting = this.factory.connect()
         .then(channel => {
+          console.debug(`MessageChannelWithFactory#connect: connected successfully`);
           this.channel = this.setupChannel(channel);
           this.connecting = undefined;
           return this.channel;
@@ -84,12 +94,16 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
   }
 
   private handleDisconnect() {
-    if (this.options.auto)
-      this.reconnect()
-          .catch(() => this.dispatchUnrecovered('disconnect'));
-    else if (this.channel) {
+    console.debug(`MessageChannelWithFactory#handleDisconnect`);
+    if (this.channel) {
       this.channel.close();
       this.channel = undefined;
+    }
+    if (this.options.auto) {
+      console.debug(`MessageChannelWithFactory#handleDisconnect: auto-reconnecting`);
+      this.reconnect()
+          .catch(() => this.dispatchUnrecovered('disconnect'));
+    } else {
       this.dispatchUnrecovered('disconnect');
     }
   }
@@ -102,6 +116,7 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
   }
 
   private dispatchUnrecovered(type: 'close' | 'disconnect') {
+    console.debug(`MessageChannelWithFactory#dispatchUnrecovered: ${type}`);
     let e: Event = new Event(type, {bubbles: true, cancelable: false, composed: true});
     this.dispatchEvent(e);
   }

@@ -1,22 +1,24 @@
-export function getCurrentClientId(locks: LockManager): Promise<string> {
-  return new Promise((resolve) => {
-    let lockName: string;
-    tryGetLock();
+import {AsyncFunction} from './functional';
 
-    function tryGetLock() {
-      lockName = 'get-self-id-' + (Math.random() * 0xffffffff >>> 0);
-      locks.request(lockName, {mode: 'exclusive', ifAvailable: true}, withLock);
-    }
+export type IdProvider = AsyncFunction<LockManager, string>;
+export const getCurrentClientId: IdProvider = (locks: LockManager) =>
+    new Promise((resolve) => {
+      let lockName: string;
+      tryGetLock();
 
-    function withLock(lock: Lock | null): Promise<any> {
-      if (lock)
-        return locks.query()
-            .then(({held}) => held!.find(lock => lock.name === lockName!)!.clientId!)
-            .then(clientId => setTimeout(resolve, 0, clientId))
-      else {
-        setTimeout(tryGetLock, 0);
-        return Promise.resolve();
+      function tryGetLock() {
+        lockName = 'get-self-id-' + (Math.random() * 0xffffffff >>> 0);
+        locks.request(lockName, {mode: 'exclusive', ifAvailable: true}, withLock);
       }
-    }
-  })
-}
+
+      function withLock(lock: Lock | null): Promise<any> {
+        if (lock)
+          return locks.query()
+              .then(({held}) => held!.find(lock => lock.name === lockName!)!.clientId!)
+              .then(clientId => setTimeout(resolve, 0, clientId))
+        else {
+          setTimeout(tryGetLock, 0);
+          return Promise.resolve();
+        }
+      }
+    })

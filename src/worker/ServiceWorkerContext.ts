@@ -1,11 +1,13 @@
 import {JSONGalaxyParser} from '../browser/parsers/galaxy-report-extractor';
 import {getCurrentClientId} from '../common/client-id';
+import {cacheAsyncResult} from '../common/core/cached-async';
 import {Fetcher} from '../common/core/Fetcher';
 import {GameContext} from '../common/core/GameContext';
 import {LocationServerContext} from '../common/core/LocationServerContext';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {ServerContext} from '../common/core/ServerContext';
+import {AsyncSupplier} from '../common/functional';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
 import {IDBRepositorySupport} from '../common/idb/IDBRepositorySupport';
 import {IDBEspionageRepository} from '../common/idb/repositories/IDBEspionageRepository';
@@ -23,15 +25,15 @@ import {NavigatorGameContext} from './NavigatorGameContext';
 
 export class ServiceWorkerContext {
   private constructor(
-      readonly selfId: string,
+      readonly idSupplier: AsyncSupplier<string>,
       readonly fetcher: Fetcher,
       readonly serverContext: ServerContext,
       readonly gameContext: GameContext,
       readonly galaxyRepositorySupport: IDBRepositorySupport<IDBGalaxyRepository>,
       readonly espionageRepositorySupport: IDBRepositorySupport<IDBEspionageRepository>,
       readonly repositoryProvider: IDBRepositoryProvider,
-      readonly galaxyRepository: GalaxyRepository,
-      readonly espionageRepository: EspionageRepository,
+      readonly galaxyRepository: AsyncSupplier<GalaxyRepository>,
+      readonly espionageRepository: AsyncSupplier<EspionageRepository>,
       readonly galaxyParser: GalaxyParser,
       readonly galaxyObserver: GalaxyObserver,
       readonly galaxyMonitor: GalaxyRequestMonitor,
@@ -40,11 +42,11 @@ export class ServiceWorkerContext {
   ) {
   }
 
-  static async init(
+  static init(
       self: ServiceWorkerGlobalScope,
       locks: LockManager
-  ): Promise<ServiceWorkerContext> {
-    const selfId = await getCurrentClientId(locks);
+  ): ServiceWorkerContext {
+    const idSupplier = cacheAsyncResult(() => getCurrentClientId(locks));
     const fetcher = new RestrainedFetcher(new NativeFetcher());
     const serverContext = new LocationServerContext(self.location);
     const gameContext = new NavigatorGameContext();
@@ -54,10 +56,8 @@ export class ServiceWorkerContext {
       'galaxy': galaxyRepositorySupport,
       'espionage': espionageRepositorySupport
     });
-    const [galaxyRepository, espionageRepository] = await Promise.all([
-      repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'),
-      repositoryProvider.getRepository<IDBEspionageRepository>('espionage')
-    ]);
+    const galaxyRepository = cacheAsyncResult(() => repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'));
+    const espionageRepository = cacheAsyncResult(() => repositoryProvider.getRepository<IDBEspionageRepository>('espionage'));
     const galaxyParser = new JSONGalaxyParser();
     const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyParser, fetcher, serverContext);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyParser);
@@ -66,10 +66,10 @@ export class ServiceWorkerContext {
       emptyTimeout: 3600 * 24,
       delay: 100
     });
-    const clientManager = new ClientManager(self, selfId, locks, autoObserve);
+    const clientManager = new ClientManager(self, idSupplier, locks, autoObserve);
 
     return new ServiceWorkerContext(
-        selfId,
+        idSupplier,
         fetcher,
         serverContext,
         gameContext,

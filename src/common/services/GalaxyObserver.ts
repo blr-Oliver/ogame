@@ -1,6 +1,7 @@
 import {after, processAll, waitUntil} from '../common';
 import {Fetcher, RequestFacade} from '../core/Fetcher';
 import {ServerContext} from '../core/ServerContext';
+import {AsyncSupplier} from '../functional';
 import {GalaxyParser} from '../parsers';
 import {GalaxySystemInfo} from '../report-types';
 import {GalaxyRepository} from '../repository-types';
@@ -9,7 +10,7 @@ import {Coordinates} from '../types';
 export class GalaxyObserver {
   private readonly requestTemplate: RequestFacade;
 
-  constructor(private repo: GalaxyRepository,
+  constructor(private repo: AsyncSupplier<GalaxyRepository>,
               private parser: GalaxyParser,
               public fetcher: Fetcher,
               public serverContext: ServerContext) {
@@ -29,7 +30,7 @@ export class GalaxyObserver {
     }
   }
 
-  observe(galaxy: number, system: number, parallelSave: boolean = false, skipSave: boolean = false): Promise<GalaxySystemInfo> {
+  async observe(galaxy: number, system: number, parallelSave: boolean = false, skipSave: boolean = false): Promise<GalaxySystemInfo> {
     // TODO tie request strategy with parsing strategy
     const options: RequestFacade = {
       ...this.requestTemplate,
@@ -43,7 +44,7 @@ export class GalaxyObserver {
           let timestamp: Date = response.headers.has('date') ? new Date(response.headers.get('date')!) : new Date();
           return response.text().then(text => this.parser.parseGalaxy(text, timestamp))
         });
-    return skipSave ? reportPromise : after(reportPromise, report => this.repo.store(report), parallelSave);
+    return skipSave ? reportPromise : after(reportPromise, async report => (await this.repo()).store(report), parallelSave);
   }
 
   observeC(system: Coordinates, parallelSave: boolean = false, skipSave: boolean = false): Promise<GalaxySystemInfo> {
@@ -60,7 +61,7 @@ export class GalaxyObserver {
         let saveTasks: Promise<any>[] = [];
         let observeTask = processAll(systems, coords => {
           let infoPromise: Promise<GalaxySystemInfo> = this.observeC(coords, true, true);
-          saveTasks.push(infoPromise.then(report => this.repo.store(report)));
+          saveTasks.push(infoPromise.then(async report => (await this.repo()).store(report)));
           return infoPromise;
         }, parallel);
         return waitUntil(observeTask, ...saveTasks);

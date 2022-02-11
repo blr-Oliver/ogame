@@ -8,5 +8,5 @@ declare var navigator: WorkerNavigator & { locks: LockManager };
 const shim = new DelegatingEventTarget();
 shim.shim(self, 'message', 'fetch');
 
-ServiceWorkerContext.init(self, navigator.locks)
-    .then(context => serviceWorkerMain(self, context));
+const context = ServiceWorkerContext.init(self, navigator.locks);
+serviceWorkerMain(self, context);

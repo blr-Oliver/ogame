@@ -1,9 +1,10 @@
+import {AsyncSupplier} from '../common/functional';
 import {GalaxyParser} from '../common/parsers';
 import {GalaxyRepository} from '../common/repository-types';
 import {spyRequest} from './spy-request';
 
 export class GalaxyRequestMonitor {
-  constructor(private repo: GalaxyRepository,
+  constructor(private repo: AsyncSupplier<GalaxyRepository>,
               private parser: GalaxyParser) {
   }
 
@@ -22,7 +23,7 @@ export class GalaxyRequestMonitor {
             return response!.text()
                 .then(rawData => this.parser.parseGalaxy(rawData, timestamp));
           })
-          .then(galaxyInfo => this.repo.store(galaxyInfo));
+          .then(async galaxyInfo => (await this.repo()).store(galaxyInfo));
     }
   }
 }
