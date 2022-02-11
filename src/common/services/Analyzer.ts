@@ -52,7 +52,7 @@ export class Analyzer {
               return false;
             }
             if (this.excludedTargets.some(c => c.galaxy === to.galaxy && c.system === to.system && c.position === to.position)) {
-              console.log(`target is explicitly excluded [${to.galaxy}:${to.system}:${to.position}]`);
+              console.debug(`target is explicitly excluded [${to.galaxy}:${to.system}:${to.position}]`);
               return false;
             }
             return true;

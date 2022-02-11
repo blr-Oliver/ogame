@@ -21,7 +21,7 @@ export class IDBConnectionProvider {
       openRequest.onupgradeneeded = e => {
         const event: IDBVersionChangeEvent = e as IDBVersionChangeEvent;
         const tx: IDBTransaction = openRequest.transaction!;
-        console.log(`Trying to upgrade (${event.oldVersion} => ${event.newVersion})`);
+        console.debug(`Trying to upgrade (${event.oldVersion} => ${event.newVersion})`);
         for (let initializer of this.initializers)
           initializer(tx, event.oldVersion!, event.newVersion!);
         // for some reason the upgrade transaction MUST NOT be committed manually

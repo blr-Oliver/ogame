@@ -27,7 +27,7 @@ export class ClientManager {
     const clientId = event.clientId || event.resultingClientId;
     let actions: Promise<any>[] = [];
     if (!this.clients.has(clientId)) {
-      console.log(`New client encountered: ${clientId}`);
+      console.debug(`New client encountered: ${clientId}`);
       // TODO check if client is readily available from event (skip searching it through self.clients)
       let setClient = this.self.clients.get(clientId).then(client => {
         if (client && !this.clients.has(clientId)) this.clients.set(clientId, {client});
@@ -42,9 +42,9 @@ export class ClientManager {
   private reportStatus(): Promise<void> {
     return this.locks.query()
         .then(({held, pending}) => {
-          console.log('Held locks as visible by service worker:', held);
-          console.log('Pending locks as visible by service worker:', pending);
-          console.log('Active client contexts:', this.clients);
+          console.debug('Held locks as visible by service worker:', held);
+          console.debug('Pending locks as visible by service worker:', pending);
+          console.debug('Active client contexts:', this.clients);
         });
   }
 
@@ -59,7 +59,7 @@ export class ClientManager {
   private acceptClient(data: any, client: Client) {
     const remoteId: string = data['id'];
     const localId = client.id;
-    console.log(`Matched local clientId with remote clientId: ${localId} -> ${remoteId}`);
+    console.debug(`Matched local clientId with remote clientId: ${localId} -> ${remoteId}`);
     this.installWatchDog(localId, remoteId);
 
     let clientContext: ClientContext;
@@ -94,7 +94,7 @@ export class ClientManager {
     clientContext.channel = channel;
     clientContext.autoObserve = new AutoObserveSkeleton(channel, this.autoObserve);
     channel.addEventListener('disconnect', e => {
-      console.log(`${clientContext.client.id} disconnected`);
+      console.debug(`${clientContext.client.id} disconnected`);
       if (clientContext.channel === channel) {
         delete clientContext.channel;
         delete clientContext.autoObserve;
@@ -104,7 +104,7 @@ export class ClientManager {
 
   private installWatchDog(localId: string, lockName: string) {
     this.locks.request(lockName, {mode: 'exclusive', ifAvailable: false}, () => {
-      console.log(`Watchdog triggered for ${lockName}`);
+      console.debug(`Watchdog triggered for ${lockName}`);
       this.clients.delete(localId);
       return Promise.resolve();
     });
