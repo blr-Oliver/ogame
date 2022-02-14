@@ -1,5 +1,5 @@
 import {deduplicate, systemCoordinatesKey} from '../common';
-import {GameContext} from '../core/GameContext';
+import {AbstractGameContext} from '../core/GameContext';
 import {AsyncSupplier} from '../functional';
 import {GalaxyRepository} from '../repository-types';
 import {SystemCoordinates} from '../types';
@@ -60,7 +60,7 @@ export class StatefulAutoObserve implements AutoObserve {
 
   constructor(private readonly observer: GalaxyObserver,
               private readonly repo: AsyncSupplier<GalaxyRepository>,
-              private readonly gameContext: GameContext,
+              private readonly gameContext: AbstractGameContext,
               settings?: Partial<AutoObserveSettings>) {
     this.settings = new ReactiveAutoObserveSettings(Object.assign({
       delay: DEFAULT_DELAY,

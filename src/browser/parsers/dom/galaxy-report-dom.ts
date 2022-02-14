@@ -1,4 +1,4 @@
-import {GalaxyParser} from '../../common/parsers';
+import {GalaxyParser} from '../../../common/parsers';
 import {
   AllianceGalaxyInfo,
   DebrisGalaxyInfo,
@@ -7,9 +7,9 @@ import {
   MoonGalaxyInfo,
   PlanetGalaxyInfo,
   PlayerGalaxyInfo
-} from '../../common/report-types';
+} from '../../../common/report-types';
+import {parseOnlyNumbers} from '../parsers-common';
 import {HtmlParser} from './HtmlParser';
-import {parseOnlyNumbers} from './parsers-common';
 
 export class DOMGalaxyParser implements GalaxyParser {
   constructor(private readonly htmlParser: HtmlParser) {

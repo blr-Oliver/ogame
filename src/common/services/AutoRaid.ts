@@ -1,12 +1,13 @@
 import {Calculator} from '../core/Calculator';
 import {FlightCalculator} from '../core/FlightCalculator';
-import {GameContext} from '../core/GameContext';
-import {FlightEvent, GalaxySystemInfo, Mapper, ShardedEspionageReport} from '../report-types';
+import {AbstractGameContext} from '../core/GameContext';
+import {FlightEvent, GalaxySystemInfo, ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
 import {Coordinates, MissionType, sameCoordinates} from '../types';
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
 import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {GalaxyObserver} from './GalaxyObserver';
+import {Mapper} from './Mapper';
 
 export class AutoRaid {
   state: any = {
@@ -21,7 +22,7 @@ export class AutoRaid {
 
   private data: ProcessedReport[] = [];
 
-  constructor(private context: GameContext,
+  constructor(private context: AbstractGameContext,
               private mapper: Mapper,
               private espionageReportScrapper: EspionageReportScrapper,
               private galaxyObserver: GalaxyObserver,
@@ -250,7 +251,7 @@ export class AutoRaid {
     }
     //
     let time = (now - report.source[0].timestamp.getTime() + flightTime * 1000) / 1000 / 3600;
-    let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deut || 0];
+    let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deuterium || 0];
     let andProduced = meta.production.map((x, i) => x * time + original[i]);
     let expected = meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, meta.capacity![i]), original[i]));
     let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);

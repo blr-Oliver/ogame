@@ -16,7 +16,10 @@ export class FlightCalculator {
     colonyShip: 2500,
     recycler: 2000,
     espionageProbe: 100000000,
-    solarSatellite: 0
+    solarSatellite: 0,
+    reaper: 7000,
+    pathfinder: 12000,
+    crawler: 0
   };
   static readonly DRIVE_TYPES: (ResearchType | undefined)[] = [undefined, 'combustionDrive', 'impulseDrive', 'hyperspaceDrive'];
   static readonly SHIP_DRIVES: { readonly [key in ShipType]: number } = {
@@ -33,7 +36,10 @@ export class FlightCalculator {
     colonyShip: 2,
     recycler: 1,
     espionageProbe: 1,
-    solarSatellite: 0
+    solarSatellite: 0,
+    reaper: 3,
+    pathfinder: 3,
+    crawler: 0
   };
   static readonly BASE_CONSUMPTION: { readonly [key in ShipType]: number } = {
     lightFighter: 20,
@@ -49,7 +55,10 @@ export class FlightCalculator {
     colonyShip: 1000,
     recycler: 300,
     espionageProbe: 1,
-    solarSatellite: 0
+    solarSatellite: 0,
+    reaper: 1100,
+    pathfinder: 300,
+    crawler: 0
   };
 
   private static readonly GALAXY_COUNT = 7;

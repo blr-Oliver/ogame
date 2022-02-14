@@ -1,7 +1,15 @@
 import {Coordinates, Researches, SpaceBody} from '../types';
 import {FlightCalculator} from './FlightCalculator';
 
-export abstract class GameContext {
+interface GameContext {
+  maxGalaxy: number;
+  maxSystem: number;
+  getResearches(): Researches;
+  getBodies(): SpaceBody[];
+  getNearestBody(coordinates: Coordinates): SpaceBody;
+}
+
+export abstract class AbstractGameContext implements GameContext {
   abstract getResearches(): Researches;
   abstract getBodies(): SpaceBody[];
   readonly maxGalaxy: number;

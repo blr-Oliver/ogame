@@ -1,9 +1,10 @@
 import {Calculator} from '../core/Calculator';
 import {FlightCalculator} from '../core/FlightCalculator';
-import {GameContext} from '../core/GameContext';
-import {Mapper, ShardedEspionageReport} from '../report-types';
+import {AbstractGameContext} from '../core/GameContext';
+import {ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
 import {Coordinates, MissionType} from '../types';
+import {Mapper} from './Mapper';
 
 export interface ReportMetaInfo {
   nearestPlanetId?: number;
@@ -30,7 +31,7 @@ export class Analyzer {
   reports: ProcessedReport[] = [];
   excludedTargets: Coordinates[] = [];
 
-  constructor(private context: GameContext,
+  constructor(private context: AbstractGameContext,
               private mapper: Mapper,
               private espionageRepo: EspionageRepository,
               private galaxyRepo: GalaxyRepository) {
@@ -169,7 +170,7 @@ export class Analyzer {
     const transportCapacity = 7000; // TODO consider hyperspace technology
     this.reports.forEach(report => {
       let time = (now - report.source[0].timestamp.getTime() + report.meta.flightTime! * 1000) / 1000 / 3600;
-      let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deut || 0];
+      let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deuterium || 0];
       let andProduced = report.meta.production!.map((x, i) => x * time + original[i]);
       let expected = report.meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, report.meta.capacity![i]), original[i]));
       let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);

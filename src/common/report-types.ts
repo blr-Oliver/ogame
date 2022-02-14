@@ -1,4 +1,4 @@
-import {Buildings, Coordinates, DefensePartial, FleetPartial, Mission, MissionType, Researches, Resources} from './types';
+import {Buildings, Coordinates, Defense, DefensePartial, Fleet, FleetPartial, MissionType, Researches, Resources} from './types';
 
 export type ZeroOne = 0 | 1;
 
@@ -128,13 +128,15 @@ export interface ShardedEspionageReport extends EspionageReport {
   source: ShardHeader[];
 }
 
-export interface Mapper {
-  loadEvents(): Promise<FlightEvent[]>;
-  launch(mission: Mission): Promise<any>;
-}
-
 export interface StringNumberMap {
   [key: string]: number;
 }
 
 export type InfoCategory = 'resources' | 'ships' | 'defense' | 'buildings' | 'research';
+
+export interface TechContext {
+  researches: Researches;
+  buildings: Buildings;
+  defense: Defense;
+  fleet: Fleet;
+}

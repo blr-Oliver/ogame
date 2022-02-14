@@ -1,5 +1,5 @@
-import {Mapper} from '../report-types';
 import {Mission, MissionType} from '../types';
+import {Mapper} from './Mapper';
 
 type ScheduledMission = Mission & { timestamp: Date };
 let missions: ScheduledMission[] = [
@@ -9,7 +9,7 @@ let missions: ScheduledMission[] = [
     fleet: {largeCargo: 30, recycler: 1},
     mission: MissionType.Attack,
     speed: 7,
-    cargo: {metal: 370000, crystal: 373000, deut: 115000},
+    cargo: {metal: 370000, crystal: 373000, deuterium: 115000},
     timestamp: new Date(2019, 4, 19, 15, 22, 0)
   },
   {
@@ -28,7 +28,7 @@ let missions: ScheduledMission[] = [
     },
     mission: MissionType.Attack,
     speed: 7,
-    cargo: {metal: 1500000, crystal: 1500000, deut: 9000000},
+    cargo: {metal: 1500000, crystal: 1500000, deuterium: 9000000},
     timestamp: new Date(2019, 4, 19, 15, 26, 0)
   }
 ];

@@ -20,3 +20,8 @@ export function parseCoordinates(value: string): Coordinates | null {
   };
 }
 
+export function readAttribute(body: string, position: number): string {
+  let start = body.indexOf('"', position) + 1;
+  let end = body.indexOf('"', start);
+  return body.substring(start, end).trim();
+}

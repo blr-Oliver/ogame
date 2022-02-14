@@ -1,9 +1,9 @@
-import {map} from '../../common/common';
-import {EspionageReportParser} from '../../common/parsers';
-import {PlayerStatusInfo, StampedEspionageReport, StringNumberMap} from '../../common/report-types';
-import {translateEntries} from '../../common/translate';
+import {map} from '../../../common/common';
+import {EspionageReportParser} from '../../../common/parsers';
+import {PlayerStatusInfo, StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
+import {translateEntries} from '../../../common/translate';
+import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {HtmlParser} from './HtmlParser';
-import {parseLocalDate, parseOnlyNumbers} from './parsers-common';
 
 export class DOMEspionageReportParser implements EspionageReportParser {
   constructor(private readonly htmlParser: HtmlParser) {
@@ -42,7 +42,7 @@ export function parseReport(doc: ParentNode): StampedEspionageReport | undefined
   let counterEspionage = parseOnlyNumbers(activityBlock.textContent!);
   let resourceBlock = doc.querySelector('.detail_msg_ctn ul[data-type="resources"]');
 
-  let [metal, crystal, deut, energy] = map(resourceBlock!.querySelectorAll('.res_value'),
+  let [metal, crystal, deuterium, energy] = map(resourceBlock!.querySelectorAll('.res_value'),
       (el: Element) => parseOnlyNumbers(el.textContent!));
 
   let [fleetInfo, defenseInfo, buildingInfo, researchInfo] = ['ships', 'defense', 'buildings', 'research']
@@ -71,7 +71,7 @@ export function parseReport(doc: ParentNode): StampedEspionageReport | undefined
     resources: {
       metal,
       crystal,
-      deut,
+      deuterium,
       energy
     },
     fleet: translateEntries('ships', fleetInfo),

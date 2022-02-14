@@ -1,17 +1,34 @@
-import {systemCoordinatesKey} from '../common/common';
 import {GalaxyRepository} from '../common/repository-types';
 import {CoordinateType} from '../common/types';
 
-export function rankSystemsWithInactiveTargets(galaxyRepo: GalaxyRepository) {
-  galaxyRepo.findInactiveTargets()
+export function rankSystemsWithInactiveTargets(galaxyRepo: GalaxyRepository): Promise<any> {
+  return galaxyRepo.findInactiveTargets()
       .then(targets => targets
           .filter(target => (target.type ?? CoordinateType.Planet) === CoordinateType.Planet)
-          .map(target => ({target, key: systemCoordinatesKey([target.galaxy, target.system])}))
-          .sort((a, b) => a.key.localeCompare(b.key) || a.target.position - b.target.position)
-          .reduce((hash, wKey) => {
-            if (!(wKey.key in hash)) hash[wKey.key] = [];
-            hash[wKey.key].push(wKey.target.position);
-            return hash;
-          }, {} as { [key: string]: number[] }))
-      .then(stats => console.log(stats));
+          .reduce((sysCounts, slot) => {
+            if (!sysCounts[slot.galaxy]) sysCounts[slot.galaxy] = Array(499);
+            if (!sysCounts[slot.galaxy][slot.system]) sysCounts[slot.galaxy][slot.system] = 0;
+            ++sysCounts[slot.galaxy][slot.system];
+            return sysCounts;
+          }, [] as number[][])
+          .map(galaxy => [0, 5, 20, 50].reduce(
+              (res, wnd) => (res[wnd] = wrappingSum(galaxy, wnd), res),
+              {} as { [wnd: string]: number[] })
+          )
+      );
+}
+
+export function wrappingSum(a: number[], wnd: number): number[] {
+  const len = a.length;
+  let result = Array(len);
+  for (let i = 0; i < len; ++i) {
+    let sum = a[i] || 0;
+    for (let j = 0; j < wnd; ++j) {
+      let left = (i - j + len) % len;
+      let right = (i + j) % len;
+      sum += (a[left] || 0) + (a[right] || 0);
+    }
+    result[i] = sum;
+  }
+  return result;
 }

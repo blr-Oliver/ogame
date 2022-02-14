@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';
-import {DOMEspionageReportParser} from '../browser/parsers/espionage-reports';
-import {JSONGalaxyParser} from '../browser/parsers/galaxy-report-extractor';
-import {HtmlParser} from '../browser/parsers/HtmlParser';
+import {DOMEspionageReportParser} from '../browser/parsers/dom/espionage-report-dom';
+import {HtmlParser} from '../browser/parsers/dom/HtmlParser';
+import {JSONGalaxyParser} from '../browser/parsers/json/galaxy-report-json';
 import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext} from '../common/core/ServerContext';
 import {Analyzer} from '../common/services/Analyzer';
 import {AutoRaid} from '../common/services/AutoRaid';

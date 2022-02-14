@@ -1,8 +1,9 @@
 import {JSDOM} from 'jsdom';
-import {parseEventList} from '../browser/parsers/event-list';
+import {parseEventList} from '../browser/parsers/dom/event-list-dom';
 import {Fetcher, ResponseFacade} from '../common/core/Fetcher';
 import {ServerContext} from '../common/core/ServerContext';
-import {FlightEvent, Mapper} from '../common/report-types';
+import {FlightEvent} from '../common/report-types';
+import {Mapper} from '../common/services/Mapper';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
 import {dumpFile} from '../standalone/files';
 
@@ -67,7 +68,7 @@ export class LegacyMapper implements Mapper {
   private fleetStep2(form: Form, mission: Mission): Promise<ResponseFacade> {
     for (let key in mission.fleet) {
       let shipType = key as ShipType;
-      form[ShipTypeId[shipType]] = mission.fleet[shipType]!;
+      form[`am${ShipTypeId[shipType]}`] = mission.fleet[shipType]!;
     }
 
     return this.fetcher.fetch({
@@ -102,7 +103,7 @@ export class LegacyMapper implements Mapper {
     if (mission.cargo) {
       form['metal'] = mission.cargo.metal || 0;
       form['crystal'] = mission.cargo.crystal || 0;
-      form['deuterium'] = mission.cargo.deut || 0;
+      form['deuterium'] = mission.cargo.deuterium || 0;
     }
 
     return this.fetcher.fetch({

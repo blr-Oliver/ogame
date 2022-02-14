@@ -1,9 +1,9 @@
-import {EventListParser} from '../../common/parsers';
-import {FlightEvent, StringNumberMap} from '../../common/report-types';
-import {translateEntries} from '../../common/translate';
-import {CoordinateType, FleetPartial, MissionType, Resources} from '../../common/types';
+import {EventListParser} from '../../../common/parsers';
+import {FlightEvent, StringNumberMap} from '../../../common/report-types';
+import {translateEntries} from '../../../common/translate';
+import {CoordinateType, FleetPartial, MissionType, Resources} from '../../../common/types';
+import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
 import {HtmlParser} from './HtmlParser';
-import {parseCoordinates, parseOnlyNumbers} from './parsers-common';
 
 export class DOMEventListParser implements EventListParser {
   constructor(private readonly htmlParser: HtmlParser) {
@@ -54,7 +54,7 @@ function parseEvent(tr: HTMLTableRowElement): FlightEvent {
   tooltipHolder.innerHTML = tooltipHolder.getAttribute('title')!;
   let fleet: FleetPartial, cargo: Resources | undefined;
   [fleet, cargo] = parseFleetInfo(tooltipHolder);
-  if (cargo.metal === 0 && cargo.crystal === 0 && cargo.deut === 0) cargo = void 0;
+  if (cargo.metal === 0 && cargo.crystal === 0 && cargo.deuterium === 0) cargo = void 0;
 
   let result: FlightEvent = {
     id,

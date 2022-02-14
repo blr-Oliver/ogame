@@ -1,14 +1,14 @@
 import {FlightCalculator} from '../core/FlightCalculator';
-import {GameContext} from '../core/GameContext';
-import {Mapper} from '../report-types';
+import {AbstractGameContext} from '../core/GameContext';
 import {Coordinates, MissionType} from '../types';
+import {Mapper} from './Mapper';
 
 export class Scanner {
   targets: Coordinates[] = [];
   maxSlots: number = 11;
   usedSlots: number = 0;
 
-  constructor(private context: GameContext,
+  constructor(private context: AbstractGameContext,
               private mapper: Mapper) {
   }
 

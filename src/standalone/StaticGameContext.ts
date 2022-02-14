@@ -1,4 +1,4 @@
-import {GameContext} from '../common/core/GameContext';
+import {AbstractGameContext} from '../common/core/GameContext';
 import {Researches, SpaceBody} from '../common/types';
 
 const CURRENT_RESEARCHES: Researches = {
@@ -75,7 +75,7 @@ const PLANETS: SpaceBody[] = [
   }
 ];
 
-export class StaticGameContext extends GameContext {
+export class StaticGameContext extends AbstractGameContext {
   constructor() {
     super(7, 499);
   }

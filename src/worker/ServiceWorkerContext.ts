@@ -1,8 +1,8 @@
-import {JSONGalaxyParser} from '../browser/parsers/galaxy-report-extractor';
+import {JSONGalaxyParser} from '../browser/parsers/json/galaxy-report-json';
 import {getCurrentClientId} from '../common/client-id';
 import {cacheAsyncResult} from '../common/core/cached-async';
 import {Fetcher} from '../common/core/Fetcher';
-import {GameContext} from '../common/core/GameContext';
+import {AbstractGameContext} from '../common/core/GameContext';
 import {LocationServerContext} from '../common/core/LocationServerContext';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
@@ -28,7 +28,7 @@ export class ServiceWorkerContext {
       readonly idSupplier: AsyncSupplier<string>,
       readonly fetcher: Fetcher,
       readonly serverContext: ServerContext,
-      readonly gameContext: GameContext,
+      readonly gameContext: AbstractGameContext,
       readonly galaxyRepositorySupport: IDBRepositorySupport<IDBGalaxyRepository>,
       readonly espionageRepositorySupport: IDBRepositorySupport<IDBEspionageRepository>,
       readonly repositoryProvider: IDBRepositoryProvider,
