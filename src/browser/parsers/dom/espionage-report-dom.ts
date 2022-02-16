@@ -1,7 +1,7 @@
 import {map} from '../../../common/common';
 import {EspionageReportParser} from '../../../common/parsers';
 import {PlayerStatusInfo, StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
-import {translateEntries} from '../../../common/translate';
+import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from '../../../common/types';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {HtmlParser} from './HtmlParser';
 
@@ -29,7 +29,8 @@ export function parseReport(doc: ParentNode): StampedEspionageReport | undefined
   let [planetName, galaxy, system, position] = /^(.+)\s\[(\d):(\d{1,3}):(\d{1,2})]$/.exec(msgTitle)!.slice(1);
   let type = doc.querySelector('.msg_title .planetIcon')!.matches('.moon') ? 3 : 1;
 
-  let [nameBlock, activityBlock] = doc.querySelectorAll('.detail_msg_ctn .detail_txt');
+  let [nameBlock, classBlock, allianceClassBlock, activityBlock] = doc.querySelectorAll('.detail_msg_ctn .detail_txt');
+  // TODO include class info in report
   let [playerName, playerStatus] = map(nameBlock.children[0].children, (el: Element) => el.textContent!.trim());
 
   let planetActivityBlock = activityBlock.querySelector('div');
@@ -42,11 +43,13 @@ export function parseReport(doc: ParentNode): StampedEspionageReport | undefined
   let counterEspionage = parseOnlyNumbers(activityBlock.textContent!);
   let resourceBlock = doc.querySelector('.detail_msg_ctn ul[data-type="resources"]');
 
-  let [metal, crystal, deuterium, energy] = map(resourceBlock!.querySelectorAll('.res_value'),
-      (el: Element) => parseOnlyNumbers(el.textContent!));
+  let [metal, crystal, deuterium, energy] = map(resourceBlock!.querySelectorAll('.resource_list_el'),
+      (el: Element) => parseOnlyNumbers(el.getAttribute('title')!));
 
-  let [fleetInfo, defenseInfo, buildingInfo, researchInfo] = ['ships', 'defense', 'buildings', 'research']
-      .map(section => parseInfoSection(doc.querySelector(`.detail_list[data-type="${section}"]`)!));
+  let fleetInfo = parseInfoSection(doc.querySelector(`.detail_list[data-type="ships"]`)!, 'tech', ShipTypeId);
+  let defenseInfo = parseInfoSection(doc.querySelector(`.detail_list[data-type="defense"]`)!, 'defense', DefenseTypeId);
+  let buildingInfo = parseInfoSection(doc.querySelector(`.detail_list[data-type="buildings"]`)!, 'building', BuildingTypeId);
+  let researchInfo = parseInfoSection(doc.querySelector(`.detail_list[data-type="research"]`)!, 'research', ResearchTypeId);
 
   let infoLevel = +!!fleetInfo + +!!defenseInfo + +!!buildingInfo + +!!researchInfo;
   return {
@@ -74,18 +77,21 @@ export function parseReport(doc: ParentNode): StampedEspionageReport | undefined
       deuterium,
       energy
     },
-    fleet: translateEntries('ships', fleetInfo),
-    defense: translateEntries('defense', defenseInfo),
-    buildings: translateEntries('buildings', buildingInfo),
-    researches: translateEntries('research', researchInfo)
+    fleet: fleetInfo,
+    defense: defenseInfo,
+    buildings: buildingInfo as Buildings,
+    researches: researchInfo as Researches
   };
 }
 
-function parseInfoSection(container: Element): StringNumberMap | undefined {
+function parseInfoSection(container: Element, prefix: string, mapping: { [techId: number]: string }): StringNumberMap | undefined {
   if (!container.querySelector('.detail_list_fail')) {
     let result: StringNumberMap = {};
     container.querySelectorAll('.detail_list_el').forEach(record => {
-      result[record.querySelector('.detail_list_txt')!.textContent!.trim()] = parseOnlyNumbers(record.querySelector('.fright')!.textContent!);
+      let prefixed = record.querySelector('div.float_left>img')!.classList[0].trim();
+      if (!prefixed.startsWith(prefix)) throw new Error(`incorrect section identifier for prefix ${prefix}: ${prefixed}`);
+      const key = mapping[+prefixed.substring(prefix.length)];
+      result[key] = parseOnlyNumbers(record.querySelector('.fright')!.textContent!);
     });
     return result;
   }
