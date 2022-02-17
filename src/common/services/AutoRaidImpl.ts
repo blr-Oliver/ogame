@@ -2,7 +2,7 @@ import {getNearest, processAll} from '../common';
 import {Calculator} from '../core/Calculator';
 import {FlightCalculator} from '../core/FlightCalculator';
 import {PlayerContext} from '../core/PlayerContext';
-import {FlightEvent, GalaxySystemInfo, ShardedEspionageReport} from '../report-types';
+import {FlightEvent, ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
 import {Coordinates, MissionType, Researches, sameCoordinates, SpaceBody} from '../types';
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
@@ -31,41 +31,34 @@ export class AutoRaidImpl {
               private galaxyRepo: GalaxyRepository) {
   }
 
-  continue() {
+  async continue(): Promise<void> {
     if (this.state.maxSlots <= 0) return;
-    (this.state.harvestEspionage ? this.checkSpyReports() : Promise.resolve(null)).then(() => {
-      (this.data.length ? Promise.resolve(this.data) : this.reloadData())
-          .then(reports => {
-            this.data = reports as ProcessedReport[];
-            return this.performNextLaunches();
-          });
-    })
+    if (this.state.harvestEspionage)
+      await this.checkSpyReports();
+    if (!this.data.length)
+      this.data = await this.reloadData() as ProcessedReport[];
+    return this.performNextLaunches();
   }
 
-  private checkSpyReports(): Promise<void> {
+  private async checkSpyReports(): Promise<void> {
     this.state.status = 'reading reports';
-    return this.espionageReportScrapper.loadAllReports().then((allReports) => {
-      this.state.harvestEspionage = false;
-      if (allReports.length)
-        this.data = [];
-    });
+    let allReports = await this.espionageReportScrapper.loadAllReports();
+    this.state.harvestEspionage = false;
+    if (allReports.length)
+      this.data = [];
   }
 
-  private reloadData(): Promise<ShardedEspionageReport[]> {
+  private async reloadData(): Promise<ShardedEspionageReport[]> {
     this.state.status = 'checking galaxy info';
-    return this.galaxyRepo
-        .findStaleSystemsWithTargets(3600 * 2) //TODO expose this setting somewhere
-        .then(systems => {
-          if (!systems.length)
-            return [] as GalaxySystemInfo[];
-          this.state.status = 'refreshing galaxy info';
-          return this.galaxyObserver.observeAll(systems, true, true);
-        })
-        .then((/*freshGalaxies*/) => {
-          this.state.status = 'fetching existing reports';
-          return this.galaxyRepo.findInactiveTargets()
-              .then(targets => processAll(targets, c => this.espionageRepo.loadC(c)))
-        });
+    let staleSystems = await this.galaxyRepo.findStaleSystemsWithTargets(3600 * 2) //TODO expose this setting somewhere
+    if (staleSystems.length) {
+      this.state.status = 'refreshing galaxy info';
+      await this.galaxyObserver.observeAll(staleSystems, true, true);
+    }
+    this.state.status = 'picking inactive targets';
+    let targets = await this.galaxyRepo.findInactiveTargets();
+    this.state.status = 'fetching existing reports';
+    return processAll(targets, c => this.espionageRepo.loadC(c));
   }
 
   private async performNextLaunches() {
@@ -82,102 +75,99 @@ export class AutoRaidImpl {
     );
 
     this.state.status = 'fetching events';
-    this.mapper.loadEvents().then(events => {
-      this.state.status = 'checking raids in progress';
-      return this.findRaidEvents(events);
-    }).then(raidEvents => {
-      this.state.activeSlots = raidEvents.length;
-      this.excludeActiveTargets(raidEvents); // TODO make possible to repeat on same target
-      let missionsToGo = this.state.maxSlots - raidEvents.length;
+    let events = await this.mapper.loadEvents();
+    this.state.status = 'checking raids in progress';
+    let raidEvents = await this.findRaidEvents(events);
+    this.state.activeSlots = raidEvents.length;
+    this.excludeActiveTargets(raidEvents); // TODO make possible to repeat on same target
+    let missionsToGo = this.state.maxSlots - raidEvents.length;
 
-      let targetsToSpy = [], targetsToLaunch = [];
+    let targetsToSpy: ProcessedReport[] = [], targetsToLaunch: ProcessedReport[] = [];
+    this.pickTargets(missionsToGo, targetsToSpy, targetsToLaunch);
 
-      this.state.status = 'picking targets';
-      for (let i = 0; i < this.data.length && missionsToGo > 0; ++i) {
-        let report = this.data[i], meta = report.meta, to = report.coordinates;
-        if (meta.excluded) continue;
-        if (report.infoLevel >= 4 && meta.requiredTransports! < this.state.minRaid) continue;
-        if (report.infoLevel < 0 /*dummy*/ || meta.old! / meta.flightTime! > 0.5 || meta.old! > 3600) {
-          targetsToSpy.push(report);
-          --missionsToGo;
-          continue;
-        }
-        if (report.playerStatus.toLowerCase().indexOf('i') < 0) // working only with inactive players
-          continue;
-        if (report.infoLevel < 2) {
-          console.log(`insufficient report detail [${to.galaxy}:${to.system}:${to.position}]`);
-          continue;
-        }
-        let hasFleet = this.sumValues(report.fleet) > 0,
-            hasDefense = this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0;
-        if (hasFleet || hasDefense) {
-          // maybe win by numbers?
-          let ships = meta.requiredTransports!;
-          let weakFleet = !hasFleet
-              || this.sumValues(report.fleet, 'espionageProbe', 'solarSatellite') === 0 &&
-              report.fleet!.espionageProbe + report.fleet!.solarSatellite <= ships;
-          let weakDefense = !hasDefense ||
-              this.sumValues(report.defense, 'rocketLauncher', 'antiBallistic', 'interplanetary') === 0
-              && report.defense!.rocketLauncher * 15 <= ships;
-          if (!weakFleet || !weakDefense) {
-            console.log(`target not clean [${to.galaxy}:${to.system}:${to.position}]`);
-            continue;
-          } else
-            console.log(`unsafe raiding to [${to.galaxy}:${to.system}:${to.position}]`);
-        }
-        targetsToLaunch.push(report);
-        --missionsToGo;
-      }
+    let spyTime = Infinity, raidTime = Infinity;
+    if (targetsToSpy.length) {
+      this.state.harvestEspionage = true;
+      // pick longest espionage mission one-way flight
+      spyTime = Math.max(0, ...targetsToSpy.map(target =>
+          FlightCalculator.flightTime(target.meta.distance!, FlightCalculator.fleetSpeed({espionageProbe: 1}, researches))));
+    }
 
-      let spyTime = Infinity, raidTime = Infinity;
-      if (targetsToSpy.length) {
-        this.state.harvestEspionage = true;
-        spyTime = 0;
-        // pick longest espionage mission one-way flight
-        targetsToSpy.forEach(target => {
-          let time = FlightCalculator.flightTime(target.meta.distance!, FlightCalculator.fleetSpeed({espionageProbe: 1}, researches));
-          spyTime = Math.max(spyTime, time);
+    if (targetsToLaunch.length) {
+      // pick shortest raid mission two-way flight
+      raidTime = Math.min(...targetsToLaunch.map(target => target.meta.flightTime! * 2));
+    }
+
+    if (targetsToSpy.length) {
+      this.state.status = 'sending probes';
+      await processAll(targetsToSpy, async target => {
+        await this.mapper.launch({
+          from: target.meta.nearestPlanetId,
+          to: target.coordinates,
+          fleet: {espionageProbe: 1},
+          mission: MissionType.Espionage
         });
+        ++this.state.activeSlots;
+      }, true);
+    }
+
+    if (targetsToLaunch.length) {
+      this.state.status = 'sending raids';
+      await processAll(targetsToLaunch, async target => {
+        await this.mapper.launch({
+          from: target.meta.nearestPlanetId,
+          to: target.coordinates,
+          fleet: {smallCargo: target.meta.requiredTransports},
+          mission: MissionType.Attack
+        });
+        ++this.state.activeSlots;
+      }, true);
+    }
+
+    let currentDelay = raidEvents.length ? (raidEvents[0].time.getTime() - Date.now()) : Infinity;
+    let delay = 1000 * (Math.min(spyTime, raidTime, currentDelay / 1000, 3600) + 5);
+    this.state.nextResume = new Date(Date.now() + delay);
+    this.state.status = 'idle';
+    setTimeout(() => this.continue(), delay);
+  }
+
+  private pickTargets(nMissions: number, targetsToSpy: ProcessedReport[], targetsToLaunch: ProcessedReport[]) {
+    this.state.status = 'picking targets';
+    for (let i = 0; i < this.data.length && nMissions > 0; ++i) {
+      let report = this.data[i], meta = report.meta, to = report.coordinates;
+      if (meta.excluded) continue;
+      if (report.infoLevel >= 4 && meta.requiredTransports! < this.state.minRaid) continue;
+      if (report.infoLevel < 0 /*dummy*/ || meta.old! / meta.flightTime! > 0.5 || meta.old! > 3600) {
+        targetsToSpy.push(report);
+        --nMissions;
+        continue;
       }
-      if (targetsToLaunch.length) {
-        // pick shortest raid mission two-way flight
-        raidTime = Math.min(...targetsToLaunch.map(target => target.meta.flightTime! * 2));
+      if (report.playerStatus.toLowerCase().indexOf('i') < 0) // working only with inactive players
+        continue;
+      if (report.infoLevel < 2) {
+        console.log(`insufficient report detail [${to.galaxy}:${to.system}:${to.position}]`);
+        continue;
       }
-
-      let spies = targetsToSpy.reduce((chain, target) => chain.then(() => this.mapper.launch({
-        from: target.meta.nearestPlanetId,
-        to: target.coordinates,
-        fleet: {espionageProbe: 1},
-        mission: MissionType.Espionage
-      }).then(() => {
-            ++this.state.activeSlots
-          }
-      )), Promise.resolve(null).then(() => {
-        if (targetsToSpy.length)
-          this.state.status = 'sending probes';
-      }));
-
-      let raids = targetsToLaunch.reduce((chain, target) => chain.then(() => this.mapper.launch({
-        from: target.meta.nearestPlanetId,
-        to: target.coordinates,
-        fleet: {smallCargo: target.meta.requiredTransports},
-        mission: MissionType.Attack
-      }).then(() => {
-            ++this.state.activeSlots
-          }
-      )), spies.then(() => {
-        if (targetsToLaunch.length)
-          this.state.status = 'sending raids';
-      }));
-
-      raids.then(() => {
-        let currentDelay = raidEvents.length ? (raidEvents[0].time.getTime() - Date.now()) : Infinity;
-        let delay = 1000 * (Math.min(spyTime, raidTime, currentDelay / 1000, 3600) + 5);
-        this.state.nextResume = new Date(Date.now() + delay);
-        this.state.status = 'idle';
-        setTimeout(() => this.continue(), delay);
-      })
-    });
+      let hasFleet = this.sumValues(report.fleet) > 0,
+          hasDefense = this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0;
+      if (hasFleet || hasDefense) {
+        // maybe win by numbers?
+        let ships = meta.requiredTransports!;
+        let weakFleet = !hasFleet
+            || this.sumValues(report.fleet, 'espionageProbe', 'solarSatellite') === 0 &&
+            report.fleet!.espionageProbe + report.fleet!.solarSatellite <= ships;
+        let weakDefense = !hasDefense ||
+            this.sumValues(report.defense, 'rocketLauncher', 'antiBallistic', 'interplanetary') === 0
+            && report.defense!.rocketLauncher * 15 <= ships;
+        if (!weakFleet || !weakDefense) {
+          console.log(`target not clean [${to.galaxy}:${to.system}:${to.position}]`);
+          continue;
+        } else
+          console.log(`unsafe raiding to [${to.galaxy}:${to.system}:${to.position}]`);
+      }
+      targetsToLaunch.push(report);
+      --nMissions;
+    }
   }
 
   private excludeActiveTargets(raidEvents: FlightEvent[]) {
