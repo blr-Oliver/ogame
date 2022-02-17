@@ -1,16 +1,16 @@
-import {processAll} from '../common';
+import {getNearest, processAll} from '../common';
 import {Calculator} from '../core/Calculator';
 import {FlightCalculator} from '../core/FlightCalculator';
-import {AbstractGameContext} from '../core/GameContext';
+import {PlayerContext} from '../core/PlayerContext';
 import {FlightEvent, GalaxySystemInfo, ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
-import {Coordinates, MissionType, sameCoordinates} from '../types';
+import {Coordinates, MissionType, Researches, sameCoordinates, SpaceBody} from '../types';
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
 import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {GalaxyObserver} from './GalaxyObserver';
 import {Mapper} from './Mapper';
 
-export class AutoRaid {
+export class AutoRaidImpl {
   state: any = {
     status: 'idle',
     nextResume: null,
@@ -23,7 +23,7 @@ export class AutoRaid {
 
   private data: ProcessedReport[] = [];
 
-  constructor(private context: AbstractGameContext,
+  constructor(private context: PlayerContext,
               private mapper: Mapper,
               private espionageReportScrapper: EspionageReportScrapper,
               private galaxyObserver: GalaxyObserver,
@@ -37,7 +37,7 @@ export class AutoRaid {
       (this.data.length ? Promise.resolve(this.data) : this.reloadData())
           .then(reports => {
             this.data = reports as ProcessedReport[];
-            this.performNextLaunches();
+            return this.performNextLaunches();
           });
     })
   }
@@ -68,11 +68,12 @@ export class AutoRaid {
         });
   }
 
-  private performNextLaunches() {
-    const researches = this.context.getResearches();
+  private async performNextLaunches() {
+    const researches = await this.context.getResearches();
+    const bodies = await this.context.getBodies();
     this.state.status = 'rating reports';
 
-    this.data.forEach(report => this.processReport(report));
+    this.data.forEach(report => this.processReport(report, researches, bodies));
 
     this.data.sort((a, b) =>
         +(b.infoLevel < 0) - +(a.infoLevel < 0) || /*dummies first*/
@@ -208,10 +209,9 @@ export class AutoRaid {
   }
 
   // TODO this seems not necessary to return anything
-  private processReport(report: ShardedEspionageReport | ProcessedReport): ProcessedReport {
+  private processReport(report: ShardedEspionageReport | ProcessedReport, researches: Researches, bodies: SpaceBody[]): ProcessedReport {
     const to: Coordinates = report.coordinates;
-    const nearestBody = this.context.getNearestBody(to);
-    const researches = this.context.getResearches();
+    const nearestBody = getNearest(bodies, to);
     if (!report) {
       let dummy = {infoLevel: -1, coordinates: to, meta: {}} as ProcessedReport, meta = dummy.meta;
       meta.nearestPlanetId = nearestBody.id;

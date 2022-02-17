@@ -1,28 +1,34 @@
+import {getNearest} from '../common';
 import {FlightCalculator} from '../core/FlightCalculator';
-import {AbstractGameContext} from '../core/GameContext';
-import {Coordinates, MissionType} from '../types';
-import {Mapper} from './Mapper';
+import {PlayerContext} from '../core/PlayerContext';
+import {Coordinates, MissionType, Researches, SpaceBody} from '../types';
+import {Launcher} from './Mapper';
 
 export class Scanner {
   targets: Coordinates[] = [];
   maxSlots: number = 11;
   usedSlots: number = 0;
 
-  constructor(private context: AbstractGameContext,
-              private mapper: Mapper) {
+  constructor(private context: PlayerContext,
+              private launcher: Launcher) {
   }
 
-  launchNext() {
+  continueScanning() {
+    Promise.all([this.context.getResearches(), this.context.getBodies()])
+        .then(([researches, bodies]) => this.launchNext(researches, bodies));
+  }
+
+  private launchNext(researches: Researches, bodies: SpaceBody[]) {
     if (this.targets.length && this.usedSlots < this.maxSlots) {
       let target = this.targets.pop()!;
-      let nearestBody = this.context.getNearestBody(target);
+      let nearestBody = getNearest(bodies, target);
       let nearestPlanetId = nearestBody.id;
       let flightTime = FlightCalculator.flightTime(
           FlightCalculator.distanceC(target, nearestBody.coordinates),
-          FlightCalculator.fleetSpeed({espionageProbe: 1}, this.context.getResearches())
+          FlightCalculator.fleetSpeed({espionageProbe: 1}, researches)
       );
       ++this.usedSlots;
-      this.mapper.launch({
+      this.launcher.launch({
         from: nearestPlanetId,
         to: target,
         fleet: {espionageProbe: 1},
@@ -30,9 +36,9 @@ export class Scanner {
       }).then(() => {
         setTimeout(() => {
           --this.usedSlots;
-          this.launchNext();
+          this.launchNext(researches, bodies);
         }, (flightTime * 2 + 5) * 1000);
-        this.launchNext();
+        this.launchNext(researches, bodies);
       });
     }
   }

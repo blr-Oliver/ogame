@@ -1,5 +1,5 @@
 import {deduplicate, systemCoordinatesKey} from '../common';
-import {AbstractGameContext} from '../core/GameContext';
+import {UniverseContext} from '../core/UniverseContext';
 import {AsyncSupplier} from '../functional';
 import {GalaxyRepository} from '../repository-types';
 import {SystemCoordinates} from '../types';
@@ -60,7 +60,7 @@ export class StatefulAutoObserve implements AutoObserve {
 
   constructor(private readonly observer: GalaxyObserver,
               private readonly repo: AsyncSupplier<GalaxyRepository>,
-              private readonly gameContext: AbstractGameContext,
+              private readonly context: AsyncSupplier<UniverseContext>,
               settings?: Partial<AutoObserveSettings>) {
     this.settings = new ReactiveAutoObserveSettings(Object.assign({
       delay: DEFAULT_DELAY,
@@ -131,9 +131,9 @@ export class StatefulAutoObserve implements AutoObserve {
   private buildQueue() {
     if (this._status === 'paused') return;
     if (!this._queue.length && !this.processingDict.size) {
-      this.repo()
-          .then(repo => Promise.all([
-            repo.findAllMissing(this.gameContext.maxGalaxy, this.gameContext.maxSystem),
+      Promise.all([this.context(), this.repo()])
+          .then(([context, repo]) => Promise.all([
+            repo.findAllMissing(context.maxGalaxy, context.maxSystem),
             repo.findAllStale(this.settings.timeout, this.settings.emptyTimeout)
           ]))
           .then(([missing, stale]) => {

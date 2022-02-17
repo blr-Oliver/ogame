@@ -1,4 +1,5 @@
-import {SystemCoordinates} from './types';
+import {FlightCalculator} from './core/FlightCalculator';
+import {Coordinates, SpaceBody, SystemCoordinates} from './types';
 
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =
     Function.prototype.call.bind(Array.prototype.map);
@@ -40,4 +41,16 @@ export function systemCoordinatesKey(c: SystemCoordinates): string {
 }
 export function compareCoordinatesKeys(a: SystemCoordinates, b: SystemCoordinates): number {
   return a[0] - b[0] || a[1] - b[1];
+}
+
+export function getNearest(bodies: SpaceBody[], coordinates: Coordinates) {
+  let nearestDistance = Infinity, nearestBody: SpaceBody = bodies[0];
+  for (let body of bodies) {
+    let distance = FlightCalculator.distanceC(coordinates, body.coordinates);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestBody = body;
+    }
+  }
+  return nearestBody;
 }

@@ -1,10 +1,10 @@
-import {processAll} from '../common';
+import {getNearest, processAll} from '../common';
 import {Calculator} from '../core/Calculator';
 import {FlightCalculator} from '../core/FlightCalculator';
-import {AbstractGameContext} from '../core/GameContext';
+import {PlayerContext} from '../core/PlayerContext';
 import {ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
-import {Coordinates, MissionType} from '../types';
+import {Coordinates, MissionType, Researches, SpaceBody} from '../types';
 import {Mapper} from './Mapper';
 
 export interface ReportMetaInfo {
@@ -32,38 +32,37 @@ export class Analyzer {
   reports: ProcessedReport[] = [];
   excludedTargets: Coordinates[] = [];
 
-  constructor(private context: AbstractGameContext,
+  constructor(private context: PlayerContext,
               private mapper: Mapper,
               private espionageRepo: EspionageRepository,
               private galaxyRepo: GalaxyRepository) {
   }
 
-  load(): Promise<ProcessedReport[]> {
-    return this.galaxyRepo.findInactiveTargets()
-        .then(targets => processAll(targets, c => this.espionageRepo.loadC(c)))
-        .then(reports => {
-      this.coordinates = reports.map(report => report.coordinates);
-      this.reports = reports
-          .map(report => ({meta: {}, ...report}) as ProcessedReport)
-          .filter(report => {
-            let to = report.coordinates;
-            if (!report.fleet || !report.defense) {
-              console.log(`insufficient report details for [${to.galaxy}:${to.system}:${to.position}]`);
-              return false;
-            }
-            if (this.sumValues(report.fleet) > 0 || this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0) {
-              console.log(`target is not clean [${to.galaxy}:${to.system}:${to.position}]`);
-              return false;
-            }
-            if (this.excludedTargets.some(c => c.galaxy === to.galaxy && c.system === to.system && c.position === to.position)) {
-              console.debug(`target is explicitly excluded [${to.galaxy}:${to.system}:${to.position}]`);
-              return false;
-            }
-            return true;
-          });
-      this.rate();
-      return this.reports;
-    });
+  async load(): Promise<ProcessedReport[]> {
+    let targets = await this.galaxyRepo.findInactiveTargets();
+    let reports = await processAll(targets, c => this.espionageRepo.loadC(c));
+    this.coordinates = reports.map(report => report.coordinates);
+    this.reports = reports
+        .map(report => ({meta: {}, ...report}) as ProcessedReport)
+        .filter(report => {
+          let to = report.coordinates;
+          if (!report.fleet || !report.defense) {
+            console.log(`insufficient report details for [${to.galaxy}:${to.system}:${to.position}]`);
+            return false;
+          }
+          if (this.sumValues(report.fleet) > 0 || this.sumValues(report.defense, 'antiBallistic', 'interplanetary') > 0) {
+            console.log(`target is not clean [${to.galaxy}:${to.system}:${to.position}]`);
+            return false;
+          }
+          if (this.excludedTargets.some(c => c.galaxy === to.galaxy && c.system === to.system && c.position === to.position)) {
+            console.debug(`target is explicitly excluded [${to.galaxy}:${to.system}:${to.position}]`);
+            return false;
+          }
+          return true;
+        });
+    const [bodies, researches] = await Promise.all([this.context.getBodies(), this.context.getResearches()]);
+    this.rate(bodies, researches);
+    return this.reports;
   }
 
   private sumValues(obj: any, ...skipFields: string[]): number {
@@ -73,70 +72,62 @@ export class Analyzer {
     }, 0)
   }
 
-  rate() {
-    this.computeFlight();
+  rate(bodies: SpaceBody[], researches: Researches) {
+    this.computeFlight(bodies, researches);
     this.computeProductionAndCapacity();
-    this.computePlunder();
+    this.computePlunder(researches);
     this.computeRatingAndSort();
   }
+  /**
+   * @deprecated should not be used directly
+   */
+  async scan(top: number, threshold: number = 20) {
+    const [bodies, researches] = await Promise.all([this.context.getBodies(), this.context.getResearches()]);
 
-  scan(top: number, threshold: number = 20) {
-    this.rate();
-
+    this.rate(bodies, researches);
     let targetsToScan: ProcessedReport[] = [];
     let count = Math.min(top, this.reports.length);
     for (let i = 0; i < count; ++i) {
       if (this.reports[i].meta.minutesStale! > threshold)
         targetsToScan.push(this.reports[i]);
     }
-
-    targetsToScan.reduce((chain, report) => chain.then(() =>
-        this.mapper.launch({
-          from: report.meta.nearestPlanetId,
-          to: report.coordinates,
-          fleet: {espionageProbe: 1},
-          mission: MissionType.Espionage
-        })
-    ), Promise.resolve(0));
+    // not waiting for all launches
+    processAll(targetsToScan, report => this.mapper.launch({
+      from: report.meta.nearestPlanetId,
+      to: report.coordinates,
+      fleet: {espionageProbe: 1},
+      mission: MissionType.Espionage
+    }));
 
     return targetsToScan.length;
   }
 
-  launch(top: number) {
+  /**
+   * @deprecated should not be used directly
+   */
+  async launch(top: number) {
     let targetsToLaunch = this.reports.slice(0, top);
 
-    return targetsToLaunch.reduce((chain, report) => chain.then(() => {
-          // galaxy may say the target is inactive but fresh report might cancel that
-          if (report.playerStatus.toLowerCase().indexOf('i') < 0) {
-            let to = report.coordinates;
-            console.log(`target is not inactive [${to.galaxy}:${to.system}:${to.position}]`);
-            return 0;
-          }
-          return this.mapper.launch({
-            from: report.meta.nearestPlanetId,
-            to: report.coordinates,
-            fleet: {smallCargo: report.meta.requiredTransports},
-            mission: MissionType.Attack
-          });
-        }
-    ), Promise.resolve(0));
+    return processAll(targetsToLaunch, report => {
+      if (report.playerStatus.toLowerCase().indexOf('i') < 0) {
+        let to = report.coordinates;
+        console.log(`target is not inactive [${to.galaxy}:${to.system}:${to.position}]`);
+      }
+      return this.mapper.launch({
+        from: report.meta.nearestPlanetId,
+        to: report.coordinates,
+        fleet: {smallCargo: report.meta.requiredTransports},
+        mission: MissionType.Attack
+      });
+    })
   }
 
-  private determineCoordinates(): Promise<Coordinates[]> {
-    return this.galaxyRepo.findInactiveTargets();
-  }
-
-  private loadReports(): Promise<ShardedEspionageReport[]> {
-    return Promise.all(this.coordinates.map(coordinates => this.espionageRepo.loadC(coordinates)))
-        .then(reports => reports.filter(x => !!x) as ShardedEspionageReport[]);
-  }
-
-  private computeFlight() {
+  private computeFlight(bodies: SpaceBody[], researches: Researches) {
     this.reports.forEach(report => {
-      let nearestBody = this.context.getNearestBody(report.coordinates);
+      let nearestBody = getNearest(bodies, report.coordinates);
       let nearestDistance = report.meta.distance = FlightCalculator.distanceC(report.coordinates, nearestBody.coordinates);
       report.meta.nearestPlanetId = nearestBody.id;
-      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, this.context.getResearches()));
+      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, researches));
     });
   }
 
@@ -167,9 +158,8 @@ export class Analyzer {
     });
   }
 
-  private computePlunder() {
+  private computePlunder(researches: Researches) {
     const now = Date.now();
-    const researches = this.context.getResearches();
     const transportCapacity = 7000; // TODO consider hyperspace technology
     this.reports.forEach(report => {
       let time = (now - report.source[0].timestamp.getTime() + report.meta.flightTime! * 1000) / 1000 / 3600;

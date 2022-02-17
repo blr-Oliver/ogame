@@ -2,11 +2,11 @@ import {JSONGalaxyParser} from '../browser/parsers/json/galaxy-report-json';
 import {getCurrentClientId} from '../common/client-id';
 import {cacheAsyncResult} from '../common/core/cached-async';
 import {Fetcher} from '../common/core/Fetcher';
-import {AbstractGameContext} from '../common/core/GameContext';
 import {LocationServerContext} from '../common/core/LocationServerContext';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {ServerContext} from '../common/core/ServerContext';
+import {UniverseContext} from '../common/core/UniverseContext';
 import {AsyncSupplier} from '../common/functional';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
 import {IDBRepositorySupport} from '../common/idb/IDBRepositorySupport';
@@ -17,18 +17,18 @@ import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRe
 import {GalaxyParser} from '../common/parsers';
 import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
 import {AutoObserve} from '../common/services/AutoObserve';
+import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {ClientManager} from './ClientManager';
 import {GalaxyRequestMonitor} from './GalaxyRequestMonitor';
-import {NavigatorGameContext} from './NavigatorGameContext';
 
 export class ServiceWorkerContext {
   private constructor(
       readonly idSupplier: AsyncSupplier<string>,
       readonly fetcher: Fetcher,
       readonly serverContext: ServerContext,
-      readonly gameContext: AbstractGameContext,
+      readonly universeContext: AsyncSupplier<UniverseContext>,
       readonly galaxyRepositorySupport: IDBRepositorySupport<IDBGalaxyRepository>,
       readonly espionageRepositorySupport: IDBRepositorySupport<IDBEspionageRepository>,
       readonly repositoryProvider: IDBRepositoryProvider,
@@ -49,7 +49,7 @@ export class ServiceWorkerContext {
     const idSupplier = cacheAsyncResult(() => getCurrentClientId(locks));
     const fetcher = new RestrainedFetcher(new NativeFetcher());
     const serverContext = new LocationServerContext(self.location);
-    const gameContext = new NavigatorGameContext();
+    const universeContext = cacheAsyncResult(() => NoDOMUniverseContext.acquire(fetcher, serverContext));
     const galaxyRepositorySupport = new IDBGalaxyRepositorySupport();
     const espionageRepositorySupport = new IDBEspionageRepositorySupport();
     const repositoryProvider = new IDBRepositoryProvider(self.indexedDB, 'ogame', {
@@ -61,7 +61,7 @@ export class ServiceWorkerContext {
     const galaxyParser = new JSONGalaxyParser();
     const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyParser, fetcher, serverContext);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyParser);
-    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, gameContext, {
+    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universeContext, {
       timeout: 3600 * 4,
       emptyTimeout: 3600 * 24,
       delay: 100
@@ -72,7 +72,7 @@ export class ServiceWorkerContext {
         idSupplier,
         fetcher,
         serverContext,
-        gameContext,
+        universeContext,
         galaxyRepositorySupport,
         espionageRepositorySupport,
         repositoryProvider,

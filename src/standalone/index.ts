@@ -11,10 +11,10 @@ import {
   espionageReportScrapper,
   fetcher,
   galaxyRepo,
-  gameContext,
   mapper,
   scanner,
-  serverContext
+  serverContext,
+  universeContext
 } from './init-components';
 
 const app = express();
@@ -78,8 +78,8 @@ app.get('/galaxy', (req, res) => {
     systemParams = [systemParams];
   const settings = autoObserve.settings;
   if (galaxyParams && systemParams) {
-    let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= gameContext.maxGalaxy);
-    let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= gameContext.maxSystem);
+    let galaxy = galaxyParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= universeContext.maxGalaxy);
+    let system = systemParams.map(x => ~~(+x)).filter(x => x >= 1 && x <= universeContext.maxSystem);
     let coords: SystemCoordinates[] = []
     while (galaxy.length && system.length)
       coords.push([galaxy.shift()!, system.shift()!]);
@@ -143,7 +143,7 @@ app.get('/scan', (req, res) => {
     galaxyRepo.findInactiveTargets().then(
         targets => scanner.targets = targets);
   else if ('continue' in req.query) {
-    scanner.launchNext()
+    scanner.continueScanning();
   }
   res.json(scanner);
 });
