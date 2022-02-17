@@ -1,13 +1,22 @@
 import {getCurrentClientId} from '../common/client-id';
+import {cacheAsyncResult} from '../common/core/cached-async';
 import {LocationServerContext} from '../common/core/LocationServerContext';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
+import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
+import {IDBEspionageRepository} from '../common/idb/repositories/IDBEspionageRepository';
+import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
+import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
+import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
 import {AutoObserveStub} from '../common/remote/AutoObserveStub';
 import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
+import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {CoordinateType, Mission, MissionType} from '../common/types';
+import {DOMEspionageReportParser} from './parsers/dom/espionage-report-dom';
+import {NavigatorHtmlParser} from './parsers/dom/HtmlParser';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
 
 if ('serviceWorker' in navigator) {
@@ -34,6 +43,24 @@ if ('serviceWorker' in navigator) {
   const serverContext = new LocationServerContext(window.location);
   const playerContext = new NoDOMPlayerContext(serverContext, fetcher);
   const launcher = new TwoStepLauncher(serverContext, fetcher);
+  const htmlParser = new NavigatorHtmlParser(new DOMParser());
+
+  const galaxyRepositorySupport = new IDBGalaxyRepositorySupport();
+  const espionageRepositorySupport = new IDBEspionageRepositorySupport();
+  const repositoryProvider = new IDBRepositoryProvider(self.indexedDB, 'ogame', {
+    'galaxy': galaxyRepositorySupport,
+    'espionage': espionageRepositorySupport
+  });
+  const galaxyRepoProvider = cacheAsyncResult(() => repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'));
+  const espionageRepoProvider = cacheAsyncResult(() => repositoryProvider.getRepository<IDBEspionageRepository>('espionage'));
+
+  const espionageParser = new DOMEspionageReportParser(htmlParser);
+
+  espionageRepoProvider().then(espionageRepo => {
+    const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
+    (window as any)['espionageScrapper'] = espionageScrapper;
+  });
+  // 9724905
   const mission: Mission = {
     from: 33811468,
     to: {
@@ -51,7 +78,7 @@ if ('serviceWorker' in navigator) {
     return NoDOMUniverseContext.acquire(fetcher, serverContext);
   }
   (window as any)['launcher'] = launcher;
-  (window as any)['mission'] = mission;
+  (window as any)['_mission'] = mission;
   (window as any)['playerContext'] = playerContext;
   (window as any)['getUniverseConfig'] = getUniverseConfig;
 } else {

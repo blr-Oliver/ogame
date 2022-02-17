@@ -24,9 +24,6 @@ export class IDBEspionageRepositorySupport implements IDBRepositorySupport<IDBEs
     let shardsIndex = reportStore.createIndex(IDBEspionageRepository.SHARDS_INDEX,
         ['coordinates.galaxy', 'coordinates.system', 'coordinates.position', 'coordinates.type', 'infoLevel', 'timestamp'],
         {unique: true});
-    let inactiveIndex = reportStore.createIndex(IDBEspionageRepository.INACTIVE_INDEX,
-        ['parsedStatus.vacation', 'parsedStatus.admin', 'parsedStatus.inactive', 'coordinates.galaxy', 'coordinates.system', 'coordinates.position', 'coordinates.type'],
-        {unique: false});
     let externalIdIndex = reportStore.createIndex(IDBEspionageRepository.EXTERNAL_ID_INDEX,
         ['id'],
         {unique: true});

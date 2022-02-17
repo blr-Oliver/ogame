@@ -1,0 +1,21 @@
+query
+----
+page: ajax
+component: missileattacklayer
+action: sendMissiles
+ajax: 1
+asJson: 1
+
+body
+----
+galaxy: 5
+system: 499
+position: 8
+type: 1
+token: 8adcb978178d27f688e26bdcb4074f22
+missileCount: 20
+missilePrimaryTarget: 406
+
+response
+----
+{"status":true,"rockets":0,"errorbox":{"type":"fadeBox","text":"20 missiles have been launched!","failed":0},"components":[],"newAjaxToken":"74e1a39dd8caad537fe2e1ee0ea40af7"}

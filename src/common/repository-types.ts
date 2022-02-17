@@ -5,7 +5,6 @@ export interface EspionageRepository {
   load(galaxy: number, system: number, position: number, type?: CoordinateType): Promise<ShardedEspionageReport | undefined>;
   loadC(coordinates: Coordinates): Promise<ShardedEspionageReport | undefined>;
   store(report: StampedEspionageReport): Promise<any>;
-  findForInactiveTargets(): Promise<ShardedEspionageReport[]>;
   deleteOldReports(): Promise<void>;
 }
 

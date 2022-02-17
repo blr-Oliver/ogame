@@ -1,4 +1,4 @@
-import {PlayerInactivity, ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../report-types';
+import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../report-types';
 import {EspionageRepository} from '../../repository-types';
 import {Coordinates, CoordinateType} from '../../types';
 import {IDBRepository} from '../IDBRepository';
@@ -16,41 +16,20 @@ const {
     keyPath: [coordinates.galaxy, coordinates.system, coordinates.position, coordinates.type, timestamp]
     indexes:
       shards (unique): coordinates.galaxy, coordinates.system, coordinates.position, coordinates.type, infoLevel, timestamp
-      inactive: parsedStatus.vacation, parsedStatus.admin, parsedStatus.inactive, coordinates.galaxy, coordinates.system, coordinates.position, coordinates.type
       external-id (unique): id
 */
 
 export class IDBEspionageRepository extends IDBRepository implements EspionageRepository {
   static readonly REPORT_STORE = 'espionage-report';
   static readonly SHARDS_INDEX = 'shards';
-  static readonly INACTIVE_INDEX = 'inactive';
   static readonly EXTERNAL_ID_INDEX = 'external-id';
 
-  private static readonly INACTIVE_QUERY: IDBKeyRange = IDBKeyRange.bound(
-      [0, 0, PlayerInactivity.Inactive, -Infinity, -Infinity, -Infinity, -Infinity],
-      [0, 0, PlayerInactivity.InactiveLong, Infinity, Infinity, Infinity, Infinity]
-  );
   constructor(db: IDBDatabase) {
     super(db);
   }
 
   deleteOldReports(): Promise<void> {
     return Promise.resolve(undefined); // TODO
-  }
-  findForInactiveTargets(): Promise<ShardedEspionageReport[]> {
-    let tx: IDBTransaction = this.db.transaction([IDBEspionageRepository.REPORT_STORE], 'readonly');
-    return this.withTransaction(tx, tx => {
-      let reportStore = tx.objectStore(IDBEspionageRepository.REPORT_STORE);
-      return getAllFromIndex<StampedEspionageReport>(reportStore, IDBEspionageRepository.INACTIVE_INDEX, IDBEspionageRepository.INACTIVE_QUERY, 'nextunique')
-          .then(candidates => candidates.map(report => report.coordinates))
-          //.then(coordinates => deduplicate(coordinates, coordinateComparator))
-          .then(coordinates => Promise.all(coordinates.map(c => this.loadC(c))))
-          // we could assume if coordinates were initially found, then there is something per each
-          .then(fresh => fresh.filter(report => {
-            let {admin, vacation, inactive} = report!.parsedStatus;
-            return !admin && !vacation && inactive > PlayerInactivity.Active;
-          }) as ShardedEspionageReport[]);
-    });
   }
   load(galaxy: number, system: number, position: number, type: CoordinateType = CoordinateType.Planet): Promise<ShardedEspionageReport | undefined> {
     let tx: IDBTransaction = this.db.transaction([IDBEspionageRepository.REPORT_STORE], 'readonly');

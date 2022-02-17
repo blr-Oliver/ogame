@@ -1,3 +1,4 @@
+import {processAll} from '../common';
 import {Calculator} from '../core/Calculator';
 import {FlightCalculator} from '../core/FlightCalculator';
 import {AbstractGameContext} from '../core/GameContext';
@@ -38,7 +39,9 @@ export class Analyzer {
   }
 
   load(): Promise<ProcessedReport[]> {
-    return this.espionageRepo.findForInactiveTargets().then(reports => {
+    return this.galaxyRepo.findInactiveTargets()
+        .then(targets => processAll(targets, c => this.espionageRepo.loadC(c)))
+        .then(reports => {
       this.coordinates = reports.map(report => report.coordinates);
       this.reports = reports
           .map(report => ({meta: {}, ...report}) as ProcessedReport)

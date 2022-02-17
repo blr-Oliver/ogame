@@ -1,3 +1,4 @@
+import {processAll} from '../common';
 import {Calculator} from '../core/Calculator';
 import {FlightCalculator} from '../core/FlightCalculator';
 import {AbstractGameContext} from '../core/GameContext';
@@ -62,7 +63,8 @@ export class AutoRaid {
         })
         .then((/*freshGalaxies*/) => {
           this.state.status = 'fetching existing reports';
-          return this.espionageRepo.findForInactiveTargets()
+          return this.galaxyRepo.findInactiveTargets()
+              .then(targets => processAll(targets, c => this.espionageRepo.loadC(c)))
         });
   }
 
