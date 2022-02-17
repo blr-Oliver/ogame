@@ -48,7 +48,7 @@ export class AutoRaidImpl {
       this.data = [];
   }
 
-  private async reloadData(): Promise<ShardedEspionageReport[]> {
+  private async reloadData(): Promise<(ShardedEspionageReport | undefined)[]> {
     this.state.status = 'checking galaxy info';
     let staleSystems = await this.galaxyRepo.findStaleSystemsWithTargets(3600 * 2) //TODO expose this setting somewhere
     if (staleSystems.length) {
@@ -58,7 +58,7 @@ export class AutoRaidImpl {
     this.state.status = 'picking inactive targets';
     let targets = await this.galaxyRepo.findInactiveTargets();
     this.state.status = 'fetching existing reports';
-    return processAll(targets, c => this.espionageRepo.loadC(c));
+    return processAll(targets, c => this.espionageRepo.loadC(c), true, false);
   }
 
   private async performNextLaunches() {

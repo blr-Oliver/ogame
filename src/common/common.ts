@@ -13,16 +13,20 @@ export function deduplicate<T>(list: T[], compareFn?: (a: T, b: T) => number): T
   }, [] as T[]);
 }
 
-export function processAll<T, R>(input: T[], action: (item: T) => Promise<R | undefined>, parallel: boolean = false): Promise<R[]> {
-  if (parallel)
-    return Promise.all(input.map(item => action(item)))
-        .then(result => result.filter(x => !!x) as R[]);
-  else
-    return input.reduce((chain: Promise<R[]>, item: T) =>
-            chain
-                .then(list => action(item)
-                    .then(result => (result && list.push(result), list))),
-        Promise.resolve([]) as Promise<R[]>);
+export async function processAll<T, R>(input: T[], action: (item: T) => Promise<R | undefined>, parallel?: boolean, filterEmpty?: true): Promise<R[]>
+export async function processAll<T, R>(input: T[], action: (item: T) => Promise<R | undefined>, parallel: boolean, filterEmpty: boolean): Promise<(R | undefined)[]>
+export async function processAll<T, R>(input: T[], action: (item: T) => Promise<R | undefined>, parallel: boolean = false, filterEmpty: boolean = true): Promise<(R | undefined)[]> {
+  if (parallel) {
+    let results = await Promise.all(input.map(item => action(item)));
+    return filterEmpty ? results.filter(x => !!x) : results;
+  } else {
+    let results: (R | undefined)[] = [];
+    for (let item of input) {
+      let actionResult = await action(item);
+      if (!filterEmpty || !!actionResult) results.push(actionResult);
+    }
+    return results;
+  }
 }
 
 export function waitUntil<T>(primary: Promise<T>, ...others: Promise<any>[]): Promise<T> {
