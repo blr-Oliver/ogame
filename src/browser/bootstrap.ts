@@ -17,6 +17,7 @@ import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {CoordinateType, Mission, MissionType} from '../common/types';
 import {DOMEspionageReportParser} from './parsers/dom/espionage-report-dom';
 import {NavigatorHtmlParser} from './parsers/dom/HtmlParser';
+import {getEventListResponse, parseEventList} from './parsers/no-dom/event-list-no-dom';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
 
 if ('serviceWorker' in navigator) {
@@ -60,6 +61,9 @@ if ('serviceWorker' in navigator) {
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
     (window as any)['espionageScrapper'] = espionageScrapper;
   });
+
+  const getEventList = () => getEventListResponse(fetcher, serverContext)
+      .then(body => parseEventList(body));
   // 9724905
   const mission: Mission = {
     from: 33811468,
@@ -81,6 +85,7 @@ if ('serviceWorker' in navigator) {
   (window as any)['_mission'] = mission;
   (window as any)['playerContext'] = playerContext;
   (window as any)['getUniverseConfig'] = getUniverseConfig;
+  (window as any)['getEventList'] = getEventList;
 } else {
   console.error('Service workers not supported.')
 }
