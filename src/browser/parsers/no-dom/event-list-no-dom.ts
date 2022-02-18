@@ -1,24 +1,13 @@
-import {Fetcher} from '../../../common/core/Fetcher';
-import {ServerContext} from '../../../common/core/ServerContext';
+import {EventListParser} from '../../../common/parsers';
 import {FlightEvent, StringNumberMap} from '../../../common/report-types';
 import {translateEntries} from '../../../common/translate';
 import {CoordinateType, FleetPartial, MissionType, Resources} from '../../../common/types';
 import {parseCoordinates, parseOnlyNumbers, readAttribute, readBetween} from '../parsers-common';
 
-export async function getEventListResponse(fetcher: Fetcher, serverContext: ServerContext): Promise<string> {
-  let response = await fetcher.fetch({
-    url: serverContext.gameUrl,
-    method: 'GET',
-    query: {
-      page: 'componentOnly',
-      component: 'eventList',
-      ajax: 1
-    },
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  });
-  return response.text();
+export class NoDOMEventListParser implements EventListParser {
+  parseEventList(body: string): FlightEvent[] {
+    return parseEventList(body);
+  }
 }
 
 export function parseEventList(body: string): FlightEvent[] {

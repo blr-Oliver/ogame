@@ -2,7 +2,6 @@ import {JSONGalaxyParser} from '../browser/parsers/json/galaxy-report-json';
 import {getCurrentClientId} from '../common/client-id';
 import {cacheAsyncResult} from '../common/core/cached-async';
 import {Fetcher} from '../common/core/Fetcher';
-import {LocationServerContext} from '../common/core/LocationServerContext';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {ServerContext} from '../common/core/ServerContext';
@@ -17,6 +16,7 @@ import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRe
 import {GalaxyParser} from '../common/parsers';
 import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
 import {AutoObserve} from '../common/services/AutoObserve';
+import {LocationServerContext} from '../common/services/context/LocationServerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';

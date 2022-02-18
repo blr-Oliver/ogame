@@ -12,9 +12,16 @@ export class DOMEspionageReportParser implements EspionageReportParser {
   parseReportList(body: string): number[] {
     return parseReportList(this.htmlParser.parse(body));
   }
+  parseReportListForToken(body: string): string {
+    return parseReportListForToken(this.htmlParser.parse(body));
+  }
   parseReport(body: string): StampedEspionageReport | undefined {
     return parseReport(this.htmlParser.parse(body));
   }
+}
+
+export function parseReportListForToken(doc: ParentNode): string {
+  return doc.querySelector('input[type="hidden"]')!.getAttribute('value')!;
 }
 
 export function parseReportList(doc: ParentNode): number[] {

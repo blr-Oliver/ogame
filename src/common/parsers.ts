@@ -8,6 +8,7 @@ export interface GalaxyParser {
 export interface EspionageReportParser {
   parseReport(body: string): StampedEspionageReport | undefined;
   parseReportList(body: string): number[];
+  parseReportListForToken(body: string): string;
 }
 
 export interface EventListParser {

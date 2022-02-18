@@ -8,7 +8,7 @@ import {Coordinates, MissionType, Researches, sameCoordinates, SpaceBody} from '
 import {ProcessedReport, ReportMetaInfo} from './Analyzer';
 import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {GalaxyObserver} from './GalaxyObserver';
-import {Mapper} from './Mapper';
+import {EventListLoader, Launcher} from './Mapper';
 
 export class AutoRaidImpl {
   state: any = {
@@ -24,7 +24,8 @@ export class AutoRaidImpl {
   private data: ProcessedReport[] = [];
 
   constructor(private context: PlayerContext,
-              private mapper: Mapper,
+              private launcher: Launcher,
+              private eventLoader: EventListLoader,
               private espionageReportScrapper: EspionageReportScrapper,
               private galaxyObserver: GalaxyObserver,
               private espionageRepo: EspionageRepository,
@@ -58,7 +59,10 @@ export class AutoRaidImpl {
     this.state.status = 'picking inactive targets';
     let targets = await this.galaxyRepo.findInactiveTargets();
     this.state.status = 'fetching existing reports';
-    return processAll(targets, c => this.espionageRepo.loadC(c), true, false);
+    return processAll(targets, async c => await this.espionageRepo.loadC(c) ?? {
+      infoLevel: -1,
+      coordinates: c
+    } as ShardedEspionageReport, true);
   }
 
   private async performNextLaunches() {
@@ -75,7 +79,7 @@ export class AutoRaidImpl {
     );
 
     this.state.status = 'fetching events';
-    let events = await this.mapper.loadEvents();
+    let events = await this.eventLoader.loadEvents();
     this.state.status = 'checking raids in progress';
     let raidEvents = await this.findRaidEvents(events);
     this.state.activeSlots = raidEvents.length;
@@ -101,7 +105,7 @@ export class AutoRaidImpl {
     if (targetsToSpy.length) {
       this.state.status = 'sending probes';
       await processAll(targetsToSpy, async target => {
-        await this.mapper.launch({
+        await this.launcher.launch({
           from: target.meta.nearestPlanetId,
           to: target.coordinates,
           fleet: {espionageProbe: 1},
@@ -114,7 +118,7 @@ export class AutoRaidImpl {
     if (targetsToLaunch.length) {
       this.state.status = 'sending raids';
       await processAll(targetsToLaunch, async target => {
-        await this.mapper.launch({
+        await this.launcher.launch({
           from: target.meta.nearestPlanetId,
           to: target.coordinates,
           fleet: {smallCargo: target.meta.requiredTransports},
@@ -155,10 +159,10 @@ export class AutoRaidImpl {
         let ships = meta.requiredTransports!;
         let weakFleet = !hasFleet
             || this.sumValues(report.fleet, 'espionageProbe', 'solarSatellite') === 0 &&
-            report.fleet!.espionageProbe + report.fleet!.solarSatellite <= ships;
+            (report.fleet!.espionageProbe || 0) + (report.fleet!.solarSatellite || 0) <= ships;
         let weakDefense = !hasDefense ||
             this.sumValues(report.defense, 'rocketLauncher', 'antiBallistic', 'interplanetary') === 0
-            && report.defense!.rocketLauncher * 15 <= ships;
+            && (report.defense!.rocketLauncher || 0) * 15 <= ships;
         if (!weakFleet || !weakDefense) {
           console.log(`target not clean [${to.galaxy}:${to.system}:${to.position}]`);
           continue;
@@ -202,13 +206,11 @@ export class AutoRaidImpl {
   private processReport(report: ShardedEspionageReport | ProcessedReport, researches: Researches, bodies: SpaceBody[]): ProcessedReport {
     const to: Coordinates = report.coordinates;
     const nearestBody = getNearest(bodies, to);
-    if (!report) {
-      let dummy = {infoLevel: -1, coordinates: to, meta: {}} as ProcessedReport, meta = dummy.meta;
+    if (report.infoLevel === -1) {
+      let dummy = report as ProcessedReport, meta: ReportMetaInfo = dummy.meta = {};
       meta.nearestPlanetId = nearestBody.id;
       meta.distance = FlightCalculator.distanceC(to, nearestBody.coordinates);
       return dummy;
-    } else if (report.infoLevel === -1) {
-      return report as ProcessedReport;
     }
 
     let meta: ReportMetaInfo = {}, now = Date.now(), result = report as ProcessedReport;

@@ -3,6 +3,7 @@ import {parseEventList} from '../browser/parsers/dom/event-list-dom';
 import {Fetcher, ResponseFacade} from '../common/core/Fetcher';
 import {ServerContext} from '../common/core/ServerContext';
 import {FlightEvent} from '../common/report-types';
+import {getEventListResponse} from '../common/services/AjaxEventListLoader';
 import {Mapper} from '../common/services/Mapper';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
 import {dumpFile} from '../standalone/files';
@@ -23,14 +24,7 @@ export class LegacyMapper implements Mapper {
   }
 
   loadEvents(): Promise<FlightEvent[]> {
-    return this.fetcher.fetch({
-      url: this.serverContext.gameUrl,
-      query: {
-        page: 'eventList',
-        ajax: 1
-      }
-    })
-        .then(response => response.text())
+    return getEventListResponse(this.fetcher, this.serverContext)
         .then(body => {
           try {
             return parseEventList(JSDOM.fragment(body));

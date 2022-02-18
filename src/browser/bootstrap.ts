@@ -1,6 +1,5 @@
 import {getCurrentClientId} from '../common/client-id';
 import {cacheAsyncResult} from '../common/core/cached-async';
-import {LocationServerContext} from '../common/core/LocationServerContext';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
@@ -10,14 +9,19 @@ import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepositor
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
 import {AutoObserveStub} from '../common/remote/AutoObserveStub';
+import {AjaxEventListLoader} from '../common/services/AjaxEventListLoader';
+import {AutoRaidImpl} from '../common/services/AutoRaidImpl';
+import {LocationServerContext} from '../common/services/context/LocationServerContext';
 import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
+import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {CoordinateType, Mission, MissionType} from '../common/types';
 import {DOMEspionageReportParser} from './parsers/dom/espionage-report-dom';
 import {NavigatorHtmlParser} from './parsers/dom/HtmlParser';
-import {getEventListResponse, parseEventList} from './parsers/no-dom/event-list-no-dom';
+import {JSONGalaxyParser} from './parsers/json/galaxy-report-json';
+import {NoDOMEventListParser} from './parsers/no-dom/event-list-no-dom';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
 
 if ('serviceWorker' in navigator) {
@@ -54,16 +58,23 @@ if ('serviceWorker' in navigator) {
   });
   const galaxyRepoProvider = cacheAsyncResult(() => repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'));
   const espionageRepoProvider = cacheAsyncResult(() => repositoryProvider.getRepository<IDBEspionageRepository>('espionage'));
-
+  const galaxyParser = new JSONGalaxyParser();
+  const galaxyObserver = new GalaxyObserver(galaxyRepoProvider, galaxyParser, fetcher, serverContext);
   const espionageParser = new DOMEspionageReportParser(htmlParser);
+  const eventListParser = new NoDOMEventListParser();
+  const eventListLoader = new AjaxEventListLoader(fetcher, eventListParser, serverContext);
 
   espionageRepoProvider().then(espionageRepo => {
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
     (window as any)['espionageScrapper'] = espionageScrapper;
+    galaxyRepoProvider().then(galaxyRepo => {
+      const autoRaid = new AutoRaidImpl(playerContext, launcher, eventListLoader, espionageScrapper, galaxyObserver, espionageRepo, galaxyRepo);
+      (window as any)['autoRaid'] = autoRaid;
+      autoRaid.state.maxSlots = 13;
+      //autoRaid.continue();
+    });
   });
 
-  const getEventList = () => getEventListResponse(fetcher, serverContext)
-      .then(body => parseEventList(body));
   // 9724905
   const mission: Mission = {
     from: 33811468,
@@ -85,7 +96,6 @@ if ('serviceWorker' in navigator) {
   (window as any)['_mission'] = mission;
   (window as any)['playerContext'] = playerContext;
   (window as any)['getUniverseConfig'] = getUniverseConfig;
-  (window as any)['getEventList'] = getEventList;
 } else {
   console.error('Service workers not supported.')
 }
