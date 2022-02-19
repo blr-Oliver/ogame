@@ -29,8 +29,37 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
   }
 
   deleteOldReports(): Promise<void> {
-    return Promise.resolve(undefined); // TODO
+    let tx: IDBTransaction = this.db.transaction([IDBEspionageRepository.REPORT_STORE], 'readwrite');
+    return this.withTransaction(tx, tx => new Promise((resolve, reject) => {
+      const reportStore = tx.objectStore(IDBEspionageRepository.REPORT_STORE);
+      const shardsIndex = reportStore.index(IDBEspionageRepository.SHARDS_INDEX);
+      const shardKeyCursorRequest = shardsIndex.openKeyCursor(null, 'prev');
+      let lastInfoLevelKey: number[] = [Infinity, Infinity, Infinity, Infinity, Infinity];
+      shardKeyCursorRequest.onsuccess = () => {
+        const shardKeyCursor = shardKeyCursorRequest.result;
+        if (shardKeyCursor) {
+          let currentKey = shardKeyCursor.key as IDBValidKey[];
+          let currentInfoLevelKey = currentKey.slice(0, 5) as number[];
+          if (this.cmpShardKeys(lastInfoLevelKey, currentInfoLevelKey) !== 0)
+            lastInfoLevelKey = currentInfoLevelKey;
+          else
+            reportStore.delete(shardKeyCursor.primaryKey);
+          shardKeyCursor.continue();
+        } else resolve();
+      };
+      shardKeyCursorRequest.onerror = e => reject(e);
+    }));
   }
+
+  private cmpShardKeys(a: number[], b: number[]): number {
+    const len = Math.min(a.length, b.length);
+    for (let i = 0; i < len; ++i) {
+      let cmp = a[i] - b[i];
+      if (cmp) return cmp;
+    }
+    return a.length - b.length;
+  }
+
   load(galaxy: number, system: number, position: number, type: CoordinateType = CoordinateType.Planet): Promise<ShardedEspionageReport | undefined> {
     let tx: IDBTransaction = this.db.transaction([IDBEspionageRepository.REPORT_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
@@ -41,10 +70,7 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
               // get newest possible reports for each infoLevel
               getFirstFromIndex<StampedEspionageReport>(reportStore, IDBEspionageRepository.SHARDS_INDEX, headMatchKeyRange([...key, infoLevel], 'Date'), 'prev')
           ))
-          .then(shards => (shards
-              .filter(s => !!s) as StampedEspionageReport[]/*undefined excluded*/)
-              // older first
-              .sort((a: StampedEspionageReport, b: StampedEspionageReport) => a.timestamp.getTime() - b.timestamp.getTime()))
+          .then(shards => shards.filter(s => !!s) as StampedEspionageReport[])
           .then(shards => IDBEspionageRepository.combineShards(shards));
     });
   }
@@ -61,6 +87,8 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
   }
   private static combineShards(shards: StampedEspionageReport[]): ShardedEspionageReport | undefined {
     if (!shards.length) return;
+    // older first
+    shards.sort((a: StampedEspionageReport, b: StampedEspionageReport) => a.timestamp.getTime() - b.timestamp.getTime())
     let source: ShardHeader[] = [];
     let result: ShardedEspionageReport = {
       source,
