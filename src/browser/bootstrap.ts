@@ -70,8 +70,8 @@ if ('serviceWorker' in navigator) {
     galaxyRepoProvider().then(galaxyRepo => {
       const autoRaid = new AutoRaidImpl(playerContext, launcher, eventListLoader, espionageScrapper, galaxyObserver, espionageRepo, galaxyRepo);
       (window as any)['autoRaid'] = autoRaid;
-      autoRaid.state.maxSlots = 13;
-      //autoRaid.continue();
+      autoRaid.state.maxSlots = 9;
+      // autoRaid.continue();
     });
   });
 

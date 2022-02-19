@@ -58,3 +58,10 @@ export function getNearest(bodies: SpaceBody[], coordinates: Coordinates) {
   }
   return nearestBody;
 }
+
+export function sleep(delay: number): Promise<number> {
+  const now = Date.now();
+  return new Promise(resolve => {
+    setTimeout(() => resolve(Date.now() - now), delay);
+  });
+}

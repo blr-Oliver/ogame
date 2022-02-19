@@ -116,6 +116,8 @@ export class AutoRaidImpl {
     }
 
     if (targetsToLaunch.length) {
+      console.log(`proposing targets to raid`, targetsToLaunch);
+      /*
       this.state.status = 'sending raids';
       await processAll(targetsToLaunch, async target => {
         await this.launcher.launch({
@@ -126,6 +128,7 @@ export class AutoRaidImpl {
         });
         ++this.state.activeSlots;
       }, true);
+       */
     }
 
     let currentDelay = raidEvents.length ? (raidEvents[0].time.getTime() - Date.now()) : Infinity;
@@ -222,10 +225,10 @@ export class AutoRaidImpl {
     let flightTime = meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, researches));
     //
     if (report.buildings) {
-      let storageLevels: number[] = [report.buildings.metalStorage, report.buildings.crystalStorage, report.buildings.deutStorage];
+      let storageLevels: number[] = [report.buildings.metalStorage || 0, report.buildings.crystalStorage || 0, report.buildings.deutStorage || 0];
       meta.capacity = storageLevels.map(l => Calculator.DEFAULT.getStorageCapacity(l));
 
-      let mineLevels: number[] = [report.buildings.metalMine, report.buildings.crystalMine, report.buildings.deutMine];
+      let mineLevels: number[] = [report.buildings.metalMine || 0, report.buildings.crystalMine || 0, report.buildings.deutMine || 0];
       let unconstrainedProduction = mineLevels.map((l, i) => Calculator.DEFAULT.getProduction(i, l));
       let energyConsumption = mineLevels.map((l, i) => Calculator.DEFAULT.getEnergyConsumption(i, l));
       let requiredEnergy = energyConsumption.reduce((a, b) => a + b);
@@ -233,7 +236,7 @@ export class AutoRaidImpl {
 
       let mineProduction = unconstrainedProduction.map(x => x * efficiency);
       if (report.researches) {
-        let plasmaLevel = report.researches.plasma;
+        let plasmaLevel = report.researches.plasma || 0;
         let bonus = [0.01, 0.0066, 0.0033].map(x => x * plasmaLevel);
         mineProduction = mineProduction.map((x, i) => x + x * bonus[i]);
       }

@@ -1,7 +1,14 @@
+import {sleep} from '../common';
 import {Fetcher, ResponseFacade} from '../core/Fetcher';
 import {ServerContext} from '../core/ServerContext';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from '../types';
 import {Launcher} from './Mapper';
+
+interface LaunchTask {
+  mission: Mission;
+  resolve: (x: any) => void;
+  reject: (e: any) => void;
+}
 
 export class TwoStepLauncher implements Launcher {
   static readonly #ACTION_CHECK_TARGET = 'checkTarget';
@@ -17,19 +24,55 @@ export class TwoStepLauncher implements Launcher {
     'X-Requested-With': 'XMLHttpRequest'
   };
 
-  private lastToken?: string;
+  private queue: LaunchTask[] = [];
+  private processing: boolean = false;
+  private token: string = '01234567012345670123456701234567';
 
   constructor(
       private readonly serverContext: ServerContext,
       private readonly fetcher: Fetcher) {
   }
 
-  async launch(mission: Mission): Promise<unknown> {
-    const body = this.prepareBody(mission);
-    let checkResponse = await this.doSend(TwoStepLauncher.#ACTION_CHECK_TARGET, body);
-    let checkData = await checkResponse.json();
-    body['token'] = this.lastToken = checkData['newAjaxToken'];
-    return this.doSend(TwoStepLauncher.#ACTION_SEND_FLEET, body);
+  launch(mission: Mission): Promise<unknown> {
+    console.debug(`TwoStepLauncher#launch()`, mission);
+    return new Promise((resolve, reject) => {
+      this.queue.push({mission, resolve, reject});
+      this.continueProcessing();
+    });
+  }
+
+  private async continueProcessing() {
+    if (!this.processing)
+      if (this.queue.length) {
+        this.processing = true;
+        while (this.queue.length) {
+          await this.processTask(this.queue.shift()!);
+          await sleep(100);
+        }
+        this.processing = false;
+      }
+  }
+
+  private async processTask(task: LaunchTask): Promise<void> {
+    console.debug(`TwoStepLauncher#processTask(): starting`, task.mission);
+    const body = this.prepareBody(task.mission);
+    let attemptsLeft = 3;
+    let delay = 0;
+    while (attemptsLeft > 0) {
+      delay && await sleep(delay);
+      body['token'] = this.token;
+      let response = await this.doSend(TwoStepLauncher.#ACTION_SEND_FLEET, body);
+      let responseData = await response.json();
+      --attemptsLeft;
+      console.debug(`TwoStepLauncher#processTask(): attempts left: ${attemptsLeft}, response data:`, responseData);
+      this.token = responseData['newAjaxToken'];
+      if (responseData['success']) {
+        task.resolve(void 0);
+        return;
+      } else
+        delay += 100;
+    }
+    task.reject('too many attempts failed');
   }
 
   private doSend(action: string, body: { [p: string]: number | string }): Promise<ResponseFacade> {
@@ -47,7 +90,6 @@ export class TwoStepLauncher implements Launcher {
 
   private prepareBody(mission: Mission): { [param: string]: number | string } {
     let body: { [param: string]: number | string } = {};
-    if (this.lastToken) body['token'] = this.lastToken;
     if (mission.from) body['cp'] = mission.from;
     Object.assign(body, mission.to);
     if (!('type' in body)) body['type'] = CoordinateType.Planet;
