@@ -6,11 +6,16 @@ import {
   GalaxySystemInfo,
   MoonGalaxyInfo,
   PlanetGalaxyInfo,
-  PlayerGalaxyInfo
+  PlayerGalaxyInfo,
+  PlayerInactivity,
+  PlayerStatusInfo
 } from '../../../common/report-types';
 import {parseOnlyNumbers} from '../parsers-common';
 import {HtmlParser} from './HtmlParser';
 
+/**
+ * @deprecated use JsonGalaxyParser instead
+ */
 export class DOMGalaxyParser implements GalaxyParser {
   constructor(private readonly htmlParser: HtmlParser) {
   }
@@ -20,6 +25,9 @@ export class DOMGalaxyParser implements GalaxyParser {
   }
 }
 
+/**
+ * @deprecated use JsonGalaxyParser instead
+ */
 export function parseGalaxy(doc: ParentNode, timestamp: Date = new Date()): GalaxySystemInfo {
   const table: HTMLTableElement = doc.querySelector('#galaxytable')!;
   const galaxy = +table.getAttribute('data-galaxy')!;
@@ -105,6 +113,16 @@ function parseDebris(td: HTMLTableCellElement): DebrisGalaxyInfo | undefined {
   }
 }
 
+const DEFAULT_STATUS: PlayerStatusInfo = {
+  inactive: PlayerInactivity.Active,
+  vacation: 0,
+  admin: 0,
+  banned: 0,
+  newbie: 0,
+  honorableTarget: 0,
+  strong: 0,
+  outlaw: 0
+};
 function parsePlayer(td: HTMLTableCellElement): PlayerGalaxyInfo | undefined {
   let tooltipDiv = td.querySelector('div[id]');
   if (tooltipDiv) {
@@ -112,7 +130,7 @@ function parsePlayer(td: HTMLTableCellElement): PlayerGalaxyInfo | undefined {
     const name = tooltipDiv.querySelector('h1>span')!.textContent!.trim();
     const rawStatus = td.querySelector('.status')!.textContent!.trim();
     // TODO parse rawStatus to flags
-    let result: PlayerGalaxyInfo = {id, name, rawStatus};
+    let result: PlayerGalaxyInfo = {id, name, rawStatus, status: {...DEFAULT_STATUS}};
     let rankContainer = tooltipDiv.querySelector('.rank>a');
     if (rankContainer)
       result.rank = +rankContainer.textContent!;
@@ -124,6 +142,7 @@ function parsePlayer(td: HTMLTableCellElement): PlayerGalaxyInfo | undefined {
         id: 101497,
         name: 'Scrap Collector',
         rawStatus: '',
+        status: {...DEFAULT_STATUS},
         rank: 38
       };
     }

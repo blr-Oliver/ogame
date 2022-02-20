@@ -186,7 +186,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
       let slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE);
       let query = IDBKeyRange.lowerBound([new Date(Date.now() - timeout), -Infinity, -Infinity], true);
       return getTopMatchingFromIndex<GalaxySlot>(slotStore, IDBGalaxyRepository.SLOT_TIMESTAMP_INDEX, Infinity, slot => {
-        return !slot.player?.status?.admin;
+        return !slot.player?.status.admin;
       }, query)
           .then(slots => slots.map(slot => ({
             galaxy: slot.galaxy,

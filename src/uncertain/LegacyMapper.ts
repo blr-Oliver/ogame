@@ -10,6 +10,9 @@ import {dumpFile} from '../standalone/files';
 
 type Form = { [key: string]: string | number };
 
+/**
+ * deprecated Launcher part of this no longer works
+ */
 export class LegacyMapper implements Mapper {
   constructor(private fetcher: Fetcher,
               private serverContext: ServerContext) {

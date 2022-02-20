@@ -28,7 +28,6 @@ export class ClientManager {
     let actions: Promise<any>[] = [];
     if (!this.clients.has(clientId)) {
       console.debug(`New client encountered: ${clientId}`);
-      // TODO check if client is readily available from event (skip searching it through self.clients)
       let setClient = this.self.clients.get(clientId).then(client => {
         if (client && !this.clients.has(clientId)) this.clients.set(clientId, {client});
       });

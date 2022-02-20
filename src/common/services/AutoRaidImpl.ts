@@ -252,9 +252,10 @@ export class AutoRaidImpl {
     let andProduced = meta.production.map((x, i) => x * time + original[i]);
     let expected = meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, meta.capacity![i]), original[i]));
     let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
-    let nTransports = meta.requiredTransports = Math.ceil(requiredCapacity / 7000); // TODO compute based on current techs
+    const cargoCapacity = 5000 * (1 + (researches.hyperspace || 0) * 0.05);
+    let nTransports = meta.requiredTransports = Math.ceil(requiredCapacity / cargoCapacity);
     meta.fuelCost = FlightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, researches, flightTime);
-    let actualCapacity = nTransports * 7000;
+    let actualCapacity = nTransports * cargoCapacity;
     meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
     meta.loadRatio = meta.expectedPlunder.reduce((a, b) => a + b, 0) / actualCapacity;
     meta.old = (now - report.source[0].timestamp.getTime()) / 1000;

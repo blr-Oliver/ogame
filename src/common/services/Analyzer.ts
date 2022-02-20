@@ -160,7 +160,7 @@ export class Analyzer {
 
   private computePlunder(researches: Researches) {
     const now = Date.now();
-    const transportCapacity = 7000; // TODO consider hyperspace technology
+    const transportCapacity = 5000 * (1 + (researches.hyperspace || 0) * 0.05);
     this.reports.forEach(report => {
       let time = (now - report.source[0].timestamp.getTime() + report.meta.flightTime! * 1000) / 1000 / 3600;
       let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deuterium || 0];

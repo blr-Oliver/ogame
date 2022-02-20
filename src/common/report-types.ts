@@ -68,7 +68,7 @@ export interface PlayerGalaxyInfo {
   id: number | string;
   name: string;
   rawStatus?: string;
-  status?: PlayerStatusInfo; // TODO make it required
+  status: PlayerStatusInfo;
   rank?: number; // some players (admins) do not have rank
 }
 
