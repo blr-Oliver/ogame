@@ -1,4 +1,5 @@
 import {ServiceWorkerContext} from './ServiceWorkerContext';
+import {rankSystemsWithInactiveTargets} from './utils';
 
 export function serviceWorkerMain(self: ServiceWorkerGlobalScope, context: ServiceWorkerContext) {
   const {
@@ -9,9 +10,7 @@ export function serviceWorkerMain(self: ServiceWorkerGlobalScope, context: Servi
 
   self.addEventListener('fetch', (e: Event) => galaxyMonitor.spyGalaxyRequest(e as FetchEvent));
   autoObserve.continue();
-  /*
   galaxyRepository()
       .then(repo => rankSystemsWithInactiveTargets(repo))
       .then(stats => console.log(stats));
-   */
 }

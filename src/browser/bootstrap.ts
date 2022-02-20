@@ -18,9 +18,8 @@ import {EspionageReportScrapper} from '../common/services/EspionageReportScrappe
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {CoordinateType, Mission, MissionType} from '../common/types';
-import {DOMEspionageReportParser} from './parsers/dom/espionage-report-dom';
-import {NavigatorHtmlParser} from './parsers/dom/HtmlParser';
 import {JSONGalaxyParser} from './parsers/json/galaxy-report-json';
+import {NoDOMEspionageReportParser} from './parsers/no-dom/espionage-report-no-dom';
 import {NoDOMEventListParser} from './parsers/no-dom/event-list-no-dom';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
 
@@ -48,7 +47,6 @@ if ('serviceWorker' in navigator) {
   const serverContext = new LocationServerContext(window.location);
   const playerContext = new NoDOMPlayerContext(serverContext, fetcher);
   const launcher = new TwoStepLauncher(serverContext, fetcher);
-  const htmlParser = new NavigatorHtmlParser(new DOMParser());
 
   const galaxyRepositorySupport = new IDBGalaxyRepositorySupport();
   const espionageRepositorySupport = new IDBEspionageRepositorySupport();
@@ -60,11 +58,12 @@ if ('serviceWorker' in navigator) {
   const espionageRepoProvider = cacheAsyncResult(() => repositoryProvider.getRepository<IDBEspionageRepository>('espionage'));
   const galaxyParser = new JSONGalaxyParser();
   const galaxyObserver = new GalaxyObserver(galaxyRepoProvider, galaxyParser, fetcher, serverContext);
-  const espionageParser = new DOMEspionageReportParser(htmlParser);
+  const espionageParser = new NoDOMEspionageReportParser();
   const eventListParser = new NoDOMEventListParser();
   const eventListLoader = new AjaxEventListLoader(fetcher, eventListParser, serverContext);
 
   espionageRepoProvider().then(espionageRepo => {
+    (window as any)['espionageRepo'] = espionageRepo;
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
     (window as any)['espionageScrapper'] = espionageScrapper;
     galaxyRepoProvider().then(galaxyRepo => {
