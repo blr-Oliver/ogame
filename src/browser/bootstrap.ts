@@ -16,6 +16,7 @@ import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext'
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
+import {ReportProcessor} from '../common/services/ReportProcessor';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {CoordinateType, Mission, MissionType} from '../common/types';
 import {JSONGalaxyParser} from './parsers/json/galaxy-report-json';
@@ -62,17 +63,21 @@ if ('serviceWorker' in navigator) {
   const eventListParser = new NoDOMEventListParser();
   const eventListLoader = new AjaxEventListLoader(fetcher, eventListParser, serverContext);
 
-  espionageRepoProvider().then(espionageRepo => {
+
+  Promise.all([
+    espionageRepoProvider(),
+    galaxyRepoProvider(),
+    NoDOMUniverseContext.acquire(fetcher, serverContext)
+  ]).then(([espionageRepo, galaxyRepo, universe]) => {
+    const reportProcessor = new ReportProcessor(universe);
     (window as any)['espionageRepo'] = espionageRepo;
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
     (window as any)['espionageScrapper'] = espionageScrapper;
-    galaxyRepoProvider().then(galaxyRepo => {
-      const autoRaid = new AutoRaidImpl(playerContext, launcher, eventListLoader, espionageScrapper, galaxyObserver, espionageRepo, galaxyRepo);
-      (window as any)['autoRaid'] = autoRaid;
-      autoRaid.state.maxSlots = 9;
-      // autoRaid.continue();
-    });
-  });
+    const autoRaid = new AutoRaidImpl(playerContext, launcher, eventListLoader, espionageScrapper, galaxyObserver, espionageRepo, galaxyRepo, reportProcessor);
+    (window as any)['autoRaid'] = autoRaid;
+    autoRaid.state.maxSlots = 8;
+    //autoRaid.continue();
+  })
 
   // 9724905
   const mission: Mission = {

@@ -1,14 +1,14 @@
-import {getNearest, processAll} from '../common';
-import {CachingCostCalculator, CostCalculator} from '../core/calculator/CostCalculator';
+import {processAll} from '../common';
 import {FlightCalculator, StaticFlightCalculator} from '../core/calculator/FlightCalculator';
 import {PlayerContext} from '../core/PlayerContext';
 import {FlightEvent, ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
-import {Coordinates, MissionType, Researches, sameCoordinates, SpaceBody} from '../types';
-import {ProcessedReport, ReportMetaInfo} from './Analyzer';
+import {MissionType, sameCoordinates} from '../types';
+import {ProcessedReport} from './Analyzer';
 import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {GalaxyObserver} from './GalaxyObserver';
 import {EventListLoader, Launcher} from './Mapper';
+import {ReportProcessor} from './ReportProcessor';
 
 export class AutoRaidImpl {
   state: any = {
@@ -30,7 +30,7 @@ export class AutoRaidImpl {
               private galaxyObserver: GalaxyObserver,
               private espionageRepo: EspionageRepository,
               private galaxyRepo: GalaxyRepository,
-              private costCalculator: CostCalculator = CachingCostCalculator.DEFAULT,
+              private processor: ReportProcessor,
               private flightCalculator: FlightCalculator = StaticFlightCalculator.DEFAULT) {
   }
 
@@ -72,7 +72,7 @@ export class AutoRaidImpl {
     const bodies = await this.context.getBodies();
     this.state.status = 'rating reports';
 
-    this.data.forEach(report => this.processReport(report, researches, bodies));
+    this.data.forEach(report => this.processor.processReport(report, researches, bodies, this.state.rate));
 
     this.data.sort((a, b) =>
         +(b.infoLevel < 0) - +(a.infoLevel < 0) || /*dummies first*/
@@ -146,7 +146,7 @@ export class AutoRaidImpl {
       let report = this.data[i], meta = report.meta, to = report.coordinates;
       if (meta.excluded) continue;
       if (report.infoLevel >= 4 && meta.requiredTransports! < this.state.minRaid) continue;
-      if (report.infoLevel < 0 /*dummy*/ || meta.old! / meta.flightTime! > 0.5 || meta.old! > 3600) {
+      if (report.infoLevel < 0 /*dummy*/ || meta.age! / meta.flightTime! > 0.5 || meta.age! > 3600) {
         targetsToSpy.push(report);
         --nMissions;
         continue;
@@ -205,67 +205,6 @@ export class AutoRaidImpl {
       const to = event.to;
       return this.data.some(report => sameCoordinates(report.coordinates, to));
     });
-  }
-
-  // TODO this seems not necessary to return anything
-  private processReport(report: ShardedEspionageReport | ProcessedReport, researches: Researches, bodies: SpaceBody[]): ProcessedReport {
-    const to: Coordinates = report.coordinates;
-    const nearestBody = getNearest(bodies, to, this.flightCalculator);
-    if (report.infoLevel === -1) {
-      let dummy = report as ProcessedReport, meta: ReportMetaInfo = dummy.meta = {};
-      meta.nearestPlanetId = nearestBody.id;
-      meta.distance = this.flightCalculator.distanceC(to, nearestBody.coordinates);
-      return dummy;
-    }
-
-    let meta: ReportMetaInfo = {}, now = Date.now(), result = report as ProcessedReport;
-    result.meta = meta;
-
-    //
-    meta.nearestPlanetId = nearestBody.id;
-    let nearestDistance = meta.distance = this.flightCalculator.distanceC(to, nearestBody.coordinates);
-    let flightTime = meta.flightTime = this.flightCalculator.flightTime(nearestDistance, this.flightCalculator.fleetSpeed({smallCargo: 1}, researches));
-    //
-    if (report.buildings) {
-      let storageLevels: number[] = [report.buildings.metalStorage || 0, report.buildings.crystalStorage || 0, report.buildings.deutStorage || 0];
-      meta.capacity = storageLevels.map(l => this.costCalculator.getStorageCapacity(l));
-
-      let mineLevels: number[] = [report.buildings.metalMine || 0, report.buildings.crystalMine || 0, report.buildings.deutMine || 0];
-      let unconstrainedProduction = mineLevels.map((l, i) => this.costCalculator.getProduction(i, l));
-      let energyConsumption = mineLevels.map((l, i) => this.costCalculator.getEnergyConsumption(i, l));
-      let requiredEnergy = energyConsumption.reduce((a, b) => a + b);
-      let efficiency = Math.min(1, report.resources.energy! / requiredEnergy);
-
-      let mineProduction = unconstrainedProduction.map(x => x * efficiency);
-      if (report.researches) {
-        let plasmaLevel = report.researches.plasma || 0;
-        let bonus = [0.01, 0.0066, 0.0033].map(x => x * plasmaLevel);
-        mineProduction = mineProduction.map((x, i) => x + x * bonus[i]);
-      }
-
-      meta.production = mineProduction.map((x, i) => x + this.costCalculator.naturalProduction[i]);
-    } else {
-      meta.capacity = Array(3).fill(Infinity);
-      meta.production = this.costCalculator.naturalProduction.slice();
-    }
-    //
-    let time = (now - report.source[0].timestamp.getTime() + flightTime * 1000) / 1000 / 3600;
-    let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deuterium || 0];
-    let andProduced = meta.production.map((x, i) => x * time + original[i]);
-    let expected = meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, meta.capacity![i]), original[i]));
-    let requiredCapacity = this.flightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
-    const cargoCapacity = 5000 * (1 + (researches.hyperspace || 0) * 0.05);
-    let nTransports = meta.requiredTransports = Math.ceil(requiredCapacity / cargoCapacity);
-    meta.fuelCost = this.flightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, researches, flightTime);
-    let actualCapacity = nTransports * cargoCapacity;
-    meta.expectedPlunder = this.flightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
-    meta.loadRatio = meta.expectedPlunder.reduce((a, b) => a + b, 0) / actualCapacity;
-    meta.old = (now - report.source[0].timestamp.getTime()) / 1000;
-    //
-    meta.value = meta.expectedPlunder.reduce((value, x, i) => value + x * this.state.rate[i], 0);
-    meta.rating = meta.value / flightTime;
-
-    return result;
   }
 
   private sumValues(obj: any, ...skipFields: string[]): number {
