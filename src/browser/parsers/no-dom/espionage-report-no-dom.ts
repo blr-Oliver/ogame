@@ -55,14 +55,15 @@ export function parseReport(body: string): StampedEspionageReport | undefined {
   // TODO include class info in report
   let [playerName, playerStatus] = parsePlayer(playerBlock);
   let [activity, counterEspionage] = parseActivity(activityBlock);
-  let [resourceSection, fleetSection, defenseSection, buildingSection, researchSection] =
-      getSections(body, SECTION_MARKER, sectionsStart);
+  let sections = getSections(body, SECTION_MARKER, sectionsStart);
+  let sectionsByType = ['resources', 'ships', 'defense', 'buildings', 'research']
+      .map(dataType => sections.filter(section => sectionMatches(section, dataType)));
 
-  let resources = parseResources(resourceSection);
-  let fleetInfo = parseInfoSection(fleetSection, 'tech', ShipTypeId);
-  let defenseInfo = parseInfoSection(defenseSection, 'defense', DefenseTypeId);
-  let buildingInfo = parseInfoSection(buildingSection, 'building', BuildingTypeId);
-  let researchInfo = parseInfoSection(researchSection, 'research', ResearchTypeId);
+  let resources = parseResources(sectionsByType[0][0]);
+  let fleetInfo = parseInfoSection(sectionsByType[1][sectionsByType[1].length - 1], 'tech', ShipTypeId);
+  let defenseInfo = parseInfoSection(sectionsByType[2][0], 'defense', DefenseTypeId);
+  let buildingInfo = parseInfoSection(sectionsByType[3][0], 'building', BuildingTypeId);
+  let researchInfo = parseInfoSection(sectionsByType[4][0], 'research', ResearchTypeId);
 
   let infoLevel = +!!fleetInfo + +!!defenseInfo + +!!buildingInfo + +!!researchInfo;
   return {
@@ -84,6 +85,9 @@ export function parseReport(body: string): StampedEspionageReport | undefined {
   };
 }
 
+function sectionMatches(section: string, dataType: string) {
+  return readAttribute(section, 0, 'data-type') === dataType;
+}
 function parseInfoSection(body: string, prefix: string, mapping: { [techId: number]: string }): StringNumberMap | undefined {
   if (body.indexOf(`detail_list_fail`) !== -1) return;
   let result: StringNumberMap = {};
