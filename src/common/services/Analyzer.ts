@@ -1,6 +1,6 @@
 import {getNearest, processAll} from '../common';
-import {Calculator} from '../core/Calculator';
-import {FlightCalculator} from '../core/FlightCalculator';
+import {CachingCostCalculator, CostCalculator} from '../core/calculator/CostCalculator';
+import {FlightCalculator, StaticFlightCalculator} from '../core/calculator/FlightCalculator';
 import {PlayerContext} from '../core/PlayerContext';
 import {ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
@@ -35,7 +35,9 @@ export class Analyzer {
   constructor(private context: PlayerContext,
               private mapper: Mapper,
               private espionageRepo: EspionageRepository,
-              private galaxyRepo: GalaxyRepository) {
+              private galaxyRepo: GalaxyRepository,
+              private costCalculator: CostCalculator = CachingCostCalculator.DEFAULT,
+              private flightCalculator: FlightCalculator = StaticFlightCalculator.DEFAULT) {
   }
 
   async load(): Promise<ProcessedReport[]> {
@@ -124,10 +126,10 @@ export class Analyzer {
 
   private computeFlight(bodies: SpaceBody[], researches: Researches) {
     this.reports.forEach(report => {
-      let nearestBody = getNearest(bodies, report.coordinates);
-      let nearestDistance = report.meta.distance = FlightCalculator.distanceC(report.coordinates, nearestBody.coordinates);
+      let nearestBody = getNearest(bodies, report.coordinates, this.flightCalculator);
+      let nearestDistance = report.meta.distance = this.flightCalculator.distanceC(report.coordinates, nearestBody.coordinates);
       report.meta.nearestPlanetId = nearestBody.id;
-      report.meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, researches));
+      report.meta.flightTime = this.flightCalculator.flightTime(nearestDistance, this.flightCalculator.fleetSpeed({smallCargo: 1}, researches));
     });
   }
 
@@ -135,11 +137,11 @@ export class Analyzer {
     this.reports.forEach(report => {
       if (report.buildings) {
         let storageLevels: number[] = [report.buildings.metalStorage, report.buildings.crystalStorage, report.buildings.deutStorage];
-        report.meta.capacity = storageLevels.map(l => Calculator.DEFAULT.getStorageCapacity(l));
+        report.meta.capacity = storageLevels.map(l => this.costCalculator.getStorageCapacity(l));
 
         let mineLevels: number[] = [report.buildings.metalMine, report.buildings.crystalMine, report.buildings.deutMine];
-        let unconstrainedProduction = mineLevels.map((l, i) => Calculator.DEFAULT.getProduction(i, l));
-        let energyConsumption = mineLevels.map((l, i) => Calculator.DEFAULT.getEnergyConsumption(i, l));
+        let unconstrainedProduction = mineLevels.map((l, i) => this.costCalculator.getProduction(i, l));
+        let energyConsumption = mineLevels.map((l, i) => this.costCalculator.getEnergyConsumption(i, l));
         let requiredEnergy = energyConsumption.reduce((a, b) => a + b);
         let efficiency = Math.min(1, report.resources.energy! / requiredEnergy);
 
@@ -150,10 +152,10 @@ export class Analyzer {
           mineProduction = mineProduction.map((x, i) => x + x * bonus[i]);
         }
 
-        report.meta.production = mineProduction.map((x, i) => x + Calculator.DEFAULT.naturalProduction[i]);
+        report.meta.production = mineProduction.map((x, i) => x + this.costCalculator.naturalProduction[i]);
       } else {
         report.meta.capacity = Array(3).fill(Infinity);
-        report.meta.production = Calculator.DEFAULT.naturalProduction.slice();
+        report.meta.production = this.costCalculator.naturalProduction.slice();
       }
     });
   }
@@ -166,11 +168,11 @@ export class Analyzer {
       let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deuterium || 0];
       let andProduced = report.meta.production!.map((x, i) => x * time + original[i]);
       let expected = report.meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, report.meta.capacity![i]), original[i]));
-      let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
+      let requiredCapacity = this.flightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
       let nTransports = report.meta.requiredTransports = Math.ceil(requiredCapacity / transportCapacity);
-      report.meta.fuelCost = FlightCalculator.fuelConsumption(report.meta.distance!, {smallCargo: nTransports}, researches, report.meta.flightTime);
+      report.meta.fuelCost = this.flightCalculator.fuelConsumption(report.meta.distance!, {smallCargo: nTransports}, researches, report.meta.flightTime);
       let actualCapacity = nTransports * transportCapacity;
-      report.meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
+      report.meta.expectedPlunder = this.flightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
       report.meta.minutesStale = Math.floor((now - report.source[0].timestamp.getTime()) / 1000 / 60);
     });
   }

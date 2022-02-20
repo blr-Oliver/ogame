@@ -1,9 +1,24 @@
-export class Calculator {
+export interface CostCalculator {
+  readonly naturalProduction: number[]; // TODO this is no longer constant with metal/crystal bonuses
+  getCost(building: number, level: number): number[];
+  getAccumulativeCost(building: number, from: number, to: number): number[];
+  getProduction(resource: number, level: number): number;
+  getEnergyConsumption(resource: number, level: number): number;
+  getEnergyProduction(level: number): number;
+  getStorageCapacity(level: number): number;
+  computeCost(building: number, level: number): number[];
+  computeAccumulativeCost(building: number, from: number, delta: number, cache: number[][]): number[];
+  computeProduction(resource: number, level: number): number;
+  computeEnergyConsumption(resource: number, level: number): number;
+  computeEnergyProduction(level: number): number;
+}
+
+export class CachingCostCalculator implements CostCalculator {
   static readonly BUILDING_COUNT = 4;
   static readonly RESOURCE_COUNT = 3;
-  private static readonly ZERO_COST: number[] = [...Array(Calculator.RESOURCE_COUNT)].fill(0);
+  private static readonly ZERO_COST: number[] = [...Array(CachingCostCalculator.RESOURCE_COUNT)].fill(0);
 
-  static readonly DEFAULT: Calculator = new Calculator(
+  static readonly DEFAULT: CachingCostCalculator = new CachingCostCalculator(
       3.0,
       [
         [60, 15, 0],
@@ -43,30 +58,30 @@ export class Calculator {
     this.baseEnergyProduction = baseEnergyProduction;
     this.baseEnergyConsumption = baseEnergyConsumption;
 
-    this.costCache = Array(Calculator.BUILDING_COUNT);
-    this.accumulativeCostCache = Array(Calculator.BUILDING_COUNT);
-    this.productionCache = Array(Calculator.RESOURCE_COUNT);
-    this.energyConsumptionCache = Array(Calculator.RESOURCE_COUNT);
+    this.costCache = Array(CachingCostCalculator.BUILDING_COUNT);
+    this.accumulativeCostCache = Array(CachingCostCalculator.BUILDING_COUNT);
+    this.productionCache = Array(CachingCostCalculator.RESOURCE_COUNT);
+    this.energyConsumptionCache = Array(CachingCostCalculator.RESOURCE_COUNT);
     this.energyProductionCache = [];
     this.storageCache = [];
-    for (let i = 0; i < Calculator.BUILDING_COUNT; ++i) {
+    for (let i = 0; i < CachingCostCalculator.BUILDING_COUNT; ++i) {
       this.costCache[i] = [];
       this.accumulativeCostCache[i] = [];
     }
-    for (let i = 0; i < Calculator.RESOURCE_COUNT; ++i) {
+    for (let i = 0; i < CachingCostCalculator.RESOURCE_COUNT; ++i) {
       this.productionCache[i] = [];
       this.energyConsumptionCache[i] = [];
     }
   }
 
   getCost(building: number, level: number): number[] {
-    if (level <= 0) return Calculator.ZERO_COST;
+    if (level <= 0) return CachingCostCalculator.ZERO_COST;
     return this.costCache[building][level - 1] || (this.costCache[building][level - 1] = this.computeCost(building, level));
   }
 
   getAccumulativeCost(building: number, from: number, to: number): number[] {
     const delta = to - from;
-    if (delta <= 0) return Calculator.ZERO_COST;
+    if (delta <= 0) return CachingCostCalculator.ZERO_COST;
     let buildingCache: number[][][] = this.accumulativeCostCache[building];
     let fromCache: number[][];
     if (!(fromCache = buildingCache[from])) fromCache = buildingCache[from] = [];
@@ -90,32 +105,32 @@ export class Calculator {
     return this.storageCache[level] || (this.storageCache[level] = 5000 * Math.floor(2.5 * Math.exp(20 * level / 33)));
   }
 
-  private computeCost(building: number, level: number): number[] {
+  computeCost(building: number, level: number): number[] {
     const multiplier = Math.pow(this.costGrowth[building], level - 1);
     return this.baseCost[building].map(x => Math.floor(x * multiplier));
   }
-  private computeAccumulativeCost(building: number, from: number, delta: number, cache: number[][]): number[] {
+  computeAccumulativeCost(building: number, from: number, delta: number, cache: number[][]): number[] {
     let lastDelta = cache.length;
     let accumulated = lastDelta ? cache[lastDelta - 1] : this.getCost(building, from);
     while (lastDelta < delta) {
       ++lastDelta;
       let next = this.getCost(building, from + lastDelta);
       accumulated = accumulated.slice();
-      for (let i = 0; i < Calculator.RESOURCE_COUNT; ++i)
+      for (let i = 0; i < CachingCostCalculator.RESOURCE_COUNT; ++i)
         accumulated[i] += next[i];
       cache[lastDelta - 1] = accumulated;
     }
     return accumulated;
   }
-  private computeProduction(resource: number, level: number): number {
+  computeProduction(resource: number, level: number): number {
     return level * Math.pow(1.1, level) * this.baseProduction[resource] * this.economySpeed;
   }
   /* Energy consumption should be rounded UP but only after applying throttling level */
-  private computeEnergyConsumption(resource: number, level: number): number {
+  computeEnergyConsumption(resource: number, level: number): number {
     return level * Math.pow(1.1, level) * this.baseEnergyConsumption[resource];
   }
   /* Because throttling on energy production is always 1.0, rounding is applied right here */
-  private computeEnergyProduction(level: number): number {
+  computeEnergyProduction(level: number): number {
     return Math.floor(level * Math.pow(1.1, level) * this.baseEnergyProduction);
   }
 }

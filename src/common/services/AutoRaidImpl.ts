@@ -1,6 +1,6 @@
 import {getNearest, processAll} from '../common';
-import {Calculator} from '../core/Calculator';
-import {FlightCalculator} from '../core/FlightCalculator';
+import {CachingCostCalculator, CostCalculator} from '../core/calculator/CostCalculator';
+import {FlightCalculator, StaticFlightCalculator} from '../core/calculator/FlightCalculator';
 import {PlayerContext} from '../core/PlayerContext';
 import {FlightEvent, ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
@@ -29,7 +29,9 @@ export class AutoRaidImpl {
               private espionageReportScrapper: EspionageReportScrapper,
               private galaxyObserver: GalaxyObserver,
               private espionageRepo: EspionageRepository,
-              private galaxyRepo: GalaxyRepository) {
+              private galaxyRepo: GalaxyRepository,
+              private costCalculator: CostCalculator = CachingCostCalculator.DEFAULT,
+              private flightCalculator: FlightCalculator = StaticFlightCalculator.DEFAULT) {
   }
 
   async continue(): Promise<void> {
@@ -94,7 +96,7 @@ export class AutoRaidImpl {
       this.state.harvestEspionage = true;
       // pick longest espionage mission one-way flight
       spyTime = Math.max(0, ...targetsToSpy.map(target =>
-          FlightCalculator.flightTime(target.meta.distance!, FlightCalculator.fleetSpeed({espionageProbe: 1}, researches))));
+          this.flightCalculator.flightTime(target.meta.distance!, this.flightCalculator.fleetSpeed({espionageProbe: 1}, researches))));
     }
 
     if (targetsToLaunch.length) {
@@ -208,11 +210,11 @@ export class AutoRaidImpl {
   // TODO this seems not necessary to return anything
   private processReport(report: ShardedEspionageReport | ProcessedReport, researches: Researches, bodies: SpaceBody[]): ProcessedReport {
     const to: Coordinates = report.coordinates;
-    const nearestBody = getNearest(bodies, to);
+    const nearestBody = getNearest(bodies, to, this.flightCalculator);
     if (report.infoLevel === -1) {
       let dummy = report as ProcessedReport, meta: ReportMetaInfo = dummy.meta = {};
       meta.nearestPlanetId = nearestBody.id;
-      meta.distance = FlightCalculator.distanceC(to, nearestBody.coordinates);
+      meta.distance = this.flightCalculator.distanceC(to, nearestBody.coordinates);
       return dummy;
     }
 
@@ -221,16 +223,16 @@ export class AutoRaidImpl {
 
     //
     meta.nearestPlanetId = nearestBody.id;
-    let nearestDistance = meta.distance = FlightCalculator.distanceC(to, nearestBody.coordinates);
-    let flightTime = meta.flightTime = FlightCalculator.flightTime(nearestDistance, FlightCalculator.fleetSpeed({smallCargo: 1}, researches));
+    let nearestDistance = meta.distance = this.flightCalculator.distanceC(to, nearestBody.coordinates);
+    let flightTime = meta.flightTime = this.flightCalculator.flightTime(nearestDistance, this.flightCalculator.fleetSpeed({smallCargo: 1}, researches));
     //
     if (report.buildings) {
       let storageLevels: number[] = [report.buildings.metalStorage || 0, report.buildings.crystalStorage || 0, report.buildings.deutStorage || 0];
-      meta.capacity = storageLevels.map(l => Calculator.DEFAULT.getStorageCapacity(l));
+      meta.capacity = storageLevels.map(l => this.costCalculator.getStorageCapacity(l));
 
       let mineLevels: number[] = [report.buildings.metalMine || 0, report.buildings.crystalMine || 0, report.buildings.deutMine || 0];
-      let unconstrainedProduction = mineLevels.map((l, i) => Calculator.DEFAULT.getProduction(i, l));
-      let energyConsumption = mineLevels.map((l, i) => Calculator.DEFAULT.getEnergyConsumption(i, l));
+      let unconstrainedProduction = mineLevels.map((l, i) => this.costCalculator.getProduction(i, l));
+      let energyConsumption = mineLevels.map((l, i) => this.costCalculator.getEnergyConsumption(i, l));
       let requiredEnergy = energyConsumption.reduce((a, b) => a + b);
       let efficiency = Math.min(1, report.resources.energy! / requiredEnergy);
 
@@ -241,22 +243,22 @@ export class AutoRaidImpl {
         mineProduction = mineProduction.map((x, i) => x + x * bonus[i]);
       }
 
-      meta.production = mineProduction.map((x, i) => x + Calculator.DEFAULT.naturalProduction[i]);
+      meta.production = mineProduction.map((x, i) => x + this.costCalculator.naturalProduction[i]);
     } else {
       meta.capacity = Array(3).fill(Infinity);
-      meta.production = Calculator.DEFAULT.naturalProduction.slice();
+      meta.production = this.costCalculator.naturalProduction.slice();
     }
     //
     let time = (now - report.source[0].timestamp.getTime() + flightTime * 1000) / 1000 / 3600;
     let original = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deuterium || 0];
     let andProduced = meta.production.map((x, i) => x * time + original[i]);
     let expected = meta.expectedResources = andProduced.map((x, i) => Math.max(Math.min(x, meta.capacity![i]), original[i]));
-    let requiredCapacity = FlightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
+    let requiredCapacity = this.flightCalculator.capacityFor(expected[0] / 2, expected[1] / 2, expected[2] / 2);
     const cargoCapacity = 5000 * (1 + (researches.hyperspace || 0) * 0.05);
     let nTransports = meta.requiredTransports = Math.ceil(requiredCapacity / cargoCapacity);
-    meta.fuelCost = FlightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, researches, flightTime);
+    meta.fuelCost = this.flightCalculator.fuelConsumption(meta.distance, {smallCargo: nTransports}, researches, flightTime);
     let actualCapacity = nTransports * cargoCapacity;
-    meta.expectedPlunder = FlightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
+    meta.expectedPlunder = this.flightCalculator.plunderWith(expected[0], expected[1], expected[2], actualCapacity);
     meta.loadRatio = meta.expectedPlunder.reduce((a, b) => a + b, 0) / actualCapacity;
     meta.old = (now - report.source[0].timestamp.getTime()) / 1000;
     //

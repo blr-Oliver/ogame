@@ -1,7 +1,22 @@
-import {Coordinates, Fleet, FleetPartial, Researches, ResearchType, ShipType, Speed} from '../types';
+import {Coordinates, Fleet, FleetPartial, Researches, ResearchType, ShipType, Speed} from '../../types';
 
-export class FlightCalculator {
-  static readonly FLIGHT_MULTIPLIER = 2;
+export type ResourcePriority = 0 | 1 | 2;
+export type ResourceOrder = [ResourcePriority, ResourcePriority, ResourcePriority];
+
+export interface FlightCalculator {
+  distance(g1: number, s1: number, p1: number, g2: number, s2: number, p2: number): number;
+  distanceC(c1: Coordinates, c2: Coordinates): number;
+  flightTime(distance: number, maxSpeed: number, percentage?: Speed): number;
+  fuelConsumption(distance: number, fleet: Fleet | FleetPartial, researches: Researches, flightTime?: number, percentage?: Speed): number;
+  plunderWith(m: number, c: number, d: number, capacity: number, plunderFactor?: number, order?: ResourceOrder): [number, number, number];
+  capacityFor(m: number, c: number, d: number, order?: ResourceOrder): number;
+  fleetSpeed(fleet: FleetPartial | Fleet, researches: Researches): number;
+}
+
+export class StaticFlightCalculator implements FlightCalculator {
+  static readonly DEFAULT: StaticFlightCalculator = new StaticFlightCalculator();
+
+  static readonly FLIGHT_MULTIPLIER = 1;
   static readonly BASE_SPEED: { readonly [key in ShipType]: number } = {
     lightFighter: 12500,
     heavyFighter: 10000,
@@ -61,16 +76,16 @@ export class FlightCalculator {
     crawler: 0
   };
 
-  private static readonly GALAXY_COUNT = 7;
+  private static readonly GALAXY_COUNT = 9; // TODO use universe context for this
   private static readonly SYSTEM_COUNT = 499;
-  static distance(g1: number, s1: number, p1: number, g2: number, s2: number, p2: number): number {
+  distance(g1: number, s1: number, p1: number, g2: number, s2: number, p2: number): number {
     if (g1 !== g2) {
       let diff = Math.abs(g1 - g2);
-      return Math.min(diff, this.GALAXY_COUNT - diff) * 20000;
+      return Math.min(diff, StaticFlightCalculator.GALAXY_COUNT - diff) * 20000;
     }
     if (s1 !== s2) {
       let diff = Math.abs(s1 - s2);
-      return Math.min(diff, this.SYSTEM_COUNT - diff) * 95 + 2700;
+      return Math.min(diff, StaticFlightCalculator.SYSTEM_COUNT - diff) * 95 + 2700;
     }
     if (p1 !== p2) {
       let diff = Math.abs(p1 - p2);
@@ -79,15 +94,15 @@ export class FlightCalculator {
     return 5;
   }
 
-  static distanceC(c1: Coordinates, c2: Coordinates): number {
+  distanceC(c1: Coordinates, c2: Coordinates): number {
     return this.distance(c1.galaxy, c1.system, c1.position, c2.galaxy, c2.system, c2.position);
   }
 
-  static flightTime(distance: number, maxSpeed: number, percentage: Speed = 10): number /* seconds */ {
-    return Math.ceil((10 + 35000 / percentage * Math.sqrt(10 * distance / maxSpeed)) / this.FLIGHT_MULTIPLIER);
+  flightTime(distance: number, maxSpeed: number, percentage: Speed = 10): number /* seconds */ {
+    return Math.ceil((10 + 35000 / percentage * Math.sqrt(10 * distance / maxSpeed)) / StaticFlightCalculator.FLIGHT_MULTIPLIER);
   }
 
-  static fuelConsumption(distance: number, fleet: Fleet | FleetPartial, researches: Researches, flightTime?: number, percentage: Speed = 10) {
+  fuelConsumption(distance: number, fleet: Fleet | FleetPartial, researches: Researches, flightTime?: number, percentage: Speed = 10): number {
     flightTime = flightTime || this.flightTime(distance, this.fleetSpeed(fleet, researches), percentage);
 
     let total = 0, shipSpeed: number, shipPercentage: number;
@@ -96,17 +111,17 @@ export class FlightCalculator {
       let n = fleet[key as ShipType] || 0;
       if (n > 0) {
         shipSpeed = this.fleetSpeed({[key]: 1}, researches);
-        shipPercentage = 35000 / (flightTime * this.FLIGHT_MULTIPLIER - 10) * Math.sqrt(10 * distance / shipSpeed);
-        total += this.BASE_CONSUMPTION[key as ShipType] * n * (shipPercentage / 10 + 1) * (shipPercentage / 10 + 1);
+        shipPercentage = 35000 / (flightTime * StaticFlightCalculator.FLIGHT_MULTIPLIER - 10) * Math.sqrt(10 * distance / shipSpeed);
+        total += StaticFlightCalculator.BASE_CONSUMPTION[key as ShipType] * n * (shipPercentage / 10 + 1) * (shipPercentage / 10 + 1);
       }
     }
 
-    return 1 + Math.round(total * distance / 35000 / this.FLIGHT_MULTIPLIER);
+    return 1 + Math.round(total * distance / 35000 / StaticFlightCalculator.FLIGHT_MULTIPLIER);
   }
 
-  static plunderWith(m: number, c: number, d: number, capacity: number, plunderFactor = 0.5, order = [0, 1, 2]): number[] {
+  plunderWith(m: number, c: number, d: number, capacity: number, plunderFactor = 0.5, order: ResourceOrder = [0, 1, 2]): [number, number, number] {
     let available = [m, c, d].map(r => r > 0 ? Math.floor(r * plunderFactor) : 0);
-    let result = [0, 0, 0];
+    let result: [number, number, number] = [0, 0, 0];
 
     for (let i = 0; i < 3; ++i)
       load(3 - i, order[i]);
@@ -124,7 +139,7 @@ export class FlightCalculator {
     }
   }
 
-  static capacityFor(m: number, c: number, d: number, order = [0, 1, 2]): number {
+  capacityFor(m: number, c: number, d: number, order = [0, 1, 2]): number {
     let res: number[] = [Math.floor(m || 0), Math.floor(c || 0), Math.floor(d || 0)];
     [m, c, d] = [...res].map((x, i) => res[order[i]]);
 
@@ -135,14 +150,14 @@ export class FlightCalculator {
     return t >> 2 + +!!(t & 3); // = Math.ceil(t / 4)
   }
 
-  static fleetSpeed(fleet: FleetPartial | Fleet, researches: Researches) {
+  fleetSpeed(fleet: FleetPartial | Fleet, researches: Researches): number {
     let speed = Infinity;
     for (let key in fleet) {
       let n = fleet[key as ShipType] || 0;
       if (n > 0) {
-        let baseSpeed: number = this.BASE_SPEED[key as ShipType];
-        let drive = this.SHIP_DRIVES[key as ShipType];
-        let driveLevel = researches[this.DRIVE_TYPES[drive]!];
+        let baseSpeed: number = StaticFlightCalculator.BASE_SPEED[key as ShipType];
+        let drive = StaticFlightCalculator.SHIP_DRIVES[key as ShipType];
+        let driveLevel = researches[StaticFlightCalculator.DRIVE_TYPES[drive]!];
         speed = Math.min(baseSpeed * (1 + driveLevel * drive / 10));
       }
     }

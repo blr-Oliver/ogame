@@ -1,4 +1,4 @@
-import {FlightCalculator} from './core/FlightCalculator';
+import {FlightCalculator} from './core/calculator/FlightCalculator';
 import {Coordinates, SpaceBody, SystemCoordinates} from './types';
 
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =
@@ -47,10 +47,10 @@ export function compareCoordinatesKeys(a: SystemCoordinates, b: SystemCoordinate
   return a[0] - b[0] || a[1] - b[1];
 }
 
-export function getNearest(bodies: SpaceBody[], coordinates: Coordinates) {
+export function getNearest(bodies: SpaceBody[], coordinates: Coordinates, calculator: FlightCalculator) {
   let nearestDistance = Infinity, nearestBody: SpaceBody = bodies[0];
   for (let body of bodies) {
-    let distance = FlightCalculator.distanceC(coordinates, body.coordinates);
+    let distance = calculator.distanceC(coordinates, body.coordinates);
     if (distance < nearestDistance) {
       nearestDistance = distance;
       nearestBody = body;
