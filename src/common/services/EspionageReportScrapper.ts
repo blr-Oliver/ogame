@@ -1,3 +1,4 @@
+import {EspionageReportList, parseReportListFull} from '../../browser/parsers/no-dom/espionage-report-no-dom';
 import {processAll} from '../common';
 import {Fetcher} from '../core/Fetcher';
 import {ServerContext} from '../core/ServerContext';
@@ -22,6 +23,14 @@ export class EspionageReportScrapper {
           return this.parser.parseReportList(body);
         })
         .then(idList => idList.sort());
+  }
+
+  loadReportListFull(): Promise<EspionageReportList> {
+    return this.getListResponse()
+        .then(body => {
+          this.lastToken = this.parser.parseReportListForToken(body);
+          return parseReportListFull(body); // TODO add it to interface
+        });
   }
 
   private getListResponse(): Promise<string> {
