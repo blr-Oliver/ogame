@@ -60,8 +60,14 @@ export function getNearest(bodies: SpaceBody[], coordinates: Coordinates, calcul
 }
 
 export function sleep(delay: number): Promise<number> {
+  if (delay <= 0) return Promise.resolve(0);
   const now = Date.now();
   return new Promise(resolve => {
     setTimeout(() => resolve(Date.now() - now), delay);
   });
+}
+
+export function sleepUntil(time: Date | number): Promise<number> {
+  if (time instanceof Date) time = time.getTime();
+  return sleep(time - Date.now());
 }

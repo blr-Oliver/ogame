@@ -18,6 +18,7 @@ import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseCont
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {ReportProcessor} from '../common/services/ReportProcessor';
+import {Scanner} from '../common/services/Scanner';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {CoordinateType, Mission, MissionType} from '../common/types';
 import {JSONGalaxyParser} from './parsers/json/galaxy-report-json';
@@ -80,7 +81,9 @@ if ('serviceWorker' in navigator) {
     (window as any)['autoRaid'] = autoRaid;
     autoRaid.state.maxSlots = 8;
     //autoRaid.continue();
-  })
+    const scanner = new Scanner(playerContext, espionageRepo, launcher, eventListLoader, espionageScrapper, flightCalculator);
+    (window as any)['scanner'] = scanner;
+  });
 
   // 9724905
   const mission: Mission = {

@@ -37,6 +37,16 @@ export function sameCoordinates(a?: Coordinates, b?: Coordinates): boolean {
   return !a === !b;
 }
 
+export function sameFleet(a: Fleet | FleetPartial, b: Fleet | FleetPartial): boolean {
+  for (let shipType in ShipTypeId) {
+    if (typeof shipType === 'string') {
+      const shipName = shipType as ShipType;
+      if ((a[shipName] || 0) !== (b[shipName] || 0)) return false;
+    }
+  }
+  return true;
+}
+
 export function toSortableString(c: Coordinates): string {
   return `[${c.galaxy.toFixed(0).padStart(2, '0')}:${c.system.toFixed(0).padStart(3, '0')}:${c.position.toFixed(0).padStart(2, '0')}:${c.type ?? CoordinateType.Planet}]`;
 }
