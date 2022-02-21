@@ -1,4 +1,3 @@
-import {AsyncSupplier} from '../common/functional';
 import {ReplyingMessageChannel} from '../common/message/ReplyingMessageChannel';
 import {WaitingRequestMessageChannel} from '../common/message/WaitingRequestMessageChannel';
 import {AutoObserveSkeleton} from '../common/remote/AutoObserveSkeleton';
@@ -16,8 +15,8 @@ export class ClientManager {
   readonly clients = new Map<string, ClientContext>();
 
   constructor(private readonly self: ServiceWorkerGlobalScope,
-              private readonly idSupplier: AsyncSupplier<string>,
               private readonly locks: LockManager,
+              private readonly selfId: string,
               private readonly autoObserve: AutoObserve) {
     self.addEventListener('fetch', event => this.monitorFetchEvent(event));
     self.addEventListener('message', event => this.monitorMessageEvent(event));
@@ -71,15 +70,14 @@ export class ClientManager {
     this.createReplyingChannel(client, clientContext);
   }
 
-  private async createReplyingChannel(client: Client, clientContext: ClientContext) {
+  private createReplyingChannel(client: Client, clientContext: ClientContext) {
     let {port1: localPort, port2: remotePort} = new MessageChannel();
-    let selfId = await this.idSupplier();
     client.postMessage({
       type: 'accept',
-      id: selfId,
+      id: this.selfId,
       port: remotePort
     }, [remotePort]);
-    WaitingRequestMessageChannel.connect(localPort, `${selfId}|${clientContext.remoteId}`, 3600 * 1000)
+    WaitingRequestMessageChannel.connect(localPort, `${this.selfId}|${clientContext.remoteId}`, 3600 * 1000)
         .then(
             channel => this.setupChannel(channel, clientContext),
             error => console.error('timeout connecting in service worker'));

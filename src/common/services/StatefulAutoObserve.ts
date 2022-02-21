@@ -1,6 +1,5 @@
 import {deduplicate, systemCoordinatesKey} from '../common';
 import {UniverseContext} from '../core/UniverseContext';
-import {AsyncSupplier} from '../functional';
 import {GalaxyRepository} from '../repository-types';
 import {SystemCoordinates} from '../types';
 import {AutoObserve, AutoObserveSettings, Status} from './AutoObserve';
@@ -59,8 +58,8 @@ export class StatefulAutoObserve implements AutoObserve {
   readonly settings: AutoObserveSettings;
 
   constructor(private readonly observer: GalaxyObserver,
-              private readonly repo: AsyncSupplier<GalaxyRepository>,
-              private readonly context: AsyncSupplier<UniverseContext>,
+              private readonly repo: GalaxyRepository,
+              private readonly universe: UniverseContext,
               settings?: Partial<AutoObserveSettings>) {
     this.settings = new ReactiveAutoObserveSettings(Object.assign({
       delay: DEFAULT_DELAY,
@@ -131,24 +130,22 @@ export class StatefulAutoObserve implements AutoObserve {
   private buildQueue() {
     if (this._status === 'paused') return;
     if (!this._queue.length && !this.processingDict.size) {
-      Promise.all([this.context(), this.repo()])
-          .then(([context, repo]) => Promise.all([
-            repo.findAllMissing(context.maxGalaxy, context.maxSystem),
-            repo.findAllStale(this.settings.timeout, this.settings.emptyTimeout)
-          ]))
-          .then(([missing, stale]) => {
-            const systems = missing.concat(stale).map(c => [c.galaxy, c.system] as SystemCoordinates);
-            if (systems.length) {
-              this.doEnqueue(...systems);
-              this.scheduleWakeUp(this.settings.delay);
-            } else {
-              // TODO compute accurate schedule
-              const timeToSleep = this.settings.timeout * 1000 / 4;
-              this._scheduledContinue = new Date(Date.now() + timeToSleep);
-              this.scheduleWakeUp(timeToSleep);
-              this._status = 'idle';
-            }
-          });
+      Promise.all([
+        this.repo.findAllMissing(this.universe.maxGalaxy, this.universe.maxSystem),
+        this.repo.findAllStale(this.settings.timeout, this.settings.emptyTimeout)
+      ]).then(([missing, stale]) => {
+        const systems = missing.concat(stale).map(c => [c.galaxy, c.system] as SystemCoordinates);
+        if (systems.length) {
+          this.doEnqueue(...systems);
+          this.scheduleWakeUp(this.settings.delay);
+        } else {
+          // TODO compute accurate schedule
+          const timeToSleep = this.settings.timeout * 1000 / 4;
+          this._scheduledContinue = new Date(Date.now() + timeToSleep);
+          this.scheduleWakeUp(timeToSleep);
+          this._status = 'idle';
+        }
+      });
     }
   }
   private scheduleWakeUp(delay: number) {

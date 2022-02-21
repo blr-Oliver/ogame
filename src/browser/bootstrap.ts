@@ -1,5 +1,4 @@
 import {getCurrentClientId} from '../common/client-id';
-import {cacheAsyncResult} from '../common/core/cached-async';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
@@ -55,20 +54,18 @@ if ('serviceWorker' in navigator) {
     'galaxy': galaxyRepositorySupport,
     'espionage': espionageRepositorySupport
   });
-  const galaxyRepoProvider = cacheAsyncResult(() => repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'));
-  const espionageRepoProvider = cacheAsyncResult(() => repositoryProvider.getRepository<IDBEspionageRepository>('espionage'));
   const galaxyParser = new JSONGalaxyParser();
-  const galaxyObserver = new GalaxyObserver(galaxyRepoProvider, galaxyParser, fetcher, serverContext);
   const espionageParser = new NoDOMEspionageReportParser();
   const eventListParser = new NoDOMEventListParser();
   const eventListLoader = new AjaxEventListLoader(fetcher, eventListParser, serverContext);
 
 
   Promise.all([
-    espionageRepoProvider(),
-    galaxyRepoProvider(),
+    repositoryProvider.getRepository<IDBEspionageRepository>('espionage'),
+    repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'),
     NoDOMUniverseContext.acquire(fetcher, serverContext)
   ]).then(([espionageRepo, galaxyRepo, universe]) => {
+    const galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
     const reportProcessor = new ReportProcessor(universe);
     (window as any)['espionageRepo'] = espionageRepo;
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
