@@ -56,13 +56,11 @@ export const DEFAULT_DATA: CostCalculatorData = {
   baseEnergyConsumption: [10, 10, 20]
 }
 
+export const BUILDING_COUNT = 4;
+export const RESOURCE_COUNT = 3;
+const ZERO_COST: number[] = [...Array(RESOURCE_COUNT)].fill(0);
+
 export class CachingCostCalculator implements CostCalculator {
-  static readonly BUILDING_COUNT = 4;
-  static readonly RESOURCE_COUNT = 3;
-  private static readonly ZERO_COST: number[] = [...Array(CachingCostCalculator.RESOURCE_COUNT)].fill(0);
-
-  static readonly DEFAULT: CachingCostCalculator = new CachingCostCalculator(DEFAULT_DATA);
-
   readonly data: CostCalculatorData;
 
   private readonly costCache: number[/*building*/][/*level*/][/*resource*/];
@@ -75,17 +73,17 @@ export class CachingCostCalculator implements CostCalculator {
   constructor(data: CostCalculatorData = DEFAULT_DATA) {
     this.data = data;
 
-    this.costCache = Array(CachingCostCalculator.BUILDING_COUNT);
-    this.accumulativeCostCache = Array(CachingCostCalculator.BUILDING_COUNT);
-    this.productionCache = Array(CachingCostCalculator.RESOURCE_COUNT);
-    this.energyConsumptionCache = Array(CachingCostCalculator.RESOURCE_COUNT);
+    this.costCache = Array(BUILDING_COUNT);
+    this.accumulativeCostCache = Array(BUILDING_COUNT);
+    this.productionCache = Array(RESOURCE_COUNT);
+    this.energyConsumptionCache = Array(RESOURCE_COUNT);
     this.energyProductionCache = [];
     this.storageCache = [];
-    for (let i = 0; i < CachingCostCalculator.BUILDING_COUNT; ++i) {
+    for (let i = 0; i < BUILDING_COUNT; ++i) {
       this.costCache[i] = [];
       this.accumulativeCostCache[i] = [];
     }
-    for (let i = 0; i < CachingCostCalculator.RESOURCE_COUNT; ++i) {
+    for (let i = 0; i < RESOURCE_COUNT; ++i) {
       this.productionCache[i] = [];
       this.energyConsumptionCache[i] = [];
     }
@@ -111,13 +109,13 @@ export class CachingCostCalculator implements CostCalculator {
   }
 
   getCost(building: number, level: number): number[] {
-    if (level <= 0) return CachingCostCalculator.ZERO_COST;
+    if (level <= 0) return ZERO_COST.slice();
     return this.costCache[building][level - 1] || (this.costCache[building][level - 1] = this.computeCost(building, level));
   }
 
   getAccumulativeCost(building: number, from: number, to: number): number[] {
     const delta = to - from;
-    if (delta <= 0) return CachingCostCalculator.ZERO_COST;
+    if (delta <= 0) return ZERO_COST.slice();
     let buildingCache: number[][][] = this.accumulativeCostCache[building];
     let fromCache: number[][];
     if (!(fromCache = buildingCache[from])) fromCache = buildingCache[from] = [];
@@ -152,7 +150,7 @@ export class CachingCostCalculator implements CostCalculator {
       ++lastDelta;
       let next = this.getCost(building, from + lastDelta);
       accumulated = accumulated.slice();
-      for (let i = 0; i < CachingCostCalculator.RESOURCE_COUNT; ++i)
+      for (let i = 0; i < RESOURCE_COUNT; ++i)
         accumulated[i] += next[i];
       cache[lastDelta - 1] = accumulated;
     }

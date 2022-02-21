@@ -1,4 +1,5 @@
 import {getCurrentClientId} from '../common/client-id';
+import {CachingCostCalculator} from '../common/core/calculator/CostCalculator';
 import {StaticFlightCalculator} from '../common/core/calculator/FlightCalculator';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
@@ -68,7 +69,8 @@ if ('serviceWorker' in navigator) {
   ]).then(([espionageRepo, galaxyRepo, universe]) => {
     const galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
     const flightCalculator = new StaticFlightCalculator(universe);
-    const reportProcessor = new ReportProcessor(universe, flightCalculator);
+    const costCalculator = new CachingCostCalculator();
+    const reportProcessor = new ReportProcessor(universe, flightCalculator, costCalculator);
     (window as any)['espionageRepo'] = espionageRepo;
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
     (window as any)['espionageScrapper'] = espionageScrapper;

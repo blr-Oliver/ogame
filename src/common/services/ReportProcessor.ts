@@ -1,5 +1,5 @@
 import {getNearest} from '../common';
-import {CachingCostCalculator, CostCalculator} from '../core/calculator/CostCalculator';
+import {CostCalculator} from '../core/calculator/CostCalculator';
 import {FlightCalculator} from '../core/calculator/FlightCalculator';
 import {UniverseContext} from '../core/UniverseContext';
 import {ShardedEspionageReport} from '../report-types';
@@ -10,7 +10,7 @@ export class ReportProcessor {
   constructor(
       private readonly universe: UniverseContext,
       private readonly flightCalculator: FlightCalculator,
-      private readonly costCalculator: CostCalculator = CachingCostCalculator.DEFAULT) {
+      private readonly costCalculator: CostCalculator) {
   }
 
   processReport(report: ShardedEspionageReport | ProcessedReport,
