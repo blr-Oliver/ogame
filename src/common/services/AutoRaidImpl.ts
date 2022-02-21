@@ -1,5 +1,5 @@
 import {processAll} from '../common';
-import {FlightCalculator, StaticFlightCalculator} from '../core/calculator/FlightCalculator';
+import {FlightCalculator} from '../core/calculator/FlightCalculator';
 import {PlayerContext} from '../core/PlayerContext';
 import {FlightEvent, ShardedEspionageReport} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
@@ -31,7 +31,7 @@ export class AutoRaidImpl {
               private espionageRepo: EspionageRepository,
               private galaxyRepo: GalaxyRepository,
               private processor: ReportProcessor,
-              private flightCalculator: FlightCalculator = StaticFlightCalculator.DEFAULT) {
+              private flightCalculator: FlightCalculator) {
   }
 
   async continue(): Promise<void> {

@@ -1,4 +1,5 @@
 import {getCurrentClientId} from '../common/client-id';
+import {StaticFlightCalculator} from '../common/core/calculator/FlightCalculator';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
@@ -66,11 +67,14 @@ if ('serviceWorker' in navigator) {
     NoDOMUniverseContext.acquire(fetcher, serverContext)
   ]).then(([espionageRepo, galaxyRepo, universe]) => {
     const galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
-    const reportProcessor = new ReportProcessor(universe);
+    const flightCalculator = new StaticFlightCalculator(universe);
+    const reportProcessor = new ReportProcessor(universe, flightCalculator);
     (window as any)['espionageRepo'] = espionageRepo;
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
     (window as any)['espionageScrapper'] = espionageScrapper;
-    const autoRaid = new AutoRaidImpl(playerContext, launcher, eventListLoader, espionageScrapper, galaxyObserver, espionageRepo, galaxyRepo, reportProcessor);
+    const autoRaid = new AutoRaidImpl(
+        playerContext, launcher, eventListLoader, espionageScrapper,
+        galaxyObserver, espionageRepo, galaxyRepo, reportProcessor, flightCalculator);
     (window as any)['autoRaid'] = autoRaid;
     autoRaid.state.maxSlots = 8;
     //autoRaid.continue();
