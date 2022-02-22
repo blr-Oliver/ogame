@@ -1,4 +1,4 @@
-import {EspionageReportList, parseReportListFull} from '../../browser/parsers/no-dom/espionage-report-no-dom';
+import {EspionageReportList} from '../../browser/parsers/no-dom/espionage-report-no-dom';
 import {processAll} from '../common';
 import {Fetcher} from '../core/Fetcher';
 import {ServerContext} from '../core/ServerContext';
@@ -16,20 +16,12 @@ export class EspionageReportScrapper {
               private serverContext: ServerContext) {
   }
 
-  loadReportList(): Promise<number[]> {
+  loadReportList(): Promise<EspionageReportList> {
     return this.getListResponse()
-        .then(body => {
-          this.lastToken = this.parser.parseReportListForToken(body);
-          return this.parser.parseReportList(body);
-        })
-        .then(idList => idList.sort());
-  }
-
-  loadReportListFull(): Promise<EspionageReportList> {
-    return this.getListResponse()
-        .then(body => {
-          this.lastToken = this.parser.parseReportListForToken(body);
-          return parseReportListFull(body); // TODO add it to interface
+        .then(body => this.parser.parseReportList(body))
+        .then(reportList => {
+          this.lastToken = reportList.token;
+          return reportList;
         });
   }
 
@@ -81,12 +73,13 @@ export class EspionageReportScrapper {
     } catch (e) {
       if (token) throw e; // no second retry
       let listResponse = await this.getListResponse();
-      return this.deleteReport(id, this.parser.parseReportListForToken(listResponse));
+      return this.deleteReport(id, this.parser.parseReportList(listResponse).token);
     }
   }
 
   async loadAllReports(): Promise<StampedEspionageReport[]> {
-    this.loadingQueue = await this.loadReportList();
+    const reportList = await this.loadReportList();
+    this.loadingQueue = reportList.reports.map(report => report.id).sort((a, b) => a - b);
     let idList = this.loadingQueue.slice();
     let result = await processAll(idList, async id => {
       let report = await this.loadReport(id);
@@ -100,5 +93,4 @@ export class EspionageReportScrapper {
     if (!result.length) return result;
     return this.loadAllReports().then(nextPage => (result.push(...nextPage), result));
   }
-
 }

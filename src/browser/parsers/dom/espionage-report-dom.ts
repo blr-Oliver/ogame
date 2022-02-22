@@ -1,11 +1,13 @@
 import {map} from '../../../common/common';
-import {EspionageReportParser} from '../../../common/parsers';
 import {PlayerStatusInfo, StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
 import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from '../../../common/types';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {HtmlParser} from './HtmlParser';
 
-export class DOMEspionageReportParser implements EspionageReportParser {
+/**
+ * @deprecated
+ */
+export class DOMEspionageReportParser {
   constructor(private readonly htmlParser: HtmlParser) {
   }
 

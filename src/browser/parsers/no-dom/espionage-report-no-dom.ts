@@ -7,13 +7,7 @@ export class NoDOMEspionageReportParser implements EspionageReportParser {
   parseReport(body: string): StampedEspionageReport | undefined {
     return parseReport(body);
   }
-  parseReportList(body: string): number[] {
-    return parseReportList(body);
-  }
-  parseReportListForToken(body: string): string {
-    return parseReportListForToken(body);
-  }
-  parseReportListFull(body: string): EspionageReportList {
+  parseReportList(body: string): EspionageReportList {
     return parseReportListFull(body);
   }
 }
@@ -125,17 +119,6 @@ export function parseReportListForToken(body: string, position: number = 0): str
   tokenAttributePosition += TOKEN_ATTRIBUTE_MARKER.length;
   const quote = body[tokenAttributePosition];
   return readBetween(body, tokenAttributePosition, quote, quote);
-}
-
-const MESSAGE_START_MARKER = `<li class="msg`;
-export function parseReportList(body: string): number[] {
-  let result: number[] = [];
-  let messageStart = 0;
-  while ((messageStart = body.indexOf(MESSAGE_START_MARKER, messageStart)) !== -1) {
-    result.push(+readAttribute(body, messageStart, `data-msg-id`));
-    messageStart += MESSAGE_START_MARKER.length;
-  }
-  return result;
 }
 
 const SECTION_MARKER = `<div class="section_title">`;
@@ -285,4 +268,3 @@ function textContent(block: string): string {
   }
   return fragments.join('');
 }
-

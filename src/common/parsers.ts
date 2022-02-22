@@ -1,3 +1,4 @@
+import {EspionageReportList} from '../browser/parsers/no-dom/espionage-report-no-dom';
 import {FlightEvent, GalaxySystemInfo, StampedEspionageReport} from './report-types';
 
 export interface GalaxyParser {
@@ -6,8 +7,7 @@ export interface GalaxyParser {
 
 export interface EspionageReportParser {
   parseReport(body: string): StampedEspionageReport | undefined;
-  parseReportList(body: string): number[];
-  parseReportListForToken(body: string): string;
+  parseReportList(body: string): EspionageReportList;
 }
 
 export interface EventListParser {

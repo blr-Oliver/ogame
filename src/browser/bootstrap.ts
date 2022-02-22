@@ -62,7 +62,6 @@ if ('serviceWorker' in navigator) {
   const eventListParser = new NoDOMEventListParser();
   const eventListLoader = new AjaxEventListLoader(fetcher, eventListParser, serverContext);
 
-
   Promise.all([
     repositoryProvider.getRepository<IDBEspionageRepository>('espionage'),
     repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'),
