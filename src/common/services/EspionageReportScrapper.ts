@@ -1,4 +1,4 @@
-import {EspionageReportList} from '../../browser/parsers/no-dom/espionage-report-no-dom';
+import {EspionageBrief, EspionageReportList} from '../../browser/parsers/no-dom/espionage-report-no-dom';
 import {processAll} from '../common';
 import {Fetcher} from '../core/Fetcher';
 import {ServerContext} from '../core/ServerContext';
@@ -7,7 +7,7 @@ import {StampedEspionageReport} from '../report-types';
 import {EspionageRepository} from '../repository-types';
 
 export class EspionageReportScrapper {
-  loadingQueue: number[] = []; // TODO handle queue contents more reliably
+  loadingQueue: EspionageBrief[] = [];
   private lastToken: string = '00000000000000000000000000000000';
 
   constructor(private repo: EspionageRepository,
@@ -79,16 +79,21 @@ export class EspionageReportScrapper {
 
   async loadAllReports(): Promise<StampedEspionageReport[]> {
     const reportList = await this.loadReportList();
-    this.loadingQueue = reportList.reports.map(report => report.id).sort((a, b) => a - b);
-    let idList = this.loadingQueue.slice();
-    let result = await processAll(idList, async id => {
-      let report = await this.loadReport(id);
-      if (report) {
-        await this.repo.store(report);
+    this.loadingQueue = reportList.reports;
+    let reports = this.loadingQueue.slice();
+    let result = await processAll(reports, async brief => {
+      let id = brief.header.id, report: StampedEspionageReport | undefined;
+      if (brief.isCounterEspionage)
         await this.deleteReport(id);
+      else {
+        report = await this.loadReport(id);
+        if (report) {
+          await this.repo.store(report);
+          await this.deleteReport(id);
+        }
       }
-      this.loadingQueue.splice(this.loadingQueue.indexOf(id), 1);
-      return report;
+      this.loadingQueue.splice(this.loadingQueue.indexOf(brief), 1);
+      return report; // TODO maybe combine brief and report for better coverage?
     });
     if (!result.length) return result;
     return this.loadAllReports().then(nextPage => (result.push(...nextPage), result));

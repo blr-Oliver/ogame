@@ -12,11 +12,14 @@ export class NoDOMEspionageReportParser implements EspionageReportParser {
   }
 }
 
-export interface EspionageReportBrief {
+export interface EspionageBriefHeader {
   id: number;
   timestamp: Date;
   coordinates: Coordinates;
   planetName: string;
+}
+
+export interface EspionageBriefContent {
   playerName: string;
   playerStatus: string;
   playerClass?: string;
@@ -27,9 +30,16 @@ export interface EspionageReportBrief {
   infoLevel: number;
 }
 
+export interface EspionageBrief {
+  header: EspionageBriefHeader;
+  isCounterEspionage: boolean;
+  content?: EspionageBriefContent;
+  // TODO add content section for counter-espionage report
+}
+
 export interface EspionageReportList {
   token: string;
-  reports: EspionageReportBrief[];
+  reports: EspionageBrief[];
 }
 
 export function parseReportListFull(body: string): EspionageReportList {
@@ -37,29 +47,36 @@ export function parseReportListFull(body: string): EspionageReportList {
   const token = parseReportListForToken(body, topPaginationEnd);
   let bottomPaginationStart = body.indexOf(`<ul`, topPaginationEnd);
   let briefs = getSections(body, `<li`, topPaginationEnd, bottomPaginationStart);
+  let empty = !briefs.length || readAttribute(briefs[0], 0, 'class') === 'no_msg';
   return {
     token,
-    reports: briefs.map(body => parseBrief(body))
+    reports: empty ? [] : briefs.map(body => parseBrief(body))
   };
 }
 
-function parseBrief(body: string): EspionageReportBrief {
-  const id = +readAttribute(body, 0, 'data-msg-id');
+function parseBrief(body: string): EspionageBrief {
   const headStart = body.indexOf(`<div class="msg_head">`);
   const contentStart = body.indexOf(`<span class="msg_content">`, headStart);
   const contentEnd = body.indexOf(`<div class="msg_actions clearfix">`, contentStart);
-
   const head = body.substring(headStart, contentStart).trim();
   const content = body.substring(contentStart, contentEnd).trim();
+
+  const id = +readAttribute(body, 0, 'data-msg-id');
   const [planetName, coordinates, timestamp] = parseMessageHead(head);
+  const isCounterEspionage = content.indexOf(`<span class="espionageDefText">`) !== -1;
+  if (isCounterEspionage) return {
+    header: {id, timestamp, coordinates, planetName},
+    isCounterEspionage
+  };
   const blocks = getSections(content, `<div class="compacting">`);
   const [playerName, playerStatus, activity] = parseBriefPlayerAndActivity(blocks[0]);
   // TODO player and alliance class
   const [loot, counterEspionage] = parseBriefLootAndCounterEspionage(blocks[4]);
   const extras = getSections(blocks[5], `<span`);
   return {
-    id, timestamp, coordinates, planetName, playerName, playerStatus, activity, counterEspionage, loot,
-    infoLevel: extras.length
+    header: {id, timestamp, coordinates, planetName},
+    isCounterEspionage,
+    content: {playerName, playerStatus, activity, counterEspionage, loot, infoLevel: extras.length}
   };
 }
 
