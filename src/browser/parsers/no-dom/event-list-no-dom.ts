@@ -81,8 +81,7 @@ function parseEvent(body: string, rowStart: number): FlightEvent {
 
 function getCells(body: string, position: number, end?: number): string[] {
   if (!end || end === -1) {
-    end = body.indexOf(`</tr>`, position);
-    if (end === -1) end = body.length;
+    end = body.length;
   }
   let cells: string[] = [];
   let cellStart = position;
@@ -104,9 +103,10 @@ function addPartners(main: FlightEvent, partners: HTMLTableRowElement[]): Flight
 }
 
 function getType(classList: string): CoordinateType | undefined {
-  if (classList.indexOf('planet') !== -1) return CoordinateType.Planet;
-  if (classList.indexOf('moon') !== -1) return CoordinateType.Moon;
-  if (classList.indexOf('tf') !== -1) return CoordinateType.Debris;
+  let classes = classList.split(' ');
+  if (classes.indexOf('planet') !== -1) return CoordinateType.Planet;
+  if (classes.indexOf('moon') !== -1) return CoordinateType.Moon;
+  if (classes.indexOf('tf') !== -1) return CoordinateType.Debris;
 }
 
 function readMapFromTable(cells: string[]): StringNumberMap {
