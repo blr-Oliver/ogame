@@ -1,5 +1,5 @@
 import {EspionageBrief, EspionageReportList} from '../../browser/parsers/no-dom/espionage-report-no-dom';
-import {processAll} from '../common';
+import {deduplicate} from '../common';
 import {Fetcher} from '../core/Fetcher';
 import {ServerContext} from '../core/ServerContext';
 import {EspionageReportParser} from '../parsers';
@@ -16,13 +16,23 @@ export class EspionageReportScrapper {
               private serverContext: ServerContext) {
   }
 
-  loadReportList(): Promise<EspionageReportList> {
-    return this.getListResponse()
-        .then(body => this.parser.parseReportList(body))
-        .then(reportList => {
-          this.lastToken = reportList.token;
-          return reportList;
-        });
+  async loadReportList(): Promise<EspionageReportList> {
+    let reports: EspionageBrief[];
+    let reportList = this.parser.parseReportList(await this.getListResponse());
+    this.lastToken = reportList.token;
+    reports = reportList.reports;
+    while (reportList.page < reportList.totalPages) {
+      reportList = this.parser.parseReportList(await this.getPageResponse(reportList.page + 1));
+      this.lastToken = reportList.token;
+      reports = reports.concat(reportList.reports);
+    }
+    reports = deduplicate(reports, (a, b) => b.header.id - a.header.id);
+    return {
+      token: this.lastToken,
+      page: 1,
+      totalPages: 1,
+      reports
+    };
   }
 
   private getListResponse(): Promise<string> {
@@ -36,6 +46,27 @@ export class EspionageReportScrapper {
       }
     }).then(response => response.text());
   }
+
+  async getPageResponse(page: number): Promise<string> {
+    let response = await this.fetcher.fetch({
+      url: this.serverContext.gameUrl,
+      method: 'POST',
+      query: {
+        page: 'messages'
+      },
+      body: {
+        messageId: -1,
+        tabid: 20,
+        action: 107,
+        pagination: page,
+        ajax: 1,
+        token: this.lastToken,
+        standalonePage: 0
+      }
+    });
+    return response.text();
+  }
+
   loadReport(id: number): Promise<StampedEspionageReport | undefined> {
     return this.fetcher.fetch({
       url: this.serverContext.gameUrl,
@@ -77,25 +108,24 @@ export class EspionageReportScrapper {
     }
   }
 
-  async loadAllReports(): Promise<StampedEspionageReport[]> {
+  async loadAllReports(clean: boolean = true): Promise<StampedEspionageReport[]> {
     const reportList = await this.loadReportList();
+    const result: StampedEspionageReport[] = [];
     this.loadingQueue = reportList.reports;
-    let reports = this.loadingQueue.slice();
-    let result = await processAll(reports, async brief => {
-      let id = brief.header.id, report: StampedEspionageReport | undefined;
-      if (brief.isCounterEspionage)
-        await this.deleteReport(id);
-      else {
-        report = await this.loadReport(id);
+    while (this.loadingQueue.length) {
+      const brief = this.loadingQueue.shift()!;
+      const id = brief.header.id;
+      if (brief.isCounterEspionage) {
+        if (clean) await this.deleteReport(id);
+      } else {
+        const report = await this.loadReport(id);
         if (report) {
+          result.push(report);
           await this.repo.store(report);
-          await this.deleteReport(id);
+          if (clean) await this.deleteReport(id);
         }
       }
-      this.loadingQueue.splice(this.loadingQueue.indexOf(brief), 1);
-      return report; // TODO maybe combine brief and report for better coverage?
-    });
-    if (!result.length) return result;
-    return this.loadAllReports().then(nextPage => (result.push(...nextPage), result));
+    }
+    return result;
   }
 }

@@ -1,5 +1,5 @@
 import {map} from '../../../common/common';
-import {PlayerStatusInfo, StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
+import {StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
 import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from '../../../common/types';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {HtmlParser} from './HtmlParser';
@@ -79,7 +79,6 @@ export function parseReport(doc: ParentNode): StampedEspionageReport | undefined
       time: planetActivityTime
     },
     counterEspionage,
-    parsedStatus: {} as PlayerStatusInfo, // FIXME
     resources: {
       metal,
       crystal,

@@ -1,5 +1,5 @@
 import {EspionageReportParser} from '../../../common/parsers';
-import {PlanetActivity, PlayerStatusInfo, StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
+import {PlanetActivity, StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
 import {Buildings, BuildingTypeId, Coordinates, CoordinateType, DefenseTypeId, Researches, ResearchTypeId, Resources, ShipTypeId} from '../../../common/types';
 import {parseLocalDate, parseOnlyNumbers, readAttribute, readBetween} from '../parsers-common';
 
@@ -39,21 +39,34 @@ export interface EspionageBrief {
 
 export interface EspionageReportList {
   token: string;
+  page: number;
+  totalPages: number;
   reports: EspionageBrief[];
 }
 
 export function parseReportListFull(body: string): EspionageReportList {
+  let topPaginationStart = body.indexOf(`<ul`);
   let topPaginationEnd = body.indexOf(`</ul>`);
+  const paginationBlock = body.substring(topPaginationStart, topPaginationEnd + `</ul>`.length).trim();
+
+  const [page, totalPages] = parsePagination(paginationBlock);
   const token = parseReportListForToken(body, topPaginationEnd);
   let bottomPaginationStart = body.indexOf(`<ul`, topPaginationEnd);
   let briefs = getSections(body, `<li`, topPaginationEnd, bottomPaginationStart);
   let empty = !briefs.length || readAttribute(briefs[0], 0, 'class') === 'no_msg';
   return {
-    token,
+    token, page, totalPages,
     reports: empty ? [] : briefs.map(body => parseBrief(body))
   };
 }
-
+function parsePagination(block: string): [number, number] {
+  const rawValues = readBetween(block, block.indexOf('curPage'), '>', '<');
+  const slashIndex = rawValues.indexOf('/');
+  return [
+    +rawValues.substring(0, slashIndex).trim(),
+    +rawValues.substring(slashIndex + 1).trim()
+  ]
+}
 function parseBrief(body: string): EspionageBrief {
   const headStart = body.indexOf(`<div class="msg_head">`);
   const contentStart = body.indexOf(`<span class="msg_content">`, headStart);
@@ -177,7 +190,6 @@ export function parseReport(body: string): StampedEspionageReport | undefined {
     playerStatus,
     activity,
     counterEspionage,
-    parsedStatus: {} as PlayerStatusInfo, // FIXME
     resources,
     fleet: fleetInfo,
     defense: defenseInfo,

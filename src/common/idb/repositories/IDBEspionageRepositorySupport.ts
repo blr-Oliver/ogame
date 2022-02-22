@@ -6,7 +6,6 @@ import {IDBEspionageRepository} from './IDBEspionageRepository';
     keyPath: [coordinates.galaxy, coordinates.system, coordinates.position, coordinates.type, timestamp]
     indexes:
       shards (unique): coordinates.galaxy, coordinates.system, coordinates.position, coordinates.type, infoLevel, timestamp
-      inactive: parsedStatus.vacation, parsedStatus.admin, parsedStatus.inactive, coordinates.galaxy, coordinates.system, coordinates.position, coordinates.type
       external-id (unique): id
 */
 export class IDBEspionageRepositorySupport implements IDBRepositorySupport<IDBEspionageRepository> {

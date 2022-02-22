@@ -103,7 +103,6 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
       result.planetName = shard.planetName;
       result.playerName = shard.playerName;
       result.playerStatus = shard.playerStatus;
-      result.parsedStatus = shard.parsedStatus;
       result.resources = shard.resources;
       source.push({
         id: shard.id,

@@ -1,3 +1,4 @@
+import {EspionageBrief} from '../../browser/parsers/no-dom/espionage-report-no-dom';
 import {getNearest, sleep, sleepUntil} from '../common';
 import {FlightCalculator} from '../core/calculator/FlightCalculator';
 import {PlayerContext} from '../core/PlayerContext';
@@ -9,8 +10,10 @@ import {EventListLoader, Launcher} from './Mapper';
 
 export class Scanner {
   targets: Coordinates[] = [];
+  probes: number = 1;
   maxSlots: number = 11;
   usedSlots: number = 0;
+  private working: boolean = false;
 
   constructor(private context: PlayerContext,
               private espionageRepo: EspionageRepository,
@@ -20,24 +23,17 @@ export class Scanner {
               private flightCalculator: FlightCalculator) {
   }
 
-  continueScanning() {
-    Promise.all([this.context.getResearches(), this.context.getBodies()])
-        .then(([researches, bodies]) => this.launchNext(researches, bodies));
-  }
-  /*
-    async scan(coordinates: Coordinates, infoLevel?: number): Promise<EspionageReport> {
-      const ownResearches = await this.context.getResearches();
-      const ownEspionage = ownResearches.espionage;
-      let existingReport = await this.espionageRepo.loadC(coordinates);
-      if (existingReport) {
-        if (existingReport.infoLevel === 4) {
-          let foreignEspionage = existingReport.researches!.espionage;
-        }
-      }
-      return existingReport!;
+  continueScanning(probes: number = 1) {
+    this.probes = probes;
+    if (!this.working) {
+      Promise.all([
+        this.context.getResearches(),
+        this.context.getBodies()
+      ]).then(([researches, bodies]) => this.launchNext(researches, bodies));
     }
-  */
-  async probe(target: Coordinates, probes: number = 1): Promise<StampedEspionageReport> {
+  }
+
+  async probe(target: Coordinates, probes: number = 1): Promise<StampedEspionageReport | undefined> {
     const [ownBodies, ownResearches] = await Promise.all([
       this.context.getBodies(),
       this.context.getResearches()
@@ -57,9 +53,10 @@ export class Scanner {
     const events = await this.eventLoader.loadEvents();
     const matchingEvent = this.findEvent(events, origin.coordinates, target, mission.fleet)!;
     await sleepUntil(matchingEvent.time);
-    await sleep(1000);
-    let allReports = await this.espionageScrapper.loadAllReports(); // TODO
-    return allReports[0];
+    await sleep(2000);
+    const briefs = await this.espionageScrapper.loadReportList();
+    const matchingBrief = this.findBrief(briefs.reports, target, matchingEvent.time);
+    return this.espionageScrapper.loadReport(matchingBrief!.header.id);
   }
 
   private findEvent(list: FlightEvent[], from: Coordinates, to: Coordinates, fleet: Fleet | FleetPartial): FlightEvent | undefined {
@@ -74,28 +71,53 @@ export class Scanner {
     if (matching.length) return matching[matching.length - 1];
   }
 
-  private launchNext(researches: Researches, bodies: SpaceBody[]) {
-    if (this.targets.length && this.usedSlots < this.maxSlots) {
-      let target = this.targets.pop()!;
-      let nearestBody = getNearest(bodies, target, this.flightCalculator);
-      let nearestPlanetId = nearestBody.id;
+  private findBrief(list: EspionageBrief[], coordinates: Coordinates, timestamp: Date, variance: number = 2000): EspionageBrief | undefined {
+    const forTarget = list
+        .filter(report => !report.isCounterEspionage)
+        .filter(report => sameCoordinates(report.header.coordinates, coordinates));
+    const withinVariance = forTarget
+        .filter(report => Math.abs(report.header.timestamp.getTime() - timestamp.getTime()) <= variance);
+    // return withinVariance[0];
+    // TODO fix server/local time shift
+    return forTarget[0];
+  }
+
+  private async launchNext(ownResearches: Researches, ownBodies: SpaceBody[]) {
+    if (this.working) return;
+
+    this.working = true;
+
+    while (this.targets.length) {
+      if (this.usedSlots >= this.maxSlots) {
+        await sleep(5000);
+        continue;
+      }
+      let target = this.targets.shift()!;
+      let origin = getNearest(ownBodies, target, this.flightCalculator);
+      if (origin.companion && origin.coordinates.type === CoordinateType.Planet)
+        origin = origin.companion;
+      const mission: Mission = {
+        from: origin.id,
+        to: target,
+        speed: 10,
+        fleet: {espionageProbe: this.probes},
+        mission: MissionType.Espionage
+      };
       let flightTime = this.flightCalculator.flightTime(
-          this.flightCalculator.distanceC(target, nearestBody.coordinates),
-          this.flightCalculator.fleetSpeed({espionageProbe: 1}, researches)
+          this.flightCalculator.distanceC(target, origin.coordinates),
+          this.flightCalculator.fleetSpeed(mission.fleet, ownResearches)
       );
       ++this.usedSlots;
-      this.launcher.launch({
-        from: nearestPlanetId,
-        to: target,
-        fleet: {espionageProbe: 1},
-        mission: MissionType.Espionage
-      }).then(() => {
+      try {
+        await this.launcher.launch(mission);
         setTimeout(() => {
           --this.usedSlots;
-          this.launchNext(researches, bodies);
         }, (flightTime * 2 + 5) * 1000);
-        this.launchNext(researches, bodies);
-      });
+      } catch (e) {
+        --this.usedSlots;
+        this.targets.push(target);
+      }
     }
+    this.working = false;
   }
 }
