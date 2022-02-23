@@ -1,6 +1,7 @@
 import {EspionageBrief, EspionageReportList} from '../../browser/parsers/no-dom/espionage-report-no-dom';
-import {deduplicate} from '../common';
+import {deduplicate, processAll} from '../common';
 import {Fetcher} from '../core/Fetcher';
+import {parallelLimit} from '../core/parallel-limit';
 import {ServerContext} from '../core/ServerContext';
 import {EspionageReportParser} from '../parsers';
 import {StampedEspionageReport} from '../report-types';
@@ -110,22 +111,27 @@ export class EspionageReportScrapper {
 
   async loadAllReports(clean: boolean = true): Promise<StampedEspionageReport[]> {
     const reportList = await this.loadReportList();
-    const result: StampedEspionageReport[] = [];
+    const deleteReport: (id: number) => Promise<string> = parallelLimit(id => this.deleteReport(id), 1);
+    const deleteQueue: Promise<string>[] = [];
+
     this.loadingQueue = reportList.reports;
-    while (this.loadingQueue.length) {
-      const brief = this.loadingQueue.shift()!;
+    const result = await processAll(this.loadingQueue.slice(), async brief => {
       const id = brief.header.id;
       if (brief.isCounterEspionage) {
-        if (clean) await this.deleteReport(id);
+        this.loadingQueue.splice(this.loadingQueue.indexOf(brief), 1);
+        if (clean) deleteQueue.push(deleteReport(id));
       } else {
         const report = await this.loadReport(id);
         if (report) {
-          result.push(report);
           await this.repo.store(report);
-          if (clean) await this.deleteReport(id);
+          this.loadingQueue.splice(this.loadingQueue.indexOf(brief), 1);
+          if (clean) deleteQueue.push(deleteReport(id));
+          return report;
         }
       }
-    }
+    }, true, true);
+
+    await Promise.all(deleteQueue);
     return result;
   }
 }
