@@ -11,7 +11,7 @@ import {EventListLoader, Launcher} from './Mapper';
 export class Scanner {
   targets: Coordinates[] = [];
   probes: number = 1;
-  maxSlots: number = 11;
+  maxSlots: number = 0;
   usedSlots: number = 0;
   private working: boolean = false;
 
@@ -112,7 +112,7 @@ export class Scanner {
         await this.launcher.launch(mission);
         setTimeout(() => {
           --this.usedSlots;
-        }, (flightTime * 2 + 5) * 1000);
+        }, (flightTime * 2 + 3) * 1000);
       } catch (e) {
         --this.usedSlots;
         this.targets.push(target);

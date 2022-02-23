@@ -94,14 +94,6 @@ function getCells(body: string, position: number, end?: number): string[] {
   return cells;
 }
 
-function parseAlliedHeader(tr: HTMLTableRowElement): FlightEvent | undefined {
-  return; // TODO
-}
-
-function addPartners(main: FlightEvent, partners: HTMLTableRowElement[]): FlightEvent {
-  return main;
-}
-
 function getType(classList: string): CoordinateType | undefined {
   let classes = classList.split(' ');
   if (classes.indexOf('planet') !== -1) return CoordinateType.Planet;

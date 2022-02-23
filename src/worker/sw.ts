@@ -8,4 +8,7 @@ declare var navigator: WorkerNavigator & { locks: LockManager };
 const shim = ReplayingEventShim.shim(self, false, 'message', 'fetch');
 
 ServiceWorkerContext.init(self, shim, navigator.locks)
-    .then(context => serviceWorkerMain(self, context));
+    .then(context => {
+      (self as any)['context'] = context;
+      return serviceWorkerMain(self, context);
+    });
