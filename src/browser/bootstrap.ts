@@ -18,9 +18,7 @@ import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseCont
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {ReportProcessor} from '../common/services/ReportProcessor';
-import {Scanner} from '../common/services/Scanner';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
-import {CoordinateType, Mission, MissionType} from '../common/types';
 import {JSONGalaxyParser} from './parsers/json/galaxy-report-json';
 import {NoDOMEspionageReportParser} from './parsers/no-dom/espionage-report-no-dom';
 import {NoDOMEventListParser} from './parsers/no-dom/event-list-no-dom';
@@ -72,6 +70,7 @@ if ('serviceWorker' in navigator) {
     const costCalculator = new CachingCostCalculator();
     const reportProcessor = new ReportProcessor(universe, flightCalculator, costCalculator);
     (window as any)['espionageRepo'] = espionageRepo;
+    (window as any)['galaxyRepo'] = galaxyRepo;
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
     (window as any)['espionageScrapper'] = espionageScrapper;
     const autoRaid = new AutoRaidImpl(
@@ -80,31 +79,9 @@ if ('serviceWorker' in navigator) {
     (window as any)['autoRaid'] = autoRaid;
     autoRaid.state.maxSlots = 8;
     //autoRaid.continue();
-    const scanner = new Scanner(playerContext, espionageRepo, launcher, eventListLoader, espionageScrapper, flightCalculator);
-    (window as any)['scanner'] = scanner;
   });
-
-  // 9724905
-  const mission: Mission = {
-    from: 33811468,
-    to: {
-      galaxy: 7,
-      system: 329,
-      position: 9,
-      type: CoordinateType.Moon
-    },
-    mission: MissionType.Espionage,
-    fleet: {
-      espionageProbe: 1
-    }
-  }
-  function getUniverseConfig() {
-    return NoDOMUniverseContext.acquire(fetcher, serverContext);
-  }
   (window as any)['launcher'] = launcher;
-  (window as any)['_mission'] = mission;
   (window as any)['playerContext'] = playerContext;
-  (window as any)['getUniverseConfig'] = getUniverseConfig;
 } else {
   console.error('Service workers not supported.')
 }

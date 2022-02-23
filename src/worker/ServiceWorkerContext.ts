@@ -2,6 +2,7 @@ import {JSONGalaxyParser} from '../browser/parsers/json/galaxy-report-json';
 import {NoDOMEspionageReportParser} from '../browser/parsers/no-dom/espionage-report-no-dom';
 import {NoDOMEventListParser} from '../browser/parsers/no-dom/event-list-no-dom';
 import {getCurrentClientId} from '../common/client-id';
+import {CachingCostCalculator, CostCalculator} from '../common/core/calculator/CostCalculator';
 import {FlightCalculator, StaticFlightCalculator} from '../common/core/calculator/FlightCalculator';
 import {Fetcher} from '../common/core/Fetcher';
 import {NativeFetcher} from '../common/core/NativeFetcher';
@@ -24,6 +25,7 @@ import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseCont
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {EventListLoader, Launcher} from '../common/services/Mapper';
+import {ReportProcessor} from '../common/services/ReportProcessor';
 import {Scanner} from '../common/services/Scanner';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
@@ -40,6 +42,7 @@ export class ServiceWorkerContext {
       readonly universe: UniverseContext,
       readonly player: PlayerContext,
       readonly flightCalc: FlightCalculator,
+      readonly costCalc: CostCalculator,
       readonly repositoryProvider: IDBRepositoryProvider,
       readonly galaxyRepository: GalaxyRepository,
       readonly espionageRepository: EspionageRepository,
@@ -51,7 +54,8 @@ export class ServiceWorkerContext {
       readonly launcher: Launcher,
       readonly eventLoader: EventListLoader,
       readonly clientManager: ClientManager,
-      readonly scanner: Scanner
+      readonly scanner: Scanner,
+      readonly reportProcessor: ReportProcessor
   ) {
   }
 
@@ -66,6 +70,7 @@ export class ServiceWorkerContext {
     const universe = await NoDOMUniverseContext.acquire(fetcher, server);
     const player = new NoDOMPlayerContext(server, fetcher);
     const flightCalc = new StaticFlightCalculator(universe);
+    const costCalc = new CachingCostCalculator();
     const galaxyRepositorySupport = new IDBGalaxyRepositorySupport();
     const espionageRepositorySupport = new IDBEspionageRepositorySupport();
     const repositoryProvider = new IDBRepositoryProvider(self.indexedDB, 'ogame', {
@@ -91,6 +96,7 @@ export class ServiceWorkerContext {
     const eventLoader = new AjaxEventListLoader(fetcher, eventListParser, server);
     const clientManager = new ClientManager(self, locks, selfId, autoObserve);
     const scanner = new Scanner(player, espionageRepository, launcher, eventLoader, espionageScrapper, flightCalc);
+    const reportProcessor = new ReportProcessor(universe, flightCalc, costCalc);
 
     return new ServiceWorkerContext(
         selfId,
@@ -100,6 +106,7 @@ export class ServiceWorkerContext {
         universe,
         player,
         flightCalc,
+        costCalc,
         repositoryProvider,
         galaxyRepository,
         espionageRepository,
@@ -111,7 +118,8 @@ export class ServiceWorkerContext {
         launcher,
         eventLoader,
         clientManager,
-        scanner
+        scanner,
+        reportProcessor
     );
   }
 }
