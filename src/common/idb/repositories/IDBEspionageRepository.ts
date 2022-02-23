@@ -108,7 +108,7 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
       result.resources = shard.resources;
       result.counterEspionage = Math.max(shard.counterEspionage, result.counterEspionage);
       result.loot = shard.loot;
-      source.push({
+      source.unshift({
         id: shard.id,
         timestamp: shard.timestamp,
         infoLevel: shard.infoLevel
