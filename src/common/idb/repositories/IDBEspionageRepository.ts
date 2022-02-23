@@ -2,12 +2,11 @@ import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../..
 import {EspionageRepository} from '../../repository-types';
 import {Coordinates, CoordinateType} from '../../types';
 import {IDBRepository} from '../IDBRepository';
-import {IDBUtils} from '../IDBUtils';
+import {IDBUtils, MIN_DATE} from '../IDBUtils';
 
 const {
   headMatchKeyRange,
   getFirstFromIndex,
-  getAllFromIndex,
   upsertOne
 } = IDBUtils;
 
@@ -34,15 +33,18 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
       const reportStore = tx.objectStore(IDBEspionageRepository.REPORT_STORE);
       const shardsIndex = reportStore.index(IDBEspionageRepository.SHARDS_INDEX);
       const shardKeyCursorRequest = shardsIndex.openKeyCursor(null, 'prev');
-      let lastInfoLevelKey: number[] = [Infinity, Infinity, Infinity, Infinity, Infinity];
+      let lastGoodKey: IDBValidKey[] = [Infinity, Infinity, Infinity, Infinity, Infinity, MIN_DATE];
       shardKeyCursorRequest.onsuccess = () => {
         const shardKeyCursor = shardKeyCursorRequest.result;
         if (shardKeyCursor) {
           let currentKey = shardKeyCursor.key as IDBValidKey[];
-          let currentInfoLevelKey = currentKey.slice(0, 5) as number[];
-          if (this.cmpShardKeys(lastInfoLevelKey, currentInfoLevelKey) !== 0)
-            lastInfoLevelKey = currentInfoLevelKey;
-          else
+          if (
+              this.cmpShardKeys(lastGoodKey, currentKey, 5) !== 0 &&
+              (this.cmpShardKeys(lastGoodKey, currentKey, 4) !== 0
+                  || lastGoodKey[5] < currentKey[5])
+          ) {
+            lastGoodKey = currentKey;
+          } else
             reportStore.delete(shardKeyCursor.primaryKey);
           shardKeyCursor.continue();
         } else resolve();
@@ -51,13 +53,13 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
     }));
   }
 
-  private cmpShardKeys(a: number[], b: number[]): number {
-    const len = Math.min(a.length, b.length);
+  private cmpShardKeys(a: IDBValidKey[], b: IDBValidKey[], len: number): number {
+    len = Math.min(len, a.length, b.length);
     for (let i = 0; i < len; ++i) {
-      let cmp = a[i] - b[i];
+      let cmp = (a[i] as number) - (b[i] as number);
       if (cmp) return cmp;
     }
-    return a.length - b.length;
+    return 0;
   }
 
   load(galaxy: number, system: number, position: number, type: CoordinateType = CoordinateType.Planet): Promise<ShardedEspionageReport | undefined> {
