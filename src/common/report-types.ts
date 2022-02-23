@@ -106,6 +106,7 @@ export interface EspionageReport {
   playerStatus: string;
   counterEspionage: number;
   activity: PlanetActivity;
+  loot?: number;
 
   resources: Resources;
   fleet?: FleetPartial;

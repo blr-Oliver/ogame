@@ -121,8 +121,9 @@ export class EspionageReportScrapper {
         this.loadingQueue.splice(this.loadingQueue.indexOf(brief), 1);
         if (clean) deleteQueue.push(deleteReport(id));
       } else {
-        const report = await this.loadReport(id);
+        let report = await this.loadReport(id);
         if (report) {
+          report = this.combine(report, brief);
           await this.repo.store(report);
           this.loadingQueue.splice(this.loadingQueue.indexOf(brief), 1);
           if (clean) deleteQueue.push(deleteReport(id));
@@ -133,5 +134,11 @@ export class EspionageReportScrapper {
 
     await Promise.all(deleteQueue);
     return result;
+  }
+
+  private combine(report: StampedEspionageReport, brief: EspionageBrief): StampedEspionageReport {
+    report.loot = brief.content!.loot;
+    report.activity = brief.content!.activity;
+    return report;
   }
 }
