@@ -25,7 +25,8 @@ import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseCont
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {EventListLoader, Launcher} from '../common/services/Mapper';
-import {ReportProcessor} from '../common/services/ReportProcessor';
+import {Raider} from '../common/services/Raider';
+import {RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {Scanner} from '../common/services/Scanner';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
@@ -55,7 +56,8 @@ export class ServiceWorkerContext {
       readonly eventLoader: EventListLoader,
       readonly clientManager: ClientManager,
       readonly scanner: Scanner,
-      readonly reportProcessor: ReportProcessor
+      readonly analyzer: RaidReportAnalyzer,
+      readonly raider: Raider
   ) {
   }
 
@@ -96,7 +98,8 @@ export class ServiceWorkerContext {
     const eventLoader = new AjaxEventListLoader(fetcher, eventListParser, server);
     const clientManager = new ClientManager(self, locks, selfId, autoObserve);
     const scanner = new Scanner(player, espionageRepository, launcher, eventLoader, espionageScrapper, flightCalc);
-    const reportProcessor = new ReportProcessor(universe, flightCalc, costCalc);
+    const analyzer = new RaidReportAnalyzer(universe, flightCalc, costCalc);
+    const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher);
 
     return new ServiceWorkerContext(
         selfId,
@@ -119,7 +122,8 @@ export class ServiceWorkerContext {
         eventLoader,
         clientManager,
         scanner,
-        reportProcessor
+        analyzer,
+        raider
     );
   }
 }

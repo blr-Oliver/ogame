@@ -11,12 +11,13 @@ import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRe
 import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
 import {AutoObserveStub} from '../common/remote/AutoObserveStub';
 import {AjaxEventListLoader} from '../common/services/AjaxEventListLoader';
-import {AutoRaidImpl} from '../common/services/AutoRaidImpl';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
 import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
+import {Raider} from '../common/services/Raider';
+import {RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {ReportProcessor} from '../common/services/ReportProcessor';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {JSONGalaxyParser} from './parsers/json/galaxy-report-json';
@@ -73,12 +74,11 @@ if ('serviceWorker' in navigator) {
     (window as any)['galaxyRepo'] = galaxyRepo;
     const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
     (window as any)['espionageScrapper'] = espionageScrapper;
-    const autoRaid = new AutoRaidImpl(
-        playerContext, launcher, eventListLoader, espionageScrapper,
-        galaxyObserver, espionageRepo, galaxyRepo, reportProcessor, flightCalculator);
-    (window as any)['autoRaid'] = autoRaid;
-    autoRaid.state.maxSlots = 8;
-    //autoRaid.continue();
+    const analyzer = new RaidReportAnalyzer(universe, flightCalculator, costCalculator);
+    const raider = new Raider(playerContext, galaxyRepo, espionageRepo, espionageScrapper, eventListLoader, analyzer, launcher);
+    (window as any)['raider'] = raider;
+    raider.minFreeSlots = 2;
+    raider.maxRaidSlots = 15;
   });
   (window as any)['launcher'] = launcher;
   (window as any)['playerContext'] = playerContext;
