@@ -236,7 +236,7 @@ function parseReportActivity(block: string): [PlanetActivity, number] {
 
 function parseCoordinates(body: string, titlePosition: number): [string, Coordinates] {
   const msgTitle = readBetween(body, titlePosition, `</figure>`, `<`).trim();
-  const [planetName, galaxy, system, position] = /^(.+)\s\[(\d):(\d{1,3}):(\d{1,2})]$/.exec(msgTitle)!.slice(1);
+  const [planetName, galaxy, system, position] = /^(.+)\s?\[(\d):(\d{1,3}):(\d{1,2})]$/.exec(msgTitle)!.slice(1);
   const coordinates: Coordinates = {
     galaxy: +galaxy,
     system: +system,
