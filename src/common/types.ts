@@ -161,3 +161,6 @@ export interface Mission {
 }
 
 export type SystemCoordinates = [galaxy: number, system: number];
+
+export type PlayerClass = 'collector' | 'general' | 'discoverer' | 'none';
+export type AllianceClass = 'trader' | 'researcher' | 'warrior' | 'none';

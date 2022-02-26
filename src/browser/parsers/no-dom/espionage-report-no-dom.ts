@@ -1,6 +1,18 @@
 import {EspionageReportParser} from '../../../common/parsers';
 import {PlanetActivity, StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
-import {Buildings, BuildingTypeId, Coordinates, CoordinateType, DefenseTypeId, Researches, ResearchTypeId, Resources, ShipTypeId} from '../../../common/types';
+import {
+  AllianceClass,
+  Buildings,
+  BuildingTypeId,
+  Coordinates,
+  CoordinateType,
+  DefenseTypeId,
+  PlayerClass,
+  Researches,
+  ResearchTypeId,
+  Resources,
+  ShipTypeId
+} from '../../../common/types';
 import {parseLocalDate, parseOnlyNumbers, readAttribute, readBetween} from '../parsers-common';
 
 export class NoDOMEspionageReportParser implements EspionageReportParser {
@@ -169,6 +181,8 @@ export function parseReport(body: string): StampedEspionageReport | undefined {
   // TODO include class info in report
   let [playerName, playerStatus] = parseReportPlayer(playerBlock);
   let [activity, counterEspionage] = parseReportActivity(activityBlock);
+  let playerClass = parsePlayerClass(classBlock);
+  let allianceClass = parseAllianceClass(allianceClassBlock);
   let sections = getSections(body, SECTION_MARKER, sectionsStart);
   let sectionsByType = ['resources', 'ships', 'defense', 'buildings', 'research']
       .map(dataType => sections.filter(section => sectionMatches(section, dataType)));
@@ -181,21 +195,38 @@ export function parseReport(body: string): StampedEspionageReport | undefined {
 
   let infoLevel = +!!fleetInfo + +!!defenseInfo + +!!buildingInfo + +!!researchInfo;
   return {
-    id,
-    timestamp,
-    infoLevel,
-    coordinates,
-    planetName,
-    playerName,
-    playerStatus,
-    activity,
-    counterEspionage,
+    id, timestamp, infoLevel, coordinates,
+    planetName, playerName, playerStatus,
+    activity, counterEspionage,
+    playerClass, allianceClass,
     resources,
     fleet: fleetInfo,
     defense: defenseInfo,
     buildings: buildingInfo as Buildings,
     researches: researchInfo as Researches
   };
+}
+
+function parsePlayerClass(block: string): PlayerClass {
+  let rawClass = readBetween(block, block.indexOf(':'), '>', '<').trim().toLowerCase();
+  rawClass = rawClass.replaceAll(NBSP, '').trim();
+
+  switch (rawClass) {
+    case 'collector':
+    case 'discoverer':
+    case 'general':
+      return rawClass;
+    default:
+      return 'none';
+  }
+}
+
+function parseAllianceClass(block: string): AllianceClass {
+  let classList = readAttribute(block, block.indexOf(':'), 'class').trim().toLowerCase();
+  if (classList.indexOf('trader') !== -1) return 'trader';
+  if (classList.indexOf('warrior') !== -1) return 'warrior';
+  if (classList.indexOf('researcher') !== -1) return 'researcher';
+  return 'none';
 }
 
 function sectionMatches(section: string, dataType: string) {
@@ -206,7 +237,6 @@ function parseInfoSection(body: string, prefix: string, mapping: { [techId: numb
   let result: StringNumberMap = {};
   let items = getSections(body, `<li`, 0);
   items.forEach(record => {
-    let imgPosition = record.indexOf(`img`);
     let prefixed = readAttribute(record, record.indexOf(`img`), 'class').trim();
     if (!prefixed.startsWith(prefix)) throw new Error(`incorrect section identifier for prefix ${prefix}: ${prefixed}`);
     const key = mapping[+prefixed.substring(prefix.length)];
@@ -244,7 +274,7 @@ function parseCoordinates(body: string, titlePosition: number): [string, Coordin
   };
   const iconClass = readAttribute(body, body.indexOf(`<figure`, titlePosition), 'class');
   coordinates.type = iconClass.indexOf('moon') !== -1 ? CoordinateType.Moon : CoordinateType.Planet;
-  return [planetName, coordinates];
+  return [planetName.trim(), coordinates];
 }
 
 function parseResources(block: string): Resources {

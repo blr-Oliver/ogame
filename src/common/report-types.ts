@@ -1,4 +1,4 @@
-import {Buildings, Coordinates, Defense, DefensePartial, Fleet, FleetPartial, MissionType, Researches, Resources} from './types';
+import {AllianceClass, Buildings, Coordinates, Defense, DefensePartial, Fleet, FleetPartial, MissionType, PlayerClass, Researches, Resources} from './types';
 
 export type ZeroOne = 0 | 1;
 
@@ -106,6 +106,8 @@ export interface EspionageReport {
   playerStatus: string;
   counterEspionage: number;
   activity: PlanetActivity;
+  playerClass: PlayerClass;
+  allianceClass: AllianceClass;
   loot?: number;
 
   resources: Resources;

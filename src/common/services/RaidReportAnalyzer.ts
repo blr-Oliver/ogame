@@ -149,9 +149,10 @@ export class RaidReportAnalyzer {
       const mineLevels = [buildings.metalMine || 0, buildings.crystalMine || 0, buildings.deutMine || 0];
       const positionMultiplier = this.costCalc.getProductionMultiplier(position);
       const plasmaMultiplier = this.plasmaMultiplier(item.report.researches?.plasma);
+      const classMultiplier = 1 + (item.report.playerClass === 'collector' ? 0.25 : 0) + (item.report.allianceClass === 'trader' ? 0.05 : 0);
       const naturalProduction = this.costCalc.data.naturalProduction;
       const production = mineLevels.map((level, i) => (this.costCalc.getProduction(i, level) + naturalProduction[i])
-          * positionMultiplier[i] * plasmaMultiplier[i] * this.universe.economyFactor);
+          * positionMultiplier[i] * plasmaMultiplier[i] * classMultiplier * this.universe.economyFactor);
       const energyNeeded = mineLevels.reduce((sum, level, i) => sum + this.costCalc.getEnergyConsumption(i, level), 0);
       const energyAvailable = item.report.resources.energy ?? energyNeeded;
       const productionFactor = Math.min(1, energyNeeded ? energyAvailable / energyNeeded : 0);
@@ -185,6 +186,7 @@ export class RaidReportAnalyzer {
 
   private computeRating(request: SuggestionRequest, item: ProcessingItem) {
     item.ratedValue = item.maximumPlunder.reduce((sum, r, i) => sum + r * request.rating[i], 0);
+    item.ratedValue -= request.rating[2] * item.fuel;
     item.efficiency = item.ratedValue / item.flightTime;
   }
 

@@ -74,6 +74,8 @@ export function parseReport(doc: ParentNode): StampedEspionageReport | undefined
     planetName,
     playerName,
     playerStatus,
+    playerClass: 'none',
+    allianceClass: 'none',
     activity: {
       active: planetActivity,
       time: planetActivityTime

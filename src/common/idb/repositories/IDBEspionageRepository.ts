@@ -105,6 +105,8 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
       result.planetName = shard.planetName;
       result.playerName = shard.playerName;
       result.playerStatus = shard.playerStatus;
+      result.playerClass = shard.playerClass;
+      result.allianceClass = shard.allianceClass;
       result.resources = shard.resources;
       result.counterEspionage = Math.max(shard.counterEspionage, result.counterEspionage);
       result.loot = shard.loot;
