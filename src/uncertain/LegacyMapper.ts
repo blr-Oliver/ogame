@@ -38,7 +38,7 @@ export class LegacyMapper implements Mapper {
         });
   }
 
-  launch(mission: Mission): Promise<any> {
+  launch(mission: Mission, maxAttempts?: number): Promise<any> {
     const form: Form = {};
     return this.fleetStep1(mission)
         .then(() => this.fleetStep2(form, mission))

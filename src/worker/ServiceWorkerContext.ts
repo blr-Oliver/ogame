@@ -28,6 +28,7 @@ import {EventListLoader, Launcher} from '../common/services/Mapper';
 import {Raider} from '../common/services/Raider';
 import {RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {Scanner} from '../common/services/Scanner';
+import {MissionScheduler} from '../common/services/Schedule';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {ClientManager} from './ClientManager';
@@ -57,7 +58,8 @@ export class ServiceWorkerContext {
       readonly clientManager: ClientManager,
       readonly scanner: Scanner,
       readonly analyzer: RaidReportAnalyzer,
-      readonly raider: Raider
+      readonly raider: Raider,
+      readonly scheduler: MissionScheduler
   ) {
   }
 
@@ -100,6 +102,7 @@ export class ServiceWorkerContext {
     const scanner = new Scanner(player, espionageRepository, launcher, eventLoader, espionageScrapper, flightCalc);
     const analyzer = new RaidReportAnalyzer(universe, flightCalc, costCalc);
     const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher);
+    const scheduler = new MissionScheduler(launcher);
 
     return new ServiceWorkerContext(
         selfId,
@@ -123,7 +126,8 @@ export class ServiceWorkerContext {
         clientManager,
         scanner,
         analyzer,
-        raider
+        raider,
+        scheduler
     );
   }
 }

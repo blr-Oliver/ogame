@@ -12,7 +12,8 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
     espionageRepository,
     galaxyMonitor,
     autoObserve,
-    raider
+    raider,
+    scheduler
   } = context;
 
   self.addEventListener('fetch', (e: Event) => galaxyMonitor.spyGalaxyRequest(e as FetchEvent));
@@ -76,6 +77,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   }
 
   (self as any)['raider'] = raider;
+  (self as any)['scheduler'] = scheduler;
   (self as any)['findUncertainTargets'] = findUncertainTargets;
   // (self as any)['rateInactiveTargets'] = rateInactiveTargets;
   (self as any)['rankSystemsWithInactiveTargets'] = rankSystemsWithInactiveTargets;

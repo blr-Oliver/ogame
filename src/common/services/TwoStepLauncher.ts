@@ -5,6 +5,7 @@ import {CoordinateType, Mission, ShipType, ShipTypeId} from '../types';
 import {Launcher} from './Mapper';
 
 interface LaunchTask {
+  maxAttempts?: number;
   mission: Mission;
   resolve: (x: any) => void;
   reject: (e: any) => void;
@@ -33,10 +34,10 @@ export class TwoStepLauncher implements Launcher {
       private readonly fetcher: Fetcher) {
   }
 
-  launch(mission: Mission): Promise<unknown> {
+  launch(mission: Mission, maxAttempts: number = 3): Promise<unknown> {
     console.debug(`TwoStepLauncher#launch()`, mission);
     return new Promise((resolve, reject) => {
-      this.queue.push({mission, resolve, reject});
+      this.queue.push({mission, resolve, reject, maxAttempts});
       this.continueProcessing();
     });
   }
@@ -56,7 +57,7 @@ export class TwoStepLauncher implements Launcher {
   private async processTask(task: LaunchTask): Promise<void> {
     console.debug(`TwoStepLauncher#processTask(): starting`, task.mission);
     const body = this.prepareBody(task.mission);
-    let attemptsLeft = 3;
+    let attemptsLeft = task.maxAttempts || 3;
     let delay = 0;
     while (attemptsLeft > 0) {
       delay && await sleep(delay);
