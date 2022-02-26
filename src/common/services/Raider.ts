@@ -14,6 +14,7 @@ export class Raider {
   timeShift = 1000 * 3600 * 3;
   maxReportAge = 1000 * 3600 * 0.5;
   rate: [number, number, number] = [1, 3, 4];
+  excludedOrigins: number[] = [];
 
   private nextWakeUp?: Date;
   private nextWakeUpId?: number;
@@ -73,6 +74,7 @@ export class Raider {
           fleet[body.id] = await this.player.getFleet(body.id);
         }, false, false);
         bodies = bodies.filter(body => (fleet[body.id].smallCargo || 0) > 0);
+        bodies = bodies.filter(body => !this.excludedOrigins.some(id => body.id === id));
         const request: SuggestionRequest = {
           unexploredTargets,
           reports,

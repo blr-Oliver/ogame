@@ -20,8 +20,9 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   shim.relay = true;
   autoObserve.continue();
 
-  raider.maxRaidSlots = 21;
-  raider.minFreeSlots = 6;
+  raider.maxRaidSlots = 13;
+  raider.minFreeSlots = 2;
+  raider.excludedOrigins = [33812837];
   raider.continue();
 
   async function findUncertainTargets(): Promise<{ [infoLevel: number]: ShardedEspionageReport[] }> {
