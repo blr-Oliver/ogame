@@ -180,7 +180,7 @@ export class StaticFlightCalculator implements FlightCalculator {
     m <<= 1;
     if (3 * c >= m + d) return m + d;
     let t = 3 * (m + c + d);
-    return t >> 2 + +!!(t & 3); // = Math.ceil(t / 4)
+    return (t >> 2) + +!!(t & 3); // = Math.ceil(t / 4)
   }
 
   fleetSpeed(fleet: FleetPartial | Fleet, researches: Researches): number {

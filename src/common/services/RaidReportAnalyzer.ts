@@ -168,7 +168,9 @@ export class RaidReportAnalyzer {
   private computeExpectedResources(request: SuggestionRequest, item: ProcessingItem) {
     let miningTime = (item.age + item.flightTime * 1000) / 1000 / 3600;
     let resources: Triplet = [item.report.resources.metal || 0, item.report.resources.crystal || 0, item.report.resources.deuterium || 0];
-    item.expectedResources = resources.map((r, i) => Math.floor(Math.min(r + item.production[i] * miningTime, item.productionLimit[i]))) as Triplet;
+    item.expectedResources = resources.map((r, i) => Math.floor(
+        Math.max(r, Math.min(r + item.production[i] * miningTime, item.productionLimit[i]))
+    )) as Triplet;
   }
 
   private computePlunder(request: SuggestionRequest, item: ProcessingItem) {
@@ -180,6 +182,11 @@ export class RaidReportAnalyzer {
     const capacity = this.flightCalc.capacityFor(item.maximumPlunder[0], item.maximumPlunder[1], item.maximumPlunder[2]);
     const transportCapacity = 5000 * (1 + (request.researches.hyperspace || 0) * 0.05);
     item.transports = Math.ceil(capacity / transportCapacity);
+    /*
+    const actualPlunder = this.flightCalc.plunderWith(
+        item.expectedResources[0], item.expectedResources[1], item.expectedResources[2], capacity, (item.report.loot || 75) * 0.01);
+    const difference = actualPlunder.reduce((sum, r, i) => sum += Math.abs(r - item.maximumPlunder[i]), 0);
+     */
     item.fuel = this.flightCalc.fuelConsumption(item.distance, {smallCargo: item.transports},
         request.researches, item.flightTime, 0, MissionType.Attack);
   }
