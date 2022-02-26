@@ -39,61 +39,61 @@ export class Raider {
       console.debug(`Raider: disabled, going idle`);
       return;
     }
-    console.debug(`Raider: loading events`);
-    const events = await this.eventLoader.loadEvents();
-    console.debug(`Raider: counting slots`);
-    const [own, raid] = this.countSlots(events);
-    const slotsLeft = Math.min(this.maxTotalSlots - this.minFreeSlots - own, this.maxRaidSlots - raid);
-    console.debug(`Raider: occupied=${own} (raids=${raid}), available=${slotsLeft}`);
-    if (slotsLeft <= 0) {
-      this.scheduleContinue(events);
-      return;
+    let events: FlightEvent[] | undefined;
+    try {
+      console.debug(`Raider: loading events`);
+      events = await this.eventLoader.loadEvents();
+      console.debug(`Raider: counting slots`);
+      const [own, raid] = this.countSlots(events!);
+      const slotsLeft = Math.min(this.maxTotalSlots - this.minFreeSlots - own, this.maxRaidSlots - raid);
+      console.debug(`Raider: occupied=${own} (raids=${raid}), available=${slotsLeft}`);
+      if (slotsLeft > 0) {
+        console.debug(`Raider: locating targets`);
+        let [targets] = await Promise.all([
+          this.galaxyRepo.findInactiveTargets(),
+          this.espionageScrapper.loadAllReports()
+        ]);
+        const count = targets.length;
+        const ongoingTargets = events!.filter(event => this.isRaidEvent(event, false)).map(event => event.to);
+        events = undefined;
+        targets = targets.filter(target => !ongoingTargets.some(excluded => sameCoordinates(excluded, target)));
+        console.debug(`Raider: excluded ${count - targets.length} ongoing targets`);
+        await this.espionageRepo.deleteOldReports();
+        let unexploredTargets: Coordinates[] = [];
+        console.debug(`Raider: loading reports`);
+        const reports = await processAll(targets, async target => {
+          const report = await this.espionageRepo.loadC(target);
+          if (!report) unexploredTargets.push(target);
+          else return report;
+        }, true, true);
+        console.debug(`Raider: loading context`);
+        let [researches, bodies] = await Promise.all([this.player.getResearches(), this.player.getBodies()]);
+        let fleet: { [bodyId: number]: FleetPartial } = {};
+        await processAll(bodies, async body => {
+          fleet[body.id] = await this.player.getFleet(body.id);
+        }, false, false);
+        bodies = bodies.filter(body => (fleet[body.id].smallCargo || 0) > 0);
+        const request: SuggestionRequest = {
+          unexploredTargets,
+          reports,
+          bodies,
+          researches,
+          fleet,
+          timeShift: this.timeShift,
+          rating: this.rate,
+          maxReportAge: this.maxReportAge,
+          minRaid: 1,
+          maxMissions: slotsLeft
+        };
+        console.debug(`Raider: analyzing`);
+        const missions = this.analyzer.suggestMissions(request);
+        console.debug(`Raider: launching`);
+        await this.launchMissions(missions);
+      }
+    } finally {
+      await sleep(1000);
+      await this.scheduleContinue(events);
     }
-    console.debug(`Raider: locating targets`);
-    let [targets] = await Promise.all([
-      this.galaxyRepo.findInactiveTargets(),
-      this.espionageScrapper.loadAllReports()
-    ]);
-    const count = targets.length;
-    const ongoingTargets = events.filter(event => this.isRaidEvent(event, false)).map(event => event.to);
-    targets = targets.filter(target => !ongoingTargets.some(excluded => sameCoordinates(excluded, target)));
-    console.debug(`Raider: excluded ${count - targets.length} ongoing targets`);
-    await this.espionageRepo.deleteOldReports();
-    let unexploredTargets: Coordinates[] = [];
-    console.debug(`Raider: loading reports`);
-    const reports = await processAll(targets, async target => {
-      const report = await this.espionageRepo.loadC(target);
-      if (!report) unexploredTargets.push(target);
-      else return report;
-    }, true, true);
-
-    console.debug(`Raider: loading context`);
-    let [researches, bodies] = await Promise.all([this.player.getResearches(), this.player.getBodies()]);
-    let fleet: { [bodyId: number]: FleetPartial } = {};
-    await processAll(bodies, async body => {
-      fleet[body.id] = await this.player.getFleet(body.id);
-    }, false, false);
-    bodies = bodies.filter(body => (fleet[body.id].smallCargo || 0) > 0);
-
-    const request: SuggestionRequest = {
-      unexploredTargets,
-      reports,
-      bodies,
-      researches,
-      fleet,
-      timeShift: this.timeShift,
-      rating: this.rate,
-      maxReportAge: this.maxReportAge,
-      minRaid: 1,
-      maxMissions: slotsLeft
-    };
-
-    console.debug(`Raider: analyzing`);
-    const missions = this.analyzer.suggestMissions(request);
-    console.debug(`Raider: launching`);
-    await this.launchMissions(missions);
-    await sleep(1000);
-    this.scheduleContinue(await this.eventLoader.loadEvents());
   }
 
   private countSlots(events: FlightEvent[]): [number, number] {
@@ -124,22 +124,31 @@ export class Raider {
     return event.isFriendly && (event.isReturn || event.mission === MissionType.Deploy || event.mission === MissionType.Colony);
   }
 
-  private scheduleContinue(events: FlightEvent[]) {
+  private async scheduleContinue(events?: FlightEvent[]) {
+    if (!events) {
+      try {
+        events = await this.eventLoader.loadEvents();
+      } catch (e) {
+        console.debug(`Raider: failed forecasting next wake up`);
+        this.doScheduleContinue(Date.now() + 1000 * 60 * 10); // sleeping for 10 minutes
+        return;
+      }
+    }
     const nextFinishing = events.find(event => this.isFinishingEvent(event));
     if (nextFinishing) {
-      let shouldFinishAt = nextFinishing.time.getTime() + 5000;
-      this.nextWakeUp = new Date(shouldFinishAt);
-      console.debug(`Raider: sleeping until ${this.nextWakeUp}`);
-      this.nextWakeUpId = setTimeout(() => this.continue(), shouldFinishAt - Date.now());
+      this.doScheduleContinue(nextFinishing.time.getTime() + 5000);
     } else {
       console.debug(`Raider: going idle`);
     }
   }
 
+  private doScheduleContinue(timestamp: number) {
+    this.nextWakeUp = new Date(timestamp);
+    console.debug(`Raider: sleeping until ${this.nextWakeUp}`);
+    this.nextWakeUpId = setTimeout(() => this.continue(), timestamp - Date.now());
+  }
+
   private async launchMissions(missions: Mission[]): Promise<any> {
-    return processAll(missions, async mission => {
-      console.debug(`launching raid mission`, mission);
-      return this.launcher.launch(mission);
-    }, false);
+    return processAll(missions, async mission => this.launcher.launch(mission), true);
   }
 }
