@@ -10,11 +10,12 @@ import {RaidReportAnalyzer, SuggestionRequest} from './RaidReportAnalyzer';
 export class Raider {
   maxRaidSlots: number = 0;
   minFreeSlots: number = 0;
-  maxTotalSlots: number = 21;
+  maxTotalSlots: number = 0;
   timeShift = 1000 * 3600 * 3;
   maxReportAge = 1000 * 3600 * 0.5;
   rate: [number, number, number] = [1, 3, 4];
   excludedOrigins: number[] = [];
+  excludedTargets: Coordinates[] = [];
 
   private nextWakeUp?: Date;
   private nextWakeUpId?: number;
@@ -52,13 +53,11 @@ export class Raider {
         console.debug(`Raider: locating targets`);
         let [targets] = await Promise.all([
           this.galaxyRepo.findInactiveTargets(),
+          // loading reports in parallel with searching the repo
           this.espionageScrapper.loadAllReports()
         ]);
-        const count = targets.length;
-        const ongoingTargets = events!.filter(event => this.isRaidEvent(event, false)).map(event => event.to);
+        targets = this.filterTargets(targets, events);
         events = undefined;
-        targets = targets.filter(target => !ongoingTargets.some(excluded => sameCoordinates(excluded, target)));
-        console.debug(`Raider: excluded ${count - targets.length} ongoing targets`);
         await this.espionageRepo.deleteOldReports();
         let unexploredTargets: Coordinates[] = [];
         console.debug(`Raider: loading reports`);
@@ -96,6 +95,21 @@ export class Raider {
       await sleep(1000);
       await this.scheduleContinue(events);
     }
+  }
+
+  private filterTargets(targets: Coordinates[], events: FlightEvent[]): Coordinates[] {
+    let count = targets.length;
+    const ongoingTargets = events!.filter(event => this.isRaidEvent(event, false)).map(event => event.to);
+    targets = targets.filter(target => !ongoingTargets.some(excluded => sameCoordinates(excluded, target)));
+    if (count !== targets.length) {
+      console.debug(`Raider: excluded ${count - targets.length} ongoing targets`);
+      count = targets.length;
+    }
+    targets = targets.filter(target => !this.excludedTargets.some(excluded => sameCoordinates(excluded, target)));
+    if (count !== targets.length) {
+      console.debug(`Raider: explicitly excluded ${count - targets.length} targets`);
+    }
+    return targets;
   }
 
   private countSlots(events: FlightEvent[]): [number, number] {

@@ -1,3 +1,4 @@
+import {parseCoordinates} from '../browser/parsers/parsers-common';
 import {processAll} from '../common/common';
 import {ShardedEspionageReport} from '../common/report-types';
 import {Coordinates} from '../common/types';
@@ -20,9 +21,15 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   shim.relay = true;
   autoObserve.continue();
 
-  raider.maxRaidSlots = 13;
+  raider.maxTotalSlots = 22;
+  raider.maxRaidSlots = 17;
   raider.minFreeSlots = 2;
-  raider.excludedOrigins = [33812837];
+  raider.excludedOrigins = [];
+  raider.excludedTargets = [
+    parseCoordinates('7:329:8')!,
+    parseCoordinates('7:329:9')!,
+    parseCoordinates('7:329:10')!
+  ]
   raider.continue();
 
   async function findUncertainTargets(): Promise<{ [infoLevel: number]: ShardedEspionageReport[] }> {
