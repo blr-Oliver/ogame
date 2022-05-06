@@ -16,6 +16,7 @@ export class Raider {
   rate: [number, number, number] = [1, 3, 4];
   excludedOrigins: number[] = [];
   excludedTargets: Coordinates[] = [];
+  desertedTargets: Coordinates[] = [];
 
   private nextWakeUp?: Date;
   private nextWakeUpId?: number;
@@ -84,7 +85,8 @@ export class Raider {
           rating: this.rate,
           maxReportAge: this.maxReportAge,
           minRaid: 1,
-          maxMissions: slotsLeft
+          maxMissions: slotsLeft,
+          desertedPlanets: this.desertedTargets
         };
         console.debug(`Raider: analyzing`);
         const missions = this.analyzer.suggestMissions(request);

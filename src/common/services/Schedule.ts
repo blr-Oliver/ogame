@@ -12,7 +12,7 @@ export class MissionScheduler {
     let timeToSleep = date.getTime() - Date.now();
     const taskId = setTimeout(() => {
       console.debug(`Scheduler: performing mission scheduled at ${date}`);
-      this.launcher.launch(mission, 10);
+      this.launcher.launch(mission, 30);
     }, timeToSleep);
     this.tasks.push(taskId);
   }

@@ -3,7 +3,7 @@ import {CostCalculator} from '../core/calculator/CostCalculator';
 import {FlightCalculator} from '../core/calculator/FlightCalculator';
 import {UniverseContext} from '../core/UniverseContext';
 import {ShardedEspionageReport} from '../report-types';
-import {Coordinates, FleetPartial, Mission, MissionType, Researches, SpaceBody} from '../types';
+import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, Researches, sameCoordinates, SpaceBody} from '../types';
 
 type Triplet = [number, number, number];
 
@@ -18,6 +18,7 @@ export interface SuggestionRequest {
   maxReportAge: number; // ms
   minRaid: number;      // #transports
   maxMissions: number;
+  desertedPlanets: Coordinates[];
 }
 
 interface ProcessingItem {
@@ -79,6 +80,10 @@ export class RaidReportAnalyzer {
     while (items.length > 0 && missions.length < request.maxMissions) {
       const candidate = items.pop()!;
       if (!this.isClean(candidate.report)) continue;
+      if (candidate.distance > 40000) {
+        this.excludeOriginAndReattempt(candidate, request, items);
+        continue;
+      }
       if (candidate.age > request.maxReportAge) {
         if (unexploredTargets.length) {// spy unexplored instead of stale
           // return candidate back - we are still wishing to spy it
@@ -96,18 +101,22 @@ export class RaidReportAnalyzer {
             request.fleet[from]!.smallCargo! -= transports;
             missions.push({from: candidate.nearestBody.id, to: candidate.report.coordinates, fleet: {smallCargo: transports}, mission: MissionType.Attack});
           } else if ((candidate.limitOrigins || request.bodies).length > 1) {
-            if (!candidate.limitOrigins) candidate.limitOrigins = request.bodies.slice();
-            candidate.limitOrigins.splice(candidate.limitOrigins.indexOf(candidate.nearestBody), 1);
-            this.findNearestBody(request, candidate);
-            this.computeConditional(request, candidate);
-            items.push(candidate);
-            this.sortByEfficiency(items);
+            this.excludeOriginAndReattempt(candidate, request, items);
           }
         }
       }
     }
 
     return missions;
+  }
+
+  private excludeOriginAndReattempt(candidate: ProcessingItem, request: SuggestionRequest, items: ProcessingItem[]) {
+    if (!candidate.limitOrigins) candidate.limitOrigins = request.bodies.slice();
+    candidate.limitOrigins.splice(candidate.limitOrigins.indexOf(candidate.nearestBody), 1);
+    this.findNearestBody(request, candidate);
+    this.computeConditional(request, candidate);
+    items.push(candidate);
+    this.sortByEfficiency(items);
   }
 
   private computeUnconditional(request: SuggestionRequest, item: ProcessingItem, now: number) {
@@ -144,24 +153,33 @@ export class RaidReportAnalyzer {
 
   private computeProduction(request: SuggestionRequest, item: ProcessingItem) {
     const buildings = item.report.buildings;
-    if (buildings) {
-      const position = item.report.coordinates.position;
-      const mineLevels = [buildings.metalMine || 0, buildings.crystalMine || 0, buildings.deutMine || 0];
+    const coordinates = item.report.coordinates;
+    const isMoon = coordinates.type === CoordinateType.Moon;
+    const isDeserted = request.desertedPlanets.some(deserted => sameCoordinates(deserted, coordinates));
+    item.production = [0, 0, 0];
+    item.productionLimit = [Infinity, Infinity, Infinity];
+    if (!isMoon) {
+      const position = coordinates.position;
       const positionMultiplier = this.costCalc.getProductionMultiplier(position);
-      const plasmaMultiplier = this.plasmaMultiplier(item.report.researches?.plasma);
-      const classMultiplier = 1 + (item.report.playerClass === 'collector' ? 0.25 : 0) + (item.report.allianceClass === 'trader' ? 0.05 : 0);
-      const naturalProduction = this.costCalc.data.naturalProduction;
-      const production = mineLevels.map((level, i) => (this.costCalc.getProduction(i, level) + naturalProduction[i])
-          * positionMultiplier[i] * plasmaMultiplier[i] * classMultiplier * this.universe.economyFactor);
-      const energyNeeded = mineLevels.reduce((sum, level, i) => sum + this.costCalc.getEnergyConsumption(i, level), 0);
-      const energyAvailable = item.report.resources.energy ?? energyNeeded;
-      const productionFactor = Math.min(1, energyNeeded ? energyAvailable / energyNeeded : 0);
-      item.production = production.map(x => x * productionFactor) as Triplet;
-      const storageLevels = [buildings.metalStorage || 0, buildings.crystalStorage || 0, buildings.deutStorage || 0];
-      item.productionLimit = storageLevels.map(level => this.costCalc.getStorageCapacity(level)) as Triplet;
-    } else {
-      item.production = [0, 0, 0];
-      item.productionLimit = [Infinity, Infinity, Infinity];
+      const baseNaturalProduction = this.costCalc.data.naturalProduction;
+      const naturalProduction = baseNaturalProduction.map((x, i) => x * positionMultiplier[i] * this.universe.economyFactor);
+      if (buildings) {
+        const storageLevels = [buildings.metalStorage || 0, buildings.crystalStorage || 0, buildings.deutStorage || 0];
+        item.productionLimit = storageLevels.map(level => this.costCalc.getStorageCapacity(level)) as Triplet;
+      }
+      if (buildings && !isDeserted) {
+        const mineLevels = [buildings.metalMine || 0, buildings.crystalMine || 0, buildings.deutMine || 0];
+        const plasmaMultiplier = this.plasmaMultiplier(item.report.researches?.plasma);
+        const classMultiplier = 1 + (item.report.playerClass === 'collector' ? 0.25 : 0) + (item.report.allianceClass === 'trader' ? 0.05 : 0);
+        const mineProduction = mineLevels.map((level, i) => this.costCalc.getProduction(i, level)
+            * positionMultiplier[i] * plasmaMultiplier[i] * classMultiplier * this.universe.economyFactor);
+        const energyNeeded = mineLevels.reduce((sum, level, i) => sum + this.costCalc.getEnergyConsumption(i, level), 0);
+        const energyAvailable = item.report.resources.energy ?? energyNeeded;
+        const productionFactor = Math.min(1, energyNeeded ? energyAvailable / energyNeeded : 0);
+        item.production = mineProduction.map((x, i) => x * productionFactor + naturalProduction[i]) as Triplet;
+      } else {
+        item.production = naturalProduction as Triplet;
+      }
     }
   }
 
