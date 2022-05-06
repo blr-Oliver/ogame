@@ -126,7 +126,7 @@ function parseBody(body: string, type: CoordinateType, position: number): SpaceB
   let coordsStart = body.indexOf(bodiesMarkers.coordsStart, position) + bodiesMarkers.coordsStart.length;
   let coordsEnd = body.indexOf(bodiesMarkers.coordsEnd, position);
   let coordsText = body.substring(coordsStart, coordsEnd).trim();
-  let coords = parseCoordinates(coordsText.substring(name.length + 1))!;
+  let coords = parseCoordinates(coordsText.substring(coordsText.lastIndexOf('[')))!;
   return {
     id,
     name,
