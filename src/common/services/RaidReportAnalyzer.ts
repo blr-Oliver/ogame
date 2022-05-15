@@ -77,8 +77,12 @@ export class RaidReportAnalyzer {
 
     this.sortByEfficiency(items);
 
-    const missions: Mission[] = [];
     const unexploredTargets: Coordinates[] = request.unexploredTargets.slice(0, request.maxMissions);
+    // prioritize unexplored targets
+    const missions: Mission[] = unexploredTargets.map(target => {
+      const origin = getNearest(request.bodies, target, this.flightCalc);
+      return {from: origin.id, to: target, fleet: {espionageProbe: 1}, mission: MissionType.Espionage};
+    });
     while (items.length > 0 && missions.length < request.maxMissions) {
       const candidate = items.pop()!;
       if (!this.isClean(candidate.report)) continue;
@@ -87,14 +91,7 @@ export class RaidReportAnalyzer {
         continue;
       }
       if (candidate.age > request.maxReportAge) {
-        if (unexploredTargets.length) {// spy unexplored instead of stale
-          // return candidate back - we are still wishing to spy it
-          items.push(candidate);
-          const target = unexploredTargets.pop()!;
-          const origin = getNearest(request.bodies, target, this.flightCalc);
-          missions.push({from: origin.id, to: target, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
-        } else
-          missions.push({from: candidate.nearestBody.id, to: candidate.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
+        missions.push({from: candidate!.nearestBody.id, to: candidate!.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
       } else {
         const transports = candidate.transports;
         if (transports >= request.minRaid) {
