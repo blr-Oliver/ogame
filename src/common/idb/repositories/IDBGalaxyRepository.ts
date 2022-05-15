@@ -1,9 +1,9 @@
 import {compareCoordinatesKeys, deduplicate} from '../../common';
-import {GalaxySlot, GalaxySlotInfo, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
+import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySlotInfo, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
 import {GalaxyRepository} from '../../repository-types';
 import {coordinateComparator, Coordinates, CoordinateType, SystemCoordinates} from '../../types';
 import {IDBRepository} from '../IDBRepository';
-import {IDBUtils} from '../IDBUtils';
+import {IDBUtils, MIN_DATE} from '../IDBUtils';
 
 const {
   getKey,
@@ -11,6 +11,7 @@ const {
   getAllFromIndex,
   getFirst,
   getTopMatchingFromIndex,
+  getTopMatching,
   upsertOne,
   upsertAll,
   drainWithTransform
@@ -221,5 +222,37 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
       ])
           .then(([key]) => key);
     }, true);
+  }
+
+  findAllCurrentDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SLOT_STORE], 'readonly');
+    const test = (slot: GalaxySlot) => !!slot.debris && (slot.debris.metal > 0 || slot.debris.crystal > 0);
+    return this.withTransaction(tx, tx => new Promise((resolve, reject) => {
+          const result: (GalaxySlotCoordinates & DebrisGalaxyInfo)[] = [];
+          const slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE);
+          const cursorRequest = slotStore.openCursor(null, 'prev');
+          cursorRequest.onerror = (x) => reject(x);
+          cursorRequest.onsuccess = () => {
+            const cursor = cursorRequest.result;
+            if (cursor) {
+              let key: IDBValidKey[] = cursor.primaryKey as IDBValidKey[];
+              let slot: GalaxySlot = cursor.value as GalaxySlot;
+              if (test(slot)) {
+                result.push({
+                  galaxy: slot.galaxy,
+                  system: slot.system,
+                  position: slot.position,
+                  timestamp: slot.timestamp,
+                  metal: slot.debris!.metal,
+                  crystal: slot.debris!.crystal
+                });
+              }
+              cursor.continue([key[0], key[1], key[2], MIN_DATE]);
+            } else {
+              resolve(result);
+            }
+          }
+        })
+    );
   }
 }

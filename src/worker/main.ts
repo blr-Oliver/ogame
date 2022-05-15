@@ -14,6 +14,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
     galaxyMonitor,
     autoObserve,
     raider,
+    analyzer,
     scheduler
   } = context;
 
@@ -21,12 +22,15 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   shim.relay = true;
   autoObserve.continue();
 
-  raider.maxTotalSlots = 22;
+  analyzer.ignoreBuildingProduction = true;
+  raider.maxTotalSlots = 24;
   raider.maxRaidSlots = 0;
   raider.minFreeSlots = 2;
   raider.excludedOrigins = [];
   raider.desertedTargets = [
     '[3:206:8]',
+    '[3:240:10]',
+    '[3:240:12]',
     '[3:241:13]',
     '[3:244:5]',
     '[3:244:6]',
@@ -51,6 +55,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
     '[6:36:1]',
     '[6:36:4]',
     '[6:36:6]',
+    '[6:36:10]',
     '[6:37:8]',
     '[6:47:13]',
     '[6:105:15]',
@@ -118,9 +123,19 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
         {} as { [wnd: string]: number[] });
   }
 
+  async function rateDebrisFields() {
+    let allDebris = await galaxyRepository.findAllCurrentDebris();
+    const rate: [number, number] = [1, 3];
+    return allDebris.sort((a, b) =>
+        (b.metal * rate[0] + b.crystal * rate[1]) -
+        (a.metal * rate[0] + a.crystal * rate[1])
+    );
+  }
+
   (self as any)['raider'] = raider;
   (self as any)['scheduler'] = scheduler;
   (self as any)['findUncertainTargets'] = findUncertainTargets;
   // (self as any)['rateInactiveTargets'] = rateInactiveTargets;
   (self as any)['rankSystemsWithInactiveTargets'] = rankSystemsWithInactiveTargets;
+  (self as any)['rateDebrisFields'] = rateDebrisFields;
 }

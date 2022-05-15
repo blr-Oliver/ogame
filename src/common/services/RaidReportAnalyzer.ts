@@ -43,6 +43,8 @@ function createProcessingItem(report: ShardedEspionageReport): ProcessingItem {
 }
 
 export class RaidReportAnalyzer {
+  ignoreBuildingProduction = false;
+
   constructor(
       private universe: UniverseContext,
       private flightCalc: FlightCalculator,
@@ -113,10 +115,12 @@ export class RaidReportAnalyzer {
   private excludeOriginAndReattempt(candidate: ProcessingItem, request: SuggestionRequest, items: ProcessingItem[]) {
     if (!candidate.limitOrigins) candidate.limitOrigins = request.bodies.slice();
     candidate.limitOrigins.splice(candidate.limitOrigins.indexOf(candidate.nearestBody), 1);
-    this.findNearestBody(request, candidate);
-    this.computeConditional(request, candidate);
-    items.push(candidate);
-    this.sortByEfficiency(items);
+    if (candidate.limitOrigins.length) {
+      this.findNearestBody(request, candidate);
+      this.computeConditional(request, candidate);
+      items.push(candidate);
+      this.sortByEfficiency(items);
+    }
   }
 
   private computeUnconditional(request: SuggestionRequest, item: ProcessingItem, now: number) {
@@ -155,7 +159,7 @@ export class RaidReportAnalyzer {
     const buildings = item.report.buildings;
     const coordinates = item.report.coordinates;
     const isMoon = coordinates.type === CoordinateType.Moon;
-    const isDeserted = request.desertedPlanets.some(deserted => sameCoordinates(deserted, coordinates));
+    const isDeserted = this.ignoreBuildingProduction || request.desertedPlanets.some(deserted => sameCoordinates(deserted, coordinates));
     item.production = [0, 0, 0];
     item.productionLimit = [Infinity, Infinity, Infinity];
     if (!isMoon) {

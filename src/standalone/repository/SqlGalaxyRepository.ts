@@ -1,4 +1,4 @@
-import {GalaxySlot, GalaxySystemInfo} from '../../common/report-types';
+import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo} from '../../common/report-types';
 import {GalaxyRepository} from '../../common/repository-types';
 import {Coordinates} from '../../common/types';
 import {db} from './db';
@@ -153,5 +153,10 @@ export class SqlGalaxyRepository implements GalaxyRepository {
       `
       });
     });
+  }
+
+  findAllCurrentDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]> {
+    // TODO not implemented
+    throw new Error('not implemented');
   }
 }

@@ -1,4 +1,4 @@
-import {GalaxySystemInfo, ShardedEspionageReport, StampedEspionageReport} from './report-types';
+import {DebrisGalaxyInfo, GalaxySlotCoordinates, GalaxySystemInfo, ShardedEspionageReport, StampedEspionageReport} from './report-types';
 import {Coordinates, CoordinateType} from './types';
 
 export interface EspionageRepository {
@@ -18,4 +18,5 @@ export interface GalaxyRepository {
   findInactiveTargets(): Promise<Coordinates[]>;
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]>;
   store(report: GalaxySystemInfo): Promise<any>;
+  findAllCurrentDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]>;
 }
