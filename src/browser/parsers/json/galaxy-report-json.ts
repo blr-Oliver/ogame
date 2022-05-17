@@ -76,12 +76,14 @@ export function extractGalaxy(rawData: any, timestamp: Date = new Date()): Galax
   let empty = true;
   for (let i = 0; i < rawSlots.length; ++i) {
     const rawSlot = rawSlots[i];
-    const planets: any[] = rawSlot.planets;
+    let planets: any[] = rawSlot.planets;
+    if (!(planets instanceof Array)) // 16th position
+      planets = [planets];
     if (planets.length) {
       empty = false;
       const position = rawSlot.position;
       const slotInfo: GalaxySlotInfo = {};
-      if (rawSlot.player.playerId !== 99999) {
+      if (rawSlot.player && rawSlot.player.playerId !== 99999) {
         let rawPlayer = rawSlot.player;
         let alliance = extractAlliance(rawPlayer);
         slotInfo.player = extractPlayer(rawPlayer);
