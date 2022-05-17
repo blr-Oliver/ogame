@@ -3,19 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
 import {CoordinateType, SystemCoordinates} from '../common/types';
-import {
-  analyzer,
-  autoObserve,
-  autoRaid,
-  espionageRepo,
-  espionageReportScrapper,
-  fetcher,
-  galaxyRepo,
-  mapper,
-  scanner,
-  serverContext,
-  universeContext
-} from './init-components';
+import {autoObserve, espionageRepo, espionageReportScrapper, fetcher, galaxyRepo, mapper, serverContext, universeContext} from './init-components';
 
 const app = express();
 const port = 8080;
@@ -97,17 +85,6 @@ app.get('/galaxy', (req, res) => {
   res.json(settings);
 });
 
-
-app.get('/raid', (req, res) => {
-  if ('slots' in req.query)
-    autoRaid.state.maxSlots = +req.query['slots']!;
-  if ('continue' in req.query) {
-    autoRaid.continue();
-    res.status(202);
-  }
-  res.json(autoRaid.state);
-});
-
 app.get('/dump', (req, res) => {
   let field: string | string[] = req.query['field'] as (string | string[]);
   let path: string | string[] = req.query['path'] as (string | string[]);
@@ -136,27 +113,6 @@ app.get('/espionage', (req, res) => {
   if ('continue' in req.query)
     espionageReportScrapper.loadAllReports();
   res.json(espionageReportScrapper.loadingQueue);
-});
-
-app.get('/scan', (req, res) => {
-  if ('load' in req.query)
-    galaxyRepo.findInactiveTargets().then(
-        targets => scanner.targets = targets);
-  else if ('continue' in req.query) {
-    scanner.continueScanning();
-  }
-  res.json(scanner);
-});
-
-app.get('/analyze', (req, res) => {
-  if ('load' in req.query)
-    analyzer.load();
-  else if ('scan' in req.query)
-    analyzer.scan(+req.query['scan']!);
-  else if ('launch' in req.query)
-    analyzer.launch(+req.query['launch']!);
-
-  res.json(analyzer.reports);
 });
 
 app.get('/events', (req, res) => {
