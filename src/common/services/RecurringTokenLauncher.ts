@@ -11,7 +11,7 @@ interface LaunchTask {
   reject: (e: any) => void;
 }
 
-export class TwoStepLauncher implements Launcher {
+export class RecurringTokenLauncher implements Launcher {
   static readonly #ACTION_CHECK_TARGET = 'checkTarget';
   static readonly #ACTION_SEND_FLEET = 'sendFleet';
   static readonly #BASE_QUERY: { [param: string]: string | number } = {
@@ -62,7 +62,7 @@ export class TwoStepLauncher implements Launcher {
     while (attemptsLeft > 0) {
       delay && await sleep(delay);
       body['token'] = this.token;
-      let response = await this.doSend(TwoStepLauncher.#ACTION_SEND_FLEET, body);
+      let response = await this.doSend(RecurringTokenLauncher.#ACTION_SEND_FLEET, body);
       let responseData = await response.json();
       --attemptsLeft;
       console.debug(`TwoStepLauncher#processTask(): attempts left: ${attemptsLeft}, response data:`, responseData);
@@ -81,11 +81,11 @@ export class TwoStepLauncher implements Launcher {
       url: this.serverContext.gameUrl,
       method: 'POST',
       query: {
-        ...TwoStepLauncher.#BASE_QUERY,
+        ...RecurringTokenLauncher.#BASE_QUERY,
         action: action
       },
       body: body,
-      headers: TwoStepLauncher.#BASE_HEADERS
+      headers: RecurringTokenLauncher.#BASE_HEADERS
     });
   }
 

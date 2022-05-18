@@ -27,10 +27,10 @@ import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {EventListLoader, Launcher} from '../common/services/Mapper';
 import {Raider} from '../common/services/Raider';
 import {RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
+import {RecurringTokenLauncher} from '../common/services/RecurringTokenLauncher';
 import {Scanner} from '../common/services/Scanner';
 import {MissionScheduler} from '../common/services/Schedule';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
-import {TwoStepLauncher} from '../common/services/TwoStepLauncher';
 import {ClientManager} from './ClientManager';
 import {GalaxyRequestMonitor} from './GalaxyRequestMonitor';
 import {ReplayingEventShim} from './ReplayingEventShim';
@@ -96,7 +96,7 @@ export class ServiceWorkerContext {
       delay: 100
     });
     const espionageScrapper = new EspionageReportScrapper(espionageRepository, espionageParser, fetcher, server);
-    const launcher = new TwoStepLauncher(server, fetcher);
+    const launcher = new RecurringTokenLauncher(server, fetcher);
     const eventLoader = new AjaxEventListLoader(fetcher, eventListParser, server);
     const clientManager = new ClientManager(self, locks, selfId, autoObserve);
     const scanner = new Scanner(player, espionageRepository, launcher, eventLoader, espionageScrapper, flightCalc);
