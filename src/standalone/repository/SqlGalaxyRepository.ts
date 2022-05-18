@@ -1,6 +1,6 @@
 import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo} from '../../common/report-types';
 import {GalaxyRepository} from '../../common/repository-types';
-import {Coordinates} from '../../common/types';
+import {Coordinates, SystemCoordinates} from '../../common/types';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
 import {COORDINATES_MAPPING, createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';
@@ -59,8 +59,16 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     return this.load(coordinates.galaxy, coordinates.system);
   }
 
-  findNextStale(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, normalTimeout: number, emptyTimeout: number,
-                galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
+  findNextStale(normalTimeout: number, emptyTimeout: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<Coordinates | undefined> {
+    return Promise.reject('not implemented'); // TODO
+  }
+
+  findNextMissing(maxGalaxy: number, maxSystem: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<Coordinates | undefined> {
+    return Promise.reject('not implemented'); // TODO
+  }
+
+  findNextStaleEx(galaxyMin: number, galaxyMax: number, systemMin: number, systemMax: number, normalTimeout: number, emptyTimeout: number,
+                  galaxyLast?: number, systemLast?: number): Promise<Coordinates | undefined> {
     return db.query<any[]>({ // TODO define type for "raw" data
       sql:  // TODO check if it is still correct
           `select galaxy, system, null as 'position' from galaxy_report where
