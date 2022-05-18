@@ -7,17 +7,31 @@ import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {EventListLoader, Launcher} from './Mapper';
 import {RaidReportAnalyzer, SuggestionRequest} from './RaidReportAnalyzer';
 
-export class Raider {
-  maxRaidSlots: number = 0;
-  minFreeSlots: number = 0;
-  maxTotalSlots: number = 0;
-  timeShift = 1000 * 3600 * 3;
-  maxReportAge = 1000 * 3600 * 0.5;
-  rate: [number, number, number] = [1, 3, 4];
-  excludedOrigins: number[] = [];
-  excludedTargets: Coordinates[] = [];
-  desertedTargets: Coordinates[] = [];
+export interface Settings {
+  maxRaidSlots: number;
+  minFreeSlots: number;
+  maxTotalSlots: number;
+  timeShift: number;
+  maxReportAge: number;
+  rate: [number, number, number];
+  excludedOrigins: number[];
+  excludedTargets: Coordinates[];
+  desertedTargets: Coordinates[];
+}
 
+export const DEFAULT_SETTINGS: Settings = {
+  maxRaidSlots: 0,
+  minFreeSlots: 0,
+  maxTotalSlots: 0,
+  timeShift: 1000 * 3600 * 3,
+  maxReportAge: 1000 * 3600 * 0.5,
+  rate: [1, 3, 4],
+  excludedOrigins: [],
+  excludedTargets: [],
+  desertedTargets: []
+}
+
+export class Raider {
   private nextWakeUp?: Date;
   private nextWakeUpId?: number;
 
@@ -28,7 +42,8 @@ export class Raider {
       private readonly espionageScrapper: EspionageReportScrapper,
       private readonly eventLoader: EventListLoader,
       private readonly analyzer: RaidReportAnalyzer,
-      private readonly launcher: Launcher
+      private readonly launcher: Launcher,
+      public settings: Settings = DEFAULT_SETTINGS
   ) {
   }
 
@@ -38,7 +53,7 @@ export class Raider {
       this.nextWakeUpId = undefined;
       this.nextWakeUp = undefined;
     }
-    if (this.maxRaidSlots <= 0) {
+    if (this.settings.maxRaidSlots <= 0) {
       console.debug(`Raider: disabled, going idle`);
       return;
     }
@@ -48,7 +63,7 @@ export class Raider {
       events = await this.eventLoader.loadEvents();
       console.debug(`Raider: counting slots`);
       const [own, raid] = this.countSlots(events!);
-      const slotsLeft = Math.min(this.maxTotalSlots - this.minFreeSlots - own, this.maxRaidSlots - raid);
+      const slotsLeft = Math.min(this.settings.maxTotalSlots - this.settings.minFreeSlots - own, this.settings.maxRaidSlots - raid);
       console.debug(`Raider: occupied=${own} (raids=${raid}), available=${slotsLeft}`);
       if (slotsLeft > 0) {
         console.debug(`Raider: locating targets`);
@@ -74,19 +89,19 @@ export class Raider {
           fleet[body.id] = await this.player.getFleet(body.id);
         }, false, false);
         bodies = bodies.filter(body => (fleet[body.id].smallCargo || 0) > 0);
-        bodies = bodies.filter(body => !this.excludedOrigins.some(id => body.id === id));
+        bodies = bodies.filter(body => !this.settings.excludedOrigins.some(id => body.id === id));
         const request: SuggestionRequest = {
           unexploredTargets,
           reports,
           bodies,
           researches,
           fleet,
-          timeShift: this.timeShift,
-          rating: this.rate,
-          maxReportAge: this.maxReportAge,
+          timeShift: this.settings.timeShift,
+          rating: this.settings.rate,
+          maxReportAge: this.settings.maxReportAge,
           minRaid: 1,
           maxMissions: slotsLeft,
-          desertedPlanets: this.desertedTargets
+          desertedPlanets: this.settings.desertedTargets
         };
         console.debug(`Raider: analyzing`);
         const missions = this.analyzer.suggestMissions(request);
@@ -107,7 +122,7 @@ export class Raider {
       console.debug(`Raider: excluded ${count - targets.length} ongoing targets`);
       count = targets.length;
     }
-    targets = targets.filter(target => !this.excludedTargets.some(excluded => sameCoordinates(excluded, target)));
+    targets = targets.filter(target => !this.settings.excludedTargets.some(excluded => sameCoordinates(excluded, target)));
     if (count !== targets.length) {
       console.debug(`Raider: explicitly excluded ${count - targets.length} targets`);
     }

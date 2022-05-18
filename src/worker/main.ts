@@ -8,7 +8,6 @@ import {wrappingSum} from './utils';
 export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context: ServiceWorkerContext) {
   const {
     shim,
-    player,
     galaxyRepository,
     espionageRepository,
     galaxyMonitor,
@@ -23,11 +22,11 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   autoObserve.continue();
 
   analyzer.ignoreBuildingProduction = true;
-  raider.maxTotalSlots = 24;
-  raider.maxRaidSlots = 0;
-  raider.minFreeSlots = 2;
-  raider.excludedOrigins = [];
-  raider.desertedTargets = [
+  raider.settings.maxTotalSlots = 24;
+  raider.settings.maxRaidSlots = 0;
+  raider.settings.minFreeSlots = 1;
+  raider.settings.excludedOrigins = [];
+  raider.settings.desertedTargets = [
     '[3:206:8]',
     '[3:240:10]',
     '[3:240:12]',
@@ -80,41 +79,30 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
     return reportsByLevel;
   }
 
+  async function findProtectedTargets(): Promise<ShardedEspionageReport[]> {
+    const targets = await galaxyRepository.findInactiveTargets();
+    const reports = await processAll(targets, c => espionageRepository.loadC(c));
+    const guarded = reports.filter(report => report.infoLevel > 0 && !isClean(report));
+
+    return guarded;
+
+    function isClean(report: ShardedEspionageReport): boolean {
+      if (sumFields(report.fleet!) !== 0) return false;
+      if (report.defense && sumFields(report.defense!) !== (report.defense!.antiBallistic || 0) + (report.defense!.interplanetary || 0)) return false;
+      return true;
+    }
+
+    function sumFields(data: { [key: string]: number }): number {
+      let sum = 0;
+      for (let key in data)
+        sum += data[key];
+      return sum;
+    }
+
+  }
+
   type RatedCoordinates = [Coordinates, number];
 
-  /*
-    async function rateInactiveTargets(galaxy: number = 3) {
-      const rate = [1, 3, 4];
-      const [researches, bodies] = await Promise.all([player.getResearches(), player.getBodies()]);
-      let targets = await galaxyRepository.findInactiveTargets();
-      targets = targets.filter(target => target.galaxy === galaxy);
-      const reports = await processAll(targets, c => espionageRepository.loadC(c));
-      const processed = reports.map(report => reportProcessor.processReport(report, researches, bodies, rate));
-      processed.forEach(report => {
-        const production = report.meta.production!.map(x => x || 0);
-        const resources: number[] = [report.resources.metal || 0, report.resources.crystal || 0, report.resources.deuterium || 0];
-        const value: number[] = [];
-        let sum = 0;
-        for (let i = 0; i < 3; ++i) {
-          value[i] = resources[i] + production[i] * 300;
-          sum += value[i] * rate[i];
-        }
-        report.meta.rating = sum;
-      });
-      processed.sort((a, b) => b.meta.rating! - a.meta.rating!);
-      const isUnprotected = (report: ProcessedReport) => {
-        let noFleet = Object.keys(report.fleet!).length === 0;
-        let defenseClone = Object.assign({}, report.defense!);
-        delete defenseClone.interplanetary;
-        delete defenseClone.antiBallistic;
-        let noDefense = Object.keys(defenseClone).length === 0;
-        return noFleet && noDefense;
-      };
-      const unguarded = processed.filter(report => isUnprotected(report));
-      const guarded = processed.filter(report => !isUnprotected(report));
-      return [unguarded.map(report => [report.coordinates, report.meta.rating]), guarded];
-    }
-  */
   async function rankSystemsWithInactiveTargets(unguarded: RatedCoordinates[]): Promise<any> {
     let ratings: number[] = [...Array(499)].fill(0);
     unguarded.forEach(coordinates => ratings[coordinates[0].system - 1] += coordinates[1]);
@@ -135,7 +123,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   (self as any)['raider'] = raider;
   (self as any)['scheduler'] = scheduler;
   (self as any)['findUncertainTargets'] = findUncertainTargets;
-  // (self as any)['rateInactiveTargets'] = rateInactiveTargets;
+  (self as any)['findProtectedTargets'] = findProtectedTargets;
   (self as any)['rankSystemsWithInactiveTargets'] = rankSystemsWithInactiveTargets;
   (self as any)['rateDebrisFields'] = rateDebrisFields;
 }
