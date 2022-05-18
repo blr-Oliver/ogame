@@ -71,7 +71,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     });
   }
 
-  findNextStale(normalTimeout: number, emptyTimeout: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<Coordinates | undefined> {
+  findNextStale(normalTimeout: number, emptyTimeout: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<SystemCoordinates | undefined> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
       const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
@@ -83,11 +83,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
           cReport => getFirst(systemStore, headMatchKeyRange([cReport.galaxy, cReport.system], 'Date'), 'prev'),
           1, staleTest)
           .then(reports => reports[0])
-          .then(report => report && {
-            galaxy: report.galaxy,
-            system: report.system,
-            position: 0
-          });
+          .then(report => report && [report.galaxy, report.system]);
     });
   }
 
@@ -117,7 +113,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     });
   }
 
-  findNextMissing(maxGalaxy: number, maxSystem: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<Coordinates | undefined> {
+  findNextMissing(maxGalaxy: number, maxSystem: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<SystemCoordinates | undefined> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
     return this.withTransaction(tx, tx => {
       const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
@@ -125,7 +121,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
       const key: SystemCoordinates = [galaxy, system];
       const advanceKey = this.getCoordinatesKeyIterator(maxSystem);
       const cursorRequest = cIndex.openKeyCursor(IDBKeyRange.lowerBound(key, false), 'nextunique');
-      return new Promise<Coordinates | undefined>((resolve, reject) => {
+      return new Promise<SystemCoordinates | undefined>((resolve, reject) => {
         cursorRequest.onsuccess = () => {
           const cursor: IDBCursor | null = cursorRequest.result;
           if (cursor && compareCoordinatesKeys(cursor.key as SystemCoordinates, key) === 0) {
@@ -133,11 +129,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
             cursor.continue(key);
           } else {
             const isValidKey = compareCoordinatesKeys(key, [maxGalaxy, maxSystem]) <= 0;
-            resolve(isValidKey ? {
-              galaxy: key[0],
-              system: key[1],
-              position: 0
-            } : undefined);
+            resolve(isValidKey ? key : undefined);
           }
         };
         cursorRequest.onerror = e => reject(e);

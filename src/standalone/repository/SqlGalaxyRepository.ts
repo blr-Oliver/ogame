@@ -59,11 +59,11 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     return this.load(coordinates.galaxy, coordinates.system);
   }
 
-  findNextStale(normalTimeout: number, emptyTimeout: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<Coordinates | undefined> {
+  findNextStale(normalTimeout: number, emptyTimeout: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<SystemCoordinates | undefined> {
     return Promise.reject('not implemented'); // TODO
   }
 
-  findNextMissing(maxGalaxy: number, maxSystem: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<Coordinates | undefined> {
+  findNextMissing(maxGalaxy: number, maxSystem: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<SystemCoordinates | undefined> {
     return Promise.reject('not implemented'); // TODO
   }
 

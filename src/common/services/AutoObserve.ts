@@ -11,14 +11,23 @@ export interface AutoObserveSettings {
 export interface AutoObserveState {
   readonly status: Status;
   readonly scheduledContinue?: Date;
-  readonly queue: SystemCoordinates[];
-  readonly inProgress: SystemCoordinates[];
+  /**
+   * @deprecated
+   */
+  readonly queue?: SystemCoordinates[];
+  /**
+   * @deprecated
+   */
+  readonly inProgress?: SystemCoordinates[];
   readonly settings: AutoObserveSettings;
 }
 
 export interface AutoObserve extends AutoObserveState {
   pause(): void;
   continue(): void;
+  /**
+   * @deprecated
+   */
   enqueue(...systems: SystemCoordinates[]): void;
 }
 
