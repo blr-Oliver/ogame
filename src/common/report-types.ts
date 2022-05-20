@@ -22,11 +22,14 @@ export interface EventFleet {
   cargo?: Resources;
 }
 
-export interface GalaxySystemInfo {
+export interface GalaxySystemHeader {
   galaxy: number;
   system: number;
   timestamp?: Date;
   empty: boolean;
+}
+
+export interface GalaxySystemInfo extends GalaxySystemHeader {
   slots: Array<GalaxySlot | undefined>;
 }
 

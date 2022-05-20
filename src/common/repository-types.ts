@@ -19,4 +19,5 @@ export interface GalaxyRepository {
   findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]>;
   store(report: GalaxySystemInfo): Promise<any>;
   findAllCurrentDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]>;
+  selectLatestReports(): Promise<GalaxySystemInfo[]>;
 }

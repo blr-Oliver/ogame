@@ -3,7 +3,7 @@ import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySlotInfo, Gal
 import {GalaxyRepository} from '../../repository-types';
 import {coordinateComparator, Coordinates, CoordinateType, SystemCoordinates} from '../../types';
 import {IDBRepository} from '../IDBRepository';
-import {IDBUtils, MIN_DATE} from '../IDBUtils';
+import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
 
 const {
   getKey,
@@ -261,5 +261,40 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
           }
         })
     );
+  }
+
+  selectLatestReports(): Promise<GalaxySystemInfo[]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.SYSTEM_STORE], 'readonly');
+    return this.withTransaction(tx, tx => new Promise((resolve, reject) => {
+      const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
+      const cIndex: IDBIndex = systemStore.index(IDBGalaxyRepository.SYSTEM_COORDINATES_INDEX);
+      const coordinatesRequest = cIndex.openKeyCursor(null, 'prevunique');
+      const result: GalaxySystemInfo[] = [];
+
+      let reportRequest: IDBRequest<IDBCursorWithValue | null>;
+      let coordinatesCursor: IDBCursor | null = null;
+      let reportCursor: IDBCursorWithValue | null = null;
+
+      coordinatesRequest.onsuccess = () => {
+        coordinatesCursor = coordinatesRequest.result;
+        if (coordinatesCursor) {
+          if (!reportRequest) {
+            reportRequest = systemStore.openCursor(null, 'prev');
+            reportRequest.onsuccess = () => {
+              reportCursor = reportRequest.result;
+              if (reportCursor) {
+                result.push(reportCursor.value);
+                if (coordinatesCursor) coordinatesCursor.continue();
+              }
+            }
+            reportRequest.onerror = (x) => reject(x);
+          }
+          const coordinates = coordinatesCursor.key as SystemCoordinates;
+          if (reportCursor)
+            reportCursor.continue([coordinates[0], coordinates[1], MAX_DATE]);
+        } else resolve(result);
+      }
+      coordinatesRequest.onerror = (x) => reject(x);
+    }));
   }
 }

@@ -167,4 +167,8 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     // TODO not implemented
     throw new Error('not implemented');
   }
+
+  selectLatestReports(): Promise<GalaxySystemInfo[]> {
+    return Promise.reject('not implemented'); // TODO
+  }
 }
