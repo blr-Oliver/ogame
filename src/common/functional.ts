@@ -9,7 +9,7 @@ export type BinaryOperator<T> = BiFunction<T, T, T>;
 export type BinaryTransform<T, R> = BiFunction<T, T, R>;
 export type Comparator<T> = BinaryTransform<T, number>;
 
-export type Async<F extends (...args: any) => any> = (...args: Parameters<F>) => Promise<ReturnType<F>>;
+export type Async<F extends (...args: any[]) => any> = (...args: Parameters<F>) => Promise<ReturnType<F>>;
 export type AsyncSupplier<T> = Async<Supplier<T>>;
 export type AsyncConsumer<T> = Async<Consumer<T>>;
 export type AsyncBiConsumer<T, E> = Async<BiConsumer<T, E>>;
