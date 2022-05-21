@@ -6,6 +6,7 @@ import {CachingCostCalculator} from '../common/core/calculator/CostCalculator';
 import {FlightCalculator, StaticFlightCalculator} from '../common/core/calculator/FlightCalculator';
 import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext} from '../common/core/ServerContext';
 import {UniverseContext} from '../common/core/UniverseContext';
+import {AutoObserve} from '../common/services/AutoObserve';
 import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
@@ -17,7 +18,7 @@ import {SqlEspionageRepository} from './repository/SqlEspionageRepository';
 import {SqlGalaxyRepository} from './repository/SqlGalaxyRepository';
 
 export let universeContext: UniverseContext;
-export let autoObserve: StatefulAutoObserve;
+export let autoObserve: AutoObserve;
 export let flightCalculator: FlightCalculator;
 
 export const GAME_DOMAIN = 's148-ru.ogame.gameforge.com';
@@ -50,5 +51,9 @@ export const galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetch
 (async function () {
   universeContext = await NoDOMUniverseContext.acquire(fetcher, serverContext);
   flightCalculator = new StaticFlightCalculator(universeContext);
-  autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepo, universeContext);
+  autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepo, universeContext, {
+    timeout: 3600 * 2,
+    emptyTimeout: 3600 * 36,
+    delay: 20
+  });
 })();

@@ -1,5 +1,4 @@
-import {AutoObserveSettings, AutoObserveState, Status} from '../services/AutoObserve';
-import {SystemCoordinates} from '../types';
+import {AutoObserveSettings, AutoObserveState, AutoObserveStatus} from '../services/AutoObserve';
 
 export interface RemoteAutoObserveSettings {
   get(): Promise<AutoObserveSettings>;
@@ -16,13 +15,10 @@ export interface RemoteAutoObserveSettings {
 export interface RemoteAutoObserve {
   get(): Promise<AutoObserveState>;
 
-  getStatus(): Promise<Status>;
-  getScheduledContinue(): Promise<Date | undefined>;
-  getQueue(): Promise<SystemCoordinates[]>;
-  getInProgress(): Promise<SystemCoordinates[]>;
+  getStatus(): Promise<AutoObserveStatus>;
+  getNextWakeUp(): Promise<Date | undefined>;
   readonly settings: RemoteAutoObserveSettings;
 
   pause(): Promise<AutoObserveState>;
   continue(): Promise<AutoObserveState>;
-  enqueue(...systems: SystemCoordinates[]): Promise<AutoObserveState>;
 }

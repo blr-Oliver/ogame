@@ -56,9 +56,7 @@ export class AutoObserveSkeleton {
   private getState(): AutoObserveState {
     return {
       status: this.delegate.status,
-      scheduledContinue: this.delegate.scheduledContinue,
-      queue: this.delegate.queue,
-      inProgress: this.delegate.inProgress,
+      nextWakeUp: this.delegate.nextWakeUp,
       settings: this.getSettings()
     };
   }

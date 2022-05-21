@@ -1,6 +1,6 @@
 import {SystemCoordinates} from '../types';
 
-export type Status = 'paused' | 'idle' | 'active';
+export type AutoObserveStatus = 'paused' | 'idle' | 'active' | 'sleeping';
 
 export interface AutoObserveSettings {
   delay: number;
@@ -9,25 +9,14 @@ export interface AutoObserveSettings {
 }
 
 export interface AutoObserveState {
-  readonly status: Status;
-  readonly scheduledContinue?: Date;
-  /**
-   * @deprecated
-   */
-  readonly queue?: SystemCoordinates[];
-  /**
-   * @deprecated
-   */
-  readonly inProgress?: SystemCoordinates[];
+  readonly status: AutoObserveStatus;
+  readonly nextWakeUp?: Date;
   readonly settings: AutoObserveSettings;
 }
 
 export interface AutoObserve extends AutoObserveState {
   pause(): void;
   continue(): void;
-  /**
-   * @deprecated
-   */
   enqueue(...systems: SystemCoordinates[]): void;
 }
 

@@ -1,6 +1,5 @@
 import {ReplyingMessageChannel} from '../message/ReplyingMessageChannel';
-import {AutoObserveSettings, AutoObserveState, Status} from '../services/AutoObserve';
-import {SystemCoordinates} from '../types';
+import {AutoObserveSettings, AutoObserveState, AutoObserveStatus} from '../services/AutoObserve';
 import {RemoteAutoObserve, RemoteAutoObserveSettings} from './RemoteAutoObserve';
 import {remoteAssign, remoteGet, remoteInvoke, remoteSet} from './stub-skeleton';
 
@@ -41,26 +40,16 @@ export class AutoObserveStub implements RemoteAutoObserve {
   get(): Promise<AutoObserveState> {
     return remoteGet(this.channel, []);
   }
-  getStatus(): Promise<Status> {
+  getStatus(): Promise<AutoObserveStatus> {
     return remoteGet(this.channel, ['status']);
   }
-  getScheduledContinue(): Promise<Date | undefined> {
-    return remoteGet(this.channel, ['scheduledContinue']);
+  getNextWakeUp(): Promise<Date | undefined> {
+    return remoteGet(this.channel, ['nextWakeUp']);
   }
-  getQueue(): Promise<SystemCoordinates[]> {
-    return remoteGet(this.channel, ['queue']);
-  }
-  getInProgress(): Promise<SystemCoordinates[]> {
-    return remoteGet(this.channel, ['inProgress']);
-  }
-
   pause(): Promise<AutoObserveState> {
     return remoteInvoke(this.channel, ['pause']);
   }
   continue(): Promise<AutoObserveState> {
     return remoteInvoke(this.channel, ['continue']);
-  }
-  enqueue(...systems: SystemCoordinates[]): Promise<AutoObserveState> {
-    return remoteInvoke(this.channel, ['enqueue'], ...systems);
   }
 }

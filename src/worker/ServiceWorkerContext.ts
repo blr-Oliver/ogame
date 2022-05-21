@@ -30,7 +30,7 @@ import {RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {RecurringTokenLauncher} from '../common/services/RecurringTokenLauncher';
 import {Scanner} from '../common/services/Scanner';
 import {MissionScheduler} from '../common/services/Schedule';
-import {StatelessAutoObserve} from '../common/services/StatelessAutoObserve';
+import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {ClientManager} from './ClientManager';
 import {GalaxyRequestMonitor} from './GalaxyRequestMonitor';
 import {ReplayingEventShim} from './ReplayingEventShim';
@@ -90,7 +90,7 @@ export class ServiceWorkerContext {
     const espionageParser = new NoDOMEspionageReportParser();
     const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyParser, fetcher, server);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyParser);
-    const autoObserve = new StatelessAutoObserve(galaxyObserver, galaxyRepository, universe, {
+    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universe, {
       timeout: 3600 * 2,
       emptyTimeout: 3600 * 36,
       delay: 20

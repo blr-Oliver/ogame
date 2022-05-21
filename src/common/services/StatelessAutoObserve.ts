@@ -2,11 +2,11 @@ import {compareCoordinatesKeys} from '../common';
 import {UniverseContext} from '../core/UniverseContext';
 import {GalaxyRepository} from '../repository-types';
 import {SystemCoordinates} from '../types';
-import {AutoObserve, AutoObserveSettings, Status} from './AutoObserve';
+import {AutoObserve, AutoObserveSettings, AutoObserveStatus} from './AutoObserve';
 import {GalaxyObserver} from './GalaxyObserver';
 
 export class StatelessAutoObserve implements AutoObserve {
-  #status: Status = 'idle';
+  #status: AutoObserveStatus = 'idle';
   #nextWakeUp?: Date;
   #nextSystem?: SystemCoordinates;
   #nextWakeUpId?: number;
@@ -62,26 +62,12 @@ export class StatelessAutoObserve implements AutoObserve {
     this.#status = this.#nextSystem ? 'active' : 'idle';
   }
 
-  get scheduledContinue(): Date | undefined {
+  get nextWakeUp(): Date | undefined {
     return this.#nextWakeUp;
   }
 
-  get status(): Status {
+  get status(): AutoObserveStatus {
     return this.#status;
-  }
-
-  /**
-   * @deprecated
-   */
-  get queue(): SystemCoordinates[] {
-    return this.#nextSystem ? [this.#nextSystem] : [];
-  }
-
-  /**
-   * @deprecated
-   */
-  get inProgress(): SystemCoordinates[] {
-    return this.#status === 'active' ? this.queue : [];
   }
 
   get nextSystem(): SystemCoordinates | undefined {
