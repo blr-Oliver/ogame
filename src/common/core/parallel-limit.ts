@@ -69,34 +69,62 @@ export class FloodGate<H extends (...args: any[]) => Promise<any>> {
       reject: rej!
     });
     this.#proceed();
-    return promise.finally(() => {
-      --this.#processing;
-      setTimeout(() => this.#proceed(), 0);
-    });
+    return promise;
+  }
+
+  dropWaiting(): void {
+    let paused = this.#paused;
+    this.#paused = true;
+    while (this.queue.length) {
+      const task = this.queue.shift()!;
+      task.reject('dropped');
+    }
+    this.paused = paused;
   }
 
   #proceed() {
-    if (!this.#paused && this.#processing < this.#limit && this.queue.length) {
+    // console.debug(`FloodGate.proceed(): checking limits [paused: ${this.#paused}; processing: ${this.#processing}/${this.#limit}; queued = ${this.queue.length}]`);
+    if (!this.#paused && (this.#processing < this.#limit) && this.queue.length > 0) {
+      // console.debug(`FloodGate.proceed(): limits ok`);
       const now = Date.now();
+      // console.debug(`FloodGate.proceed(): checking time`);
       if (this.#nextCall <= now) {
+        // console.debug(`FloodGate.proceed(): time ok`);
         const task = this.queue.shift()!;
         let promise;
         try {
           ++this.#processing;
           this.#nextCall = now + this.#delay;
+          // console.debug(`FloodGate.proceed(): making a call`);
           promise = this.handler(...task.args);
         } catch (error) {
+          --this.#processing;
           task.reject(error);
         }
-        if (promise)
+        if (promise) {
+          promise.finally(() => {
+            --this.#processing;
+            setTimeout(() => this.#proceed(), 0);
+          });
           promise.then(result => task.resolve(result), error => task.reject(error));
-      } else if (!this.#isNextScheduled) {
-        this.#isNextScheduled = true;
-        setTimeout(() => {
-          this.#isNextScheduled = false;
-          this.#proceed();
-        }, Math.max(0, this.#nextCall - Date.now()));
+        }
+        setTimeout(() => this.#proceed(), 0);
+      } else {
+        // console.debug(`FloodGate.proceed(): too early`);
+        if (!this.#isNextScheduled) {
+          this.#isNextScheduled = true;
+          const delay = Math.max(0, this.#nextCall - now);
+          // console.debug(`FloodGate.proceed(): scheduling in ${delay} ms`);
+          setTimeout(() => {
+            this.#isNextScheduled = false;
+            this.#proceed();
+          }, delay);
+        } else {
+          // console.debug(`FloodGate.proceed(): already scheduled`);
+        }
       }
+    } else {
+      // console.debug(`FloodGate.proceed(): ${(this.queue.length > 0 ? 'too flooded' : 'no tasks')}`);
     }
   }
 }
