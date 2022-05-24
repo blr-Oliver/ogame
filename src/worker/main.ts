@@ -13,7 +13,6 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
     galaxyMonitor,
     autoObserve,
     raider,
-    analyzer,
     scheduler
   } = context;
 
@@ -21,9 +20,8 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   shim.relay = true;
   autoObserve.continue();
 
-  analyzer.ignoreBuildingProduction = true;
   raider.settings.maxTotalSlots = 24;
-  raider.settings.maxRaidSlots = 0;
+  raider.settings.maxRaidSlots = 16;
   raider.settings.minFreeSlots = 1;
   raider.settings.excludedOrigins = [];
   raider.settings.desertedTargets = [

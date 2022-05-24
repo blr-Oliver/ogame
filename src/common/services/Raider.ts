@@ -17,6 +17,8 @@ export interface Settings {
   excludedOrigins: number[];
   excludedTargets: Coordinates[];
   desertedTargets: Coordinates[];
+  ignoreBuildingProduction: boolean;
+  maxDistance: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -28,7 +30,9 @@ export const DEFAULT_SETTINGS: Settings = {
   rate: [1, 3, 4],
   excludedOrigins: [],
   excludedTargets: [],
-  desertedTargets: []
+  desertedTargets: [],
+  ignoreBuildingProduction: false,
+  maxDistance: 40000
 }
 
 export class Raider {
@@ -101,7 +105,9 @@ export class Raider {
           maxReportAge: this.settings.maxReportAge,
           minRaid: 1,
           maxMissions: slotsLeft,
-          desertedPlanets: this.settings.desertedTargets
+          desertedPlanets: this.settings.desertedTargets,
+          ignoreBuildingProduction: this.settings.ignoreBuildingProduction,
+          maxDistance: this.settings.maxDistance
         };
         console.debug(`Raider: analyzing`);
         const missions = this.analyzer.suggestMissions(request);

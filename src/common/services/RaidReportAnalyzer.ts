@@ -19,6 +19,8 @@ export interface SuggestionRequest {
   minRaid: number;      // #transports
   maxMissions: number;
   desertedPlanets: Coordinates[];
+  ignoreBuildingProduction: boolean;
+  maxDistance: number;
 }
 
 interface ProcessingItem {
@@ -43,7 +45,6 @@ function createProcessingItem(report: ShardedEspionageReport): ProcessingItem {
 }
 
 export class RaidReportAnalyzer {
-  ignoreBuildingProduction = false;
 
   constructor(
       private universe: UniverseContext,
@@ -86,7 +87,7 @@ export class RaidReportAnalyzer {
     while (items.length > 0 && missions.length < request.maxMissions) {
       const candidate = items.pop()!;
       if (!this.isClean(candidate.report)) continue;
-      if (candidate.distance > 40000) {
+      if (candidate.distance > request.maxDistance) {
         this.excludeOriginAndReattempt(candidate, request, items);
         continue;
       }
@@ -156,7 +157,7 @@ export class RaidReportAnalyzer {
     const buildings = item.report.buildings;
     const coordinates = item.report.coordinates;
     const isMoon = coordinates.type === CoordinateType.Moon;
-    const isDeserted = this.ignoreBuildingProduction || request.desertedPlanets.some(deserted => sameCoordinates(deserted, coordinates));
+    const isDeserted = request.ignoreBuildingProduction || request.desertedPlanets.some(deserted => sameCoordinates(deserted, coordinates));
     item.production = [0, 0, 0];
     item.productionLimit = [Infinity, Infinity, Infinity];
     if (!isMoon) {
