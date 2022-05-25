@@ -36,7 +36,7 @@ export interface GalaxySystemHeader {
   system: number;
   timestamp?: Date;
   empty: boolean;
-  class?: GalaxyClass;
+  class: GalaxyClass;
 }
 
 export interface GalaxySystemInfo extends GalaxySystemHeader {
@@ -54,7 +54,7 @@ export interface GalaxySlotCoordinates {
 }
 
 export interface GalaxySlotInfo {
-  class?: GalaxyClass;
+  class: GalaxyClass;
   planet?: PlanetGalaxyInfo;
   moon?: MoonGalaxyInfo;
   debris?: DebrisGalaxyInfo;

@@ -2,6 +2,7 @@ import {GalaxyParser} from '../../../common/parsers';
 import {
   AllianceGalaxyInfo,
   DebrisGalaxyInfo,
+  GalaxyClass,
   GalaxySlot,
   GalaxySlotInfo,
   GalaxySystemInfo,
@@ -64,8 +65,20 @@ function extractMoon(rawPlanet: any): MoonGalaxyInfo {
 }
 function extractDebris(rawPlanet: any): DebrisGalaxyInfo {
   return {
-    metal: rawPlanet.resources?.metal.amount,
-    crystal: rawPlanet.resources?.crystal.amount
+    metal: rawPlanet.resources?.metal?.amount,
+    crystal: rawPlanet.resources?.crystal?.amount
+  }
+}
+export function determineSlotClass(slot: GalaxySlotInfo): GalaxyClass {
+  const player = slot.player;
+  if (player) {
+    if (player.status.admin || !player.id || player.id === 99999) return GalaxyClass.NonPlayer;
+    if (player.status.vacation) return GalaxyClass.Vacation;
+    return GalaxyClass.Player;
+  } else {
+    if (slot.planet || slot.moon) return GalaxyClass.NonPlayer; // destroyed / abandoned planet
+    if (slot.debris) return GalaxyClass.Debris;
+    return GalaxyClass.Empty;
   }
 }
 export function extractGalaxy(rawData: any, timestamp: Date = new Date()): GalaxySystemInfo {
@@ -74,15 +87,17 @@ export function extractGalaxy(rawData: any, timestamp: Date = new Date()): Galax
   const slots: GalaxySlot[] = Array(16);
   const rawSlots: any[] = rawData.system.galaxyContent;
   let empty = true;
-  for (let i = 0; i < rawSlots.length; ++i) {
+  for (let i = 0; i < 16; ++i) {
     const rawSlot = rawSlots[i];
-    let planets: any[] = rawSlot.planets;
-    if (!(planets instanceof Array)) // 16th position
+    let planets: any[] = rawSlot?.planets;
+    if (planets && !(planets instanceof Array)) // 16th position
       planets = [planets];
-    if (planets.length) {
+    if (!planets?.length) {
+      slots[i] = {galaxy, system, position: i + 1, timestamp, class: GalaxyClass.Empty};
+    } else {
       empty = false;
       const position = rawSlot.position;
-      const slotInfo: GalaxySlotInfo = {};
+      const slotInfo: GalaxySlotInfo = {class: GalaxyClass.Unknown};
       if (rawSlot.player && rawSlot.player.playerId !== 99999) {
         let rawPlayer = rawSlot.player;
         let alliance = extractAlliance(rawPlayer);
@@ -102,11 +117,13 @@ export function extractGalaxy(rawData: any, timestamp: Date = new Date()): Galax
             break;
         }
       }
+      slotInfo.class = determineSlotClass(slotInfo);
       slots[i] = {
         ...slotInfo,
         galaxy, system, position, timestamp
       };
     }
   }
-  return {galaxy, system, timestamp, empty, slots};
+  const systemClass = Math.max(...slots.map(slot => slot.class))
+  return {galaxy, system, timestamp, empty, slots, class: systemClass};
 }
