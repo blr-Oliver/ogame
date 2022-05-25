@@ -10,7 +10,7 @@ export class IDBRepositoryProvider {
               public readonly dbName: string,
               private factories: { [name: string]: IDBRepositorySupport<IDBRepository> }) {
     const initializers = Object.keys(factories)
-        .reduce((list, key) => (list.push(factories[key].init), list), [] as IDBRepositoryInitializer[]);
+        .reduce((list, key) => (list.push(factories[key].init.bind(factories[key])), list), [] as IDBRepositoryInitializer[]);
     this.connectionProvider = new IDBConnectionProvider(indexedDB, dbName, initializers);
     this.repositories = {};
   }

@@ -1,5 +1,5 @@
 import {compareCoordinatesKeys, deduplicate} from '../../common';
-import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySlotInfo, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
+import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
 import {GalaxyRepository} from '../../repository-types';
 import {coordinateComparator, Coordinates, CoordinateType, SystemCoordinates} from '../../types';
 import {IDBRepository} from '../IDBRepository';
@@ -222,7 +222,7 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     return this.withTransaction(tx, tx => {
       let systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SYSTEM_STORE);
       let slotStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepository.SLOT_STORE);
-      let slots: GalaxySlotInfo[] = report.slots.filter(x => !!x) as GalaxySlotInfo[];
+      let slots: GalaxySlot[] = report.slots.filter(x => !!x) as GalaxySlot[];
       return Promise.all([
         upsertOne(systemStore, report),
         upsertAll(slotStore, ...slots)

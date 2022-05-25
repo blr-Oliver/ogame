@@ -22,11 +22,21 @@ export interface EventFleet {
   cargo?: Resources;
 }
 
+export enum GalaxyClass {
+  Unknown = -1,
+  Empty = 0,
+  Debris = 1,
+  NonPlayer = 2,
+  Vacation = 3,
+  Player = 4
+}
+
 export interface GalaxySystemHeader {
   galaxy: number;
   system: number;
   timestamp?: Date;
   empty: boolean;
+  class?: GalaxyClass;
 }
 
 export interface GalaxySystemInfo extends GalaxySystemHeader {
@@ -44,6 +54,7 @@ export interface GalaxySlotCoordinates {
 }
 
 export interface GalaxySlotInfo {
+  class?: GalaxyClass;
   planet?: PlanetGalaxyInfo;
   moon?: MoonGalaxyInfo;
   debris?: DebrisGalaxyInfo;

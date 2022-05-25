@@ -14,7 +14,10 @@ export class IDBEspionageRepositorySupport implements IDBRepositorySupport<IDBEs
   }
   init(tx: IDBTransaction, oldVersion: number, newVersion: number): void {
     let db: IDBDatabase = tx.db;
+    if (oldVersion < 1) this.version1(db);
+  }
 
+  private version1(db: IDBDatabase) {
     let reportStore = db.createObjectStore(IDBEspionageRepository.REPORT_STORE, {
       autoIncrement: false,
       keyPath: ['coordinates.galaxy', 'coordinates.system', 'coordinates.position', 'coordinates.type', 'timestamp']
