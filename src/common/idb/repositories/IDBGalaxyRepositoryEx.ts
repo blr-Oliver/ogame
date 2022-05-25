@@ -1,5 +1,6 @@
 import {compareCoordinatesKeys, deduplicate} from '../../common';
-import {GalaxyClass, GalaxySlot, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
+import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
+import {GalaxyRepository} from '../../repository-types';
 import {Coordinates, CoordinateType, SystemCoordinates} from '../../types';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
@@ -19,7 +20,7 @@ const {
   drainWithTransform
 } = IDBUtils;
 
-export class IDBGalaxyRepositoryEx extends IDBRepository {
+export class IDBGalaxyRepositoryEx extends IDBRepository implements GalaxyRepository {
   static readonly OBJ_SYSTEM = 'galaxy-report-ex';
   static readonly IDX_SYSTEM_CLASS = 'class';
 
@@ -88,8 +89,8 @@ export class IDBGalaxyRepositoryEx extends IDBRepository {
       return Promise.all([
         upsertOne(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SYSTEM), report),
         upsertOne(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SYSTEM_HISTORY), report),
-        upsertAll(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SLOT), report.slots),
-        upsertAll(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SLOT_HISTORY), report.slots)
+        upsertAll(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SLOT), ...report.slots),
+        upsertAll(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SLOT_HISTORY), ...report.slots)
       ]);
     }, true)
         .then(([key]) => key as SystemCoordinates);
@@ -134,6 +135,51 @@ export class IDBGalaxyRepositoryEx extends IDBRepository {
                 .map(s => [s.galaxy, s.system] as SystemCoordinates)));
   }
 
+  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<SystemCoordinates[]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepositoryEx.OBJ_SYSTEM], 'readonly');
+    return this.withTransaction(tx, tx => {
+      const systemStore: IDBObjectStore = tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SYSTEM);
+      const key: SystemCoordinates = [1, 1];
+      const advanceKey = this.getCoordinatesKeyIterator(maxSystem);
+      const cursorRequest = systemStore.openCursor();
+      return new Promise<SystemCoordinates[]>((resolve, reject) => {
+        const data: SystemCoordinates[] = [];
+        function skipTo(limit: SystemCoordinates) {
+          while (compareCoordinatesKeys(key, limit) < 0) {
+            data.push([key[0], key[1]]);
+            advanceKey(key);
+          }
+        }
+        cursorRequest.onsuccess = () => {
+          const cursor: IDBCursorWithValue | null = cursorRequest.result;
+          if (cursor) {
+            const currentKey = cursor.key as SystemCoordinates;
+            const value = cursor.value as GalaxySystemInfo;
+            skipTo(currentKey);
+            if (value.class === GalaxyClass.Unknown)
+              data.push([currentKey[0], currentKey[1]]);
+            advanceKey(key);
+            cursor.continue(key);
+          } else {
+            skipTo([maxGalaxy, maxSystem + 1]);
+            resolve(data);
+          }
+        };
+        cursorRequest.onerror = e => reject(e);
+      });
+    });
+  }
+
+  private getCoordinatesKeyIterator(maxSystem: number): (key: SystemCoordinates) => void {
+    return (key: SystemCoordinates) => {
+      ++key[1];
+      if (key[1] > maxSystem) {
+        ++key[0];
+        key[1] = 1;
+      }
+    };
+  }
+
   findInactiveTargets(): Promise<Coordinates[]> {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepositoryEx.OBJ_SLOT], 'readonly');
     return this
@@ -159,6 +205,34 @@ export class IDBGalaxyRepositoryEx extends IDBRepository {
             });
           return result;
         }));
+  }
+
+  selectLatestReports(): Promise<GalaxySystemInfo[]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepositoryEx.OBJ_SYSTEM], 'readonly');
+    return this.withTransaction(tx, tx =>
+        getAllFromIndex(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SYSTEM),
+            IDBGalaxyRepositoryEx.IDX_SYSTEM_CLASS,
+            IDBKeyRange.lowerBound([GalaxyClass.Empty, MIN_DATE])
+        ));
+  }
+
+  findAllCurrentDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepositoryEx.OBJ_SLOT], 'readonly');
+    return this.withTransaction(tx, tx =>
+        getTopMatchingFromIndex<GalaxySlot>(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SLOT),
+            IDBGalaxyRepositoryEx.IDX_SLOT_CLASS,
+            Infinity,
+            slot => !!slot.debris,
+            IDBKeyRange.lowerBound(GalaxyClass.Debris)
+        ))
+        .then(slots => slots.map(s => ({
+          galaxy: s.galaxy,
+          system: s.system,
+          position: s.position,
+          timestamp: s.timestamp,
+          metal: s.debris!.metal,
+          crystal: s.debris!.crystal
+        })));
   }
 
 }

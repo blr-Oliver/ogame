@@ -1,10 +1,11 @@
+import {GalaxyRepository} from '../../repository-types';
+import {IDBRepository} from '../IDBRepository';
 import {IDBRepositorySupport} from '../IDBRepositorySupport';
-import {IDBGalaxyRepository} from './IDBGalaxyRepository';
 import {IDBGalaxyRepositoryEx} from './IDBGalaxyRepositoryEx';
 
-export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBGalaxyRepository> {
-  create(db: IDBDatabase): IDBGalaxyRepository {
-    return new IDBGalaxyRepository(db);
+export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBRepository & GalaxyRepository> {
+  create(db: IDBDatabase): IDBRepository & GalaxyRepository {
+    return new IDBGalaxyRepositoryEx(db);
   }
 
   init(tx: IDBTransaction, oldVersion: number, newVersion: number): void {

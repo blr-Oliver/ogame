@@ -77,7 +77,7 @@ export class StatefulAutoObserve implements AutoObserve {
           }
         });
 
-        missing.forEach(c => tasks.push([c.galaxy, c.system]));
+        tasks.push(...missing);
         if (tasks.length) {
           Promise.allSettled(tasks.map(c => this.handler.offer(c[0], c[1])))
               .then(() => {

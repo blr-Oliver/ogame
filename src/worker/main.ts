@@ -18,10 +18,10 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
 
   self.addEventListener('fetch', (e: Event) => galaxyMonitor.spyGalaxyRequest(e as FetchEvent));
   shim.relay = true;
-  autoObserve.continue();
+  //autoObserve.continue();
 
   raider.settings.maxTotalSlots = 24;
-  raider.settings.maxRaidSlots = 16;
+  raider.settings.maxRaidSlots = 0;
   raider.settings.minFreeSlots = 1;
   raider.settings.excludedOrigins = [];
   raider.settings.desertedTargets = [

@@ -1,13 +1,14 @@
 import {getCurrentClientId} from '../common/client-id';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
+import {IDBRepository} from '../common/idb/IDBRepository';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
 import {IDBEspionageRepository} from '../common/idb/repositories/IDBEspionageRepository';
 import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
-import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
 import {AutoObserveStub} from '../common/remote/AutoObserveStub';
+import {GalaxyRepository} from '../common/repository-types';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {NoDOMEspionageReportParser} from './parsers/no-dom/espionage-report-no-dom';
@@ -46,7 +47,7 @@ if ('serviceWorker' in navigator) {
 
   Promise.all([
     repositoryProvider.getRepository<IDBEspionageRepository>('espionage'),
-    repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'),
+    repositoryProvider.getRepository<IDBRepository & GalaxyRepository>('galaxy'),
   ]).then(([espionageRepo, galaxyRepo]) => {
     (window as any)['espionageRepo'] = espionageRepo;
     (window as any)['galaxyRepo'] = galaxyRepo;

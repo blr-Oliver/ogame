@@ -1,4 +1,4 @@
-import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo} from '../../common/report-types';
+import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo} from '../../common/report-types';
 import {GalaxyRepository} from '../../common/repository-types';
 import {Coordinates, SystemCoordinates} from '../../common/types';
 import {db} from './db';
@@ -32,7 +32,7 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     // TODO add cache
   }
 
-  load(galaxy: number, system: number): Promise<GalaxySystemInfo | undefined> {
+  loadSystem(galaxy: number, system: number): Promise<GalaxySystemInfo | undefined> {
     return db.query<any[]>({ // TODO define type for "raw" data
       sql:
       // intentionally ignoring 'empty' field
@@ -43,7 +43,7 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     }).then((rows: any[]) => {
       if (rows.length) {
         const slots: GalaxySlot[] = Array(16).fill(null);
-        const result: GalaxySystemInfo = {galaxy, system, slots, timestamp: rows[0]['r'].timestamp, empty: false};
+        const result: GalaxySystemInfo = {galaxy, system, slots, timestamp: rows[0]['r'].timestamp, empty: false, class: GalaxyClass.Unknown};
         for (let i = 0; i < rows.length; ++i) {
           let rawSlot = rows[i]['s'];
           if (rawSlot)
@@ -53,10 +53,6 @@ export class SqlGalaxyRepository implements GalaxyRepository {
         return result;
       }
     });
-  }
-
-  loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | undefined> {
-    return this.load(coordinates.galaxy, coordinates.system);
   }
 
   findNextStale(normalTimeout: number, emptyTimeout: number, [galaxy, system]: SystemCoordinates = [1, 1]): Promise<SystemCoordinates | undefined> {
@@ -90,15 +86,15 @@ export class SqlGalaxyRepository implements GalaxyRepository {
     }).then((rows: any[]) => rows.map(row => extractObject(row, COORDINATES_MAPPING)));
   }
 
-  findAllStale(normalTimeout: number, emptyTimeout: number): Promise<Coordinates[]> {
+  findAllStale(normalTimeout: number, emptyTimeout: number): Promise<SystemCoordinates[]> {
     return Promise.resolve([]); // TODO
   }
 
-  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<Coordinates[]> {
+  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<SystemCoordinates[]> {
     return Promise.resolve([]); // TODO
   }
 
-  findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]> {
+  findStaleSystemsWithTargets(timeout: number): Promise<SystemCoordinates[]> {
     return db.query<any[]>({ // TODO define type for "raw" data
       sql:
           `select distinct r.galaxy, r.system, NULL as 'position'
@@ -106,7 +102,9 @@ export class SqlGalaxyRepository implements GalaxyRepository {
            on s.galaxy = r.galaxy and s.system = r.system
            where s.player_status not like '%A%'
              and r.timestamp < date_sub(now(), interval ${timeout} second)`
-    }).then((rows: any[]) => rows.map(row => extractObject(row, COORDINATES_MAPPING)));
+    })
+        .then((rows: any[]) => rows.map(row => extractObject(row, COORDINATES_MAPPING)))
+        .then((coordinates: Coordinates[]) => coordinates.map(c => [c.galaxy, c.system]));
   }
 
   store(galaxy: GalaxySystemInfo): Promise<void> {

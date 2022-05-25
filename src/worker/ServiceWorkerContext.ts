@@ -10,10 +10,10 @@ import {PlayerContext} from '../common/core/PlayerContext';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {ServerContext} from '../common/core/ServerContext';
 import {UniverseContext} from '../common/core/UniverseContext';
+import {IDBRepository} from '../common/idb/IDBRepository';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
 import {IDBEspionageRepository} from '../common/idb/repositories/IDBEspionageRepository';
 import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
-import {IDBGalaxyRepository} from '../common/idb/repositories/IDBGalaxyRepository';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 import {GalaxyParser} from '../common/parsers';
 import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
@@ -82,7 +82,7 @@ export class ServiceWorkerContext {
       'espionage': espionageRepositorySupport
     });
     const [galaxyRepository, espionageRepository] = await Promise.all([
-      repositoryProvider.getRepository<IDBGalaxyRepository>('galaxy'),
+      repositoryProvider.getRepository<IDBRepository & GalaxyRepository>('galaxy'),
       repositoryProvider.getRepository<IDBEspionageRepository>('espionage')
     ]);
     const galaxyParser = new JSONGalaxyParser();

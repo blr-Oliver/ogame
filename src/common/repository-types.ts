@@ -9,14 +9,11 @@ export interface EspionageRepository {
 }
 
 export interface GalaxyRepository {
-  load(galaxy: number, system: number): Promise<GalaxySystemInfo | undefined>;
-  loadC(coordinates: Coordinates): Promise<GalaxySystemInfo | undefined>;
-  findNextStale(normalTimeout: number, emptyTimeout: number, from?: SystemCoordinates): Promise<SystemCoordinates | undefined>;
-  findAllStale(normalTimeout: number, emptyTimeout: number): Promise<Coordinates[]>;
-  findNextMissing(maxGalaxy: number, maxSystem: number, from?: SystemCoordinates): Promise<SystemCoordinates | undefined>
-  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<Coordinates[]>;
+  loadSystem(galaxy: number, system: number): Promise<GalaxySystemInfo | undefined>;
+  findAllStale(normalTimeout: number, emptyTimeout: number): Promise<SystemCoordinates[]>;
+  findAllMissing(maxGalaxy: number, maxSystem: number): Promise<SystemCoordinates[]>;
   findInactiveTargets(): Promise<Coordinates[]>;
-  findStaleSystemsWithTargets(timeout: number): Promise<Coordinates[]>;
+  findStaleSystemsWithTargets(timeout: number): Promise<SystemCoordinates[]>;
   store(report: GalaxySystemInfo): Promise<any>;
   findAllCurrentDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]>;
   selectLatestReports(): Promise<GalaxySystemInfo[]>;

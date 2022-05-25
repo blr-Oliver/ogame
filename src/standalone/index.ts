@@ -24,7 +24,7 @@ app.get('/login', (req, res, next) => {
 });
 
 app.get('/display/galaxy/:galaxy/:system', (req, res) => {
-  galaxyRepo.load(+req.params['galaxy'], +req.params['system']).then(systemInfo => {
+  galaxyRepo.loadSystem(+req.params['galaxy'], +req.params['system']).then(systemInfo => {
     res.json(systemInfo);
   });
 });
