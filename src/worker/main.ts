@@ -1,6 +1,6 @@
 import {parseCoordinates} from '../browser/parsers/parsers-common';
 import {processAll} from '../common/common';
-import {ShardedEspionageReport} from '../common/report-types';
+import {DebrisGalaxyInfo, ShardedEspionageReport} from '../common/report-types';
 import {Coordinates} from '../common/types';
 import {ServiceWorkerContext} from './ServiceWorkerContext';
 import {wrappingSum} from './utils';
@@ -18,7 +18,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
 
   self.addEventListener('fetch', (e: Event) => galaxyMonitor.spyGalaxyRequest(e as FetchEvent));
   shim.relay = true;
-  //autoObserve.continue();
+  autoObserve.continue();
 
   raider.settings.maxTotalSlots = 24;
   raider.settings.maxRaidSlots = 0;
@@ -109,13 +109,19 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
         {} as { [wnd: string]: number[] });
   }
 
-  async function rateDebrisFields() {
+  const rate: [number, number] = [1, 3];
+  const debrisComparator = (a: DebrisGalaxyInfo, b: DebrisGalaxyInfo) =>
+      (b.metal * rate[0] + b.crystal * rate[1]) -
+      (a.metal * rate[0] + a.crystal * rate[1]);
+
+  async function rateAllDebris() {
     let allDebris = await galaxyRepository.findAllCurrentDebris();
-    const rate: [number, number] = [1, 3];
-    return allDebris.sort((a, b) =>
-        (b.metal * rate[0] + b.crystal * rate[1]) -
-        (a.metal * rate[0] + a.crystal * rate[1])
-    );
+    return allDebris.sort(debrisComparator);
+  }
+
+  async function rateHangingDebris() {
+    let allDebris = await galaxyRepository.findHangingDebris();
+    return allDebris.sort(debrisComparator);
   }
 
   (self as any)['raider'] = raider;
@@ -123,5 +129,6 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   (self as any)['findUncertainTargets'] = findUncertainTargets;
   (self as any)['findProtectedTargets'] = findProtectedTargets;
   (self as any)['rankSystemsWithInactiveTargets'] = rankSystemsWithInactiveTargets;
-  (self as any)['rateDebrisFields'] = rateDebrisFields;
+  (self as any)['rateAllDebris'] = rateAllDebris;
+  (self as any)['rateHangingDebris'] = rateHangingDebris;
 }

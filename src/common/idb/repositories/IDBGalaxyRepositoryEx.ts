@@ -217,13 +217,20 @@ export class IDBGalaxyRepositoryEx extends IDBRepository implements GalaxyReposi
   }
 
   findAllCurrentDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]> {
+    return this.findDebris(IDBKeyRange.lowerBound([GalaxyClass.Debris], false), slot => !!slot.debris);
+  }
+
+  findHangingDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]> {
+    return this.findDebris(IDBKeyRange.bound([GalaxyClass.Debris], [GalaxyClass.Vacation]),
+        slot => slot.position < 16 && !!slot.debris);
+  }
+
+  private findDebris(query: IDBKeyRange, test: (slot: GalaxySlot) => boolean) {
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepositoryEx.OBJ_SLOT], 'readonly');
     return this.withTransaction(tx, tx =>
         getTopMatchingFromIndex<GalaxySlot>(tx.objectStore(IDBGalaxyRepositoryEx.OBJ_SLOT),
             IDBGalaxyRepositoryEx.IDX_SLOT_CLASS,
-            Infinity,
-            slot => !!slot.debris,
-            IDBKeyRange.lowerBound(GalaxyClass.Debris)
+            Infinity, test, query, 'next'
         ))
         .then(slots => slots.map(s => ({
           galaxy: s.galaxy,
