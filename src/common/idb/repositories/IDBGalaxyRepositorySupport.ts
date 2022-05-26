@@ -1,11 +1,11 @@
 import {GalaxyRepository} from '../../repository-types';
 import {IDBRepository} from '../IDBRepository';
 import {IDBRepositorySupport} from '../IDBRepositorySupport';
-import {IDBGalaxyRepositoryEx} from './IDBGalaxyRepositoryEx';
+import {IDBGalaxyRepository} from './IDBGalaxyRepository';
 
 export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBRepository & GalaxyRepository> {
   create(db: IDBDatabase): IDBRepository & GalaxyRepository {
-    return new IDBGalaxyRepositoryEx(db);
+    return new IDBGalaxyRepository(db);
   }
 
   init(tx: IDBTransaction, oldVersion: number, newVersion: number): void {
@@ -13,6 +13,7 @@ export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBRepos
     if (oldVersion < 1) this.version1(tx, db);
     if (oldVersion < 2) this.version2(tx, db);
     if (oldVersion < 3) this.version3(tx, db);
+    if (oldVersion < 4) this.version4(tx, db);
   }
 
   /*
@@ -123,5 +124,21 @@ export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBRepos
     slotHistoryStore.createIndex('class', ['class', 'timestamp'], {unique: false});
     slotHistoryStore.createIndex('player', ['player.id', 'timestamp'], {unique: false});
     slotHistoryStore.createIndex('alliance', ['alliance.id', 'timestamp'], {unique: false});
+  }
+
+  /*
+    rename
+      galaxy-report-ex        => galaxy-report
+      galaxy-report-slot-ex   => galaxy-report-slot
+  */
+  private version4(tx: IDBTransaction, db: IDBDatabase) {
+    db.deleteObjectStore('galaxy-report');
+    db.deleteObjectStore('galaxy-report-slot');
+
+    let systemExStore = tx.objectStore('galaxy-report-ex');
+    let slotExStore = tx.objectStore('galaxy-report-slot-ex');
+
+    systemExStore.name = 'galaxy-report';
+    slotExStore.name = 'galaxy-report-slot';
   }
 }
