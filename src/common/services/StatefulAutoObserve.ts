@@ -1,4 +1,4 @@
-import {FloodGate} from '../core/parallel-limit';
+import {FloodGate} from '../core/FloodGate';
 import {UniverseContext} from '../core/UniverseContext';
 import {GalaxySystemInfo} from '../report-types';
 import {GalaxyRepository} from '../repository-types';

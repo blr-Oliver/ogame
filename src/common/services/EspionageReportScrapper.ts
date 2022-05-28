@@ -1,7 +1,7 @@
 import {EspionageBrief, EspionageReportList} from '../../browser/parsers/no-dom/espionage-report-no-dom';
 import {deduplicate, processAll} from '../common';
 import {Fetcher} from '../core/Fetcher';
-import {parallelLimit} from '../core/parallel-limit';
+import {parallelLimit} from '../core/FloodGate';
 import {ServerContext} from '../core/ServerContext';
 import {EspionageReportParser} from '../parsers';
 import {StampedEspionageReport} from '../report-types';

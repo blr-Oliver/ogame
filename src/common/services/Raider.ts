@@ -78,7 +78,7 @@ export class Raider {
         ]);
         targets = this.filterTargets(targets, events);
         events = undefined;
-        await this.espionageRepo.deleteOldReports();
+        // await this.espionageRepo.deleteOldReports();
         let unexploredTargets: Coordinates[] = [];
         console.debug(`Raider: loading reports`);
         const reports = await processAll(targets, async target => {

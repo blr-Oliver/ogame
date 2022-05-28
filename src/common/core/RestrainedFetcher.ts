@@ -1,5 +1,5 @@
 import {Fetcher, RequestFacade, ResponseFacade} from './Fetcher';
-import {parallelLimit} from './parallel-limit';
+import {parallelLimit} from './FloodGate';
 
 export class RestrainedFetcher implements Fetcher {
   static readonly DEFAULT_LIMIT = 8;

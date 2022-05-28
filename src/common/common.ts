@@ -1,4 +1,5 @@
 import {FlightCalculator} from './core/calculator/FlightCalculator';
+import {GalaxySlot} from './report-types';
 import {Coordinates, SpaceBody, SystemCoordinates} from './types';
 
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =
@@ -70,4 +71,65 @@ export function sleep(delay: number): Promise<number> {
 export function sleepUntil(time: Date | number): Promise<number> {
   if (time instanceof Date) time = time.getTime();
   return sleep(time - Date.now());
+}
+
+export type PropertyMask = { [key: string]: true | PropertyMask };
+
+export function objectsEqual<T>(a: T, b: T, mask: PropertyMask): boolean {
+  for (let key in mask) {
+    const value = mask[key];
+    // @ts-ignore
+    let aVal = a[key], bVal = b[key];
+    if (value === true) {
+      if (aVal !== bVal) return false;
+    } else {
+      if (aVal == null) {
+        if (aVal !== bVal) return false;
+      } else if (bVal == null) {
+        if (aVal !== bVal) return false;
+      } else {
+        if (!objectsEqual(aVal, bVal, value)) return false;
+      }
+    }
+  }
+  return true;
+}
+
+const PMSK_PLANET_INFO: PropertyMask = {
+  id: true,
+  name: true,
+  active: true,
+  activityTime: true
+}
+const PMSK_DEBRIS_INFO: PropertyMask = {
+  metal: true,
+  crystal: true
+}
+const PMSK_STATUS_INFO: PropertyMask = {
+  inactive: true,
+  vacation: true,
+  banned: true,
+  outlaw: true
+}
+const PMSK_PLAYER_INFO: PropertyMask = {
+  id: true,
+  name: true,
+  status: PMSK_STATUS_INFO
+}
+const PMSK_ALLIANCE_INFO: PropertyMask = {
+  id: true,
+  name: true,
+  shortName: true
+}
+const PMSK_GALAXY_SLOT: PropertyMask = {
+  class: true,
+  planet: PMSK_PLANET_INFO,
+  moon: PMSK_PLANET_INFO,
+  debris: PMSK_DEBRIS_INFO,
+  player: PMSK_PLAYER_INFO,
+  alliance: PMSK_ALLIANCE_INFO
+};
+
+export function slotsEqual(a: GalaxySlot, b: GalaxySlot): boolean {
+  return objectsEqual(a, b, PMSK_GALAXY_SLOT);
 }

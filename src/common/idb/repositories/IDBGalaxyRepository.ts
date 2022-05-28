@@ -1,12 +1,9 @@
-import {compareCoordinatesKeys, deduplicate} from '../../common';
+import {compareCoordinatesKeys, deduplicate, slotsEqual} from '../../common';
 import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
 import {GalaxyRepository} from '../../repository-types';
 import {Coordinates, CoordinateType, SystemCoordinates} from '../../types';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
-import getAll = IDBUtils.getAll;
-import getOne = IDBUtils.getOne;
-
 
 const {
   getKey,
@@ -17,7 +14,9 @@ const {
   getTopMatching,
   upsertOne,
   upsertAll,
-  drainWithTransform
+  drainWithTransform,
+  getAll,
+  getOne
 } = IDBUtils;
 
 export class IDBGalaxyRepository extends IDBRepository implements GalaxyRepository {
@@ -38,12 +37,12 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
   }
 
   /*
-    galaxy-report-ex
+    galaxy-report
       keyPath: galaxy, system
       indexes:
         class: class, timestamp
 
-    galaxy-report-slot-ex
+    galaxy-report-slot
       keyPath: galaxy, system, position
       indexes:
         class: class
@@ -242,4 +241,52 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
         })));
   }
 
+  condenseSlotHistory(galaxy: number, system: number, position: number): Promise<GalaxySlot[]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.OBJ_SLOT_HISTORY], 'readwrite');
+    return this.withTransaction(tx, tx => new Promise((resolve, reject) => {
+      const slotHistoryStore = tx.objectStore(IDBGalaxyRepository.OBJ_SLOT_HISTORY);
+      const query = IDBKeyRange.bound([galaxy, system, position, MIN_DATE], [galaxy, system, position, MAX_DATE]);
+      const result: GalaxySlot[] = [];
+      const leadIt = slotHistoryStore.openCursor(query, 'next');
+      let leadCursor: IDBCursorWithValue | null, followCursor: IDBCursorWithValue | null = null;
+      let rangeStart: GalaxySlot | undefined, rangeEnd: GalaxySlot | undefined;
+      let first = true;
+
+      leadIt.onsuccess = () => {
+        leadCursor = leadIt.result;
+        if (leadCursor) {
+          const slot = leadCursor.value;
+          if (!rangeStart) {
+            rangeStart = slot;
+            result.push(slot);
+          } else {
+            if (slotsEqual(slot, rangeStart)) {
+              if (rangeEnd)
+                followCursor!.delete();
+              rangeEnd = slot;
+            } else {
+              if (rangeEnd) result.push(rangeEnd);
+              result.push(rangeStart = slot);
+              rangeEnd = undefined;
+            }
+          }
+          if (first) {
+            first = false;
+            const followIt = slotHistoryStore.openCursor(query, 'next');
+            followIt.onsuccess = () => {
+              followCursor = followIt.result;
+              leadCursor!.continue();
+            }
+            followIt.onerror = leadIt.onerror;
+          } else
+            followCursor!.continue();
+        } else {
+          if (rangeEnd) result.push(rangeEnd);
+          resolve(result);
+        }
+      }
+
+      leadIt.onerror = e => reject(e);
+    }));
+  }
 }
