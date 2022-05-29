@@ -29,9 +29,6 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
   static readonly IDX_SLOT_ALLIANCE = 'alliance';
   static readonly IDX_SLOT_INACTIVE = 'inactive';
 
-  static readonly OBJ_SYSTEM_HISTORY = 'galaxy-report-history';
-  static readonly OBJ_SLOT_HISTORY = 'galaxy-report-slot-history';
-
   constructor(db: IDBDatabase) {
     super(db);
   }
@@ -81,15 +78,12 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
 
   store(report: GalaxySystemInfo): Promise<SystemCoordinates> {
     let tx: IDBTransaction = this.db.transaction([
-      IDBGalaxyRepository.OBJ_SYSTEM, IDBGalaxyRepository.OBJ_SLOT,
-      IDBGalaxyRepository.OBJ_SYSTEM_HISTORY, IDBGalaxyRepository.OBJ_SLOT_HISTORY
+      IDBGalaxyRepository.OBJ_SYSTEM, IDBGalaxyRepository.OBJ_SLOT
     ], 'readwrite');
     return this.withTransaction(tx, tx => {
       return Promise.all([
         upsertOne(tx.objectStore(IDBGalaxyRepository.OBJ_SYSTEM), report),
-        upsertOne(tx.objectStore(IDBGalaxyRepository.OBJ_SYSTEM_HISTORY), report),
-        upsertAll(tx.objectStore(IDBGalaxyRepository.OBJ_SLOT), ...report.slots),
-        upsertAll(tx.objectStore(IDBGalaxyRepository.OBJ_SLOT_HISTORY), ...report.slots)
+        upsertAll(tx.objectStore(IDBGalaxyRepository.OBJ_SLOT), ...report.slots)
       ]);
     }, true)
         .then(([key]) => key as SystemCoordinates);
@@ -241,52 +235,4 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
         })));
   }
 
-  condenseSlotHistory(galaxy: number, system: number, position: number): Promise<GalaxySlot[]> {
-    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.OBJ_SLOT_HISTORY], 'readwrite');
-    return this.withTransaction(tx, tx => new Promise((resolve, reject) => {
-      const slotHistoryStore = tx.objectStore(IDBGalaxyRepository.OBJ_SLOT_HISTORY);
-      const query = IDBKeyRange.bound([galaxy, system, position, MIN_DATE], [galaxy, system, position, MAX_DATE]);
-      const result: GalaxySlot[] = [];
-      const leadIt = slotHistoryStore.openCursor(query, 'next');
-      let leadCursor: IDBCursorWithValue | null, followCursor: IDBCursorWithValue | null = null;
-      let rangeStart: GalaxySlot | undefined, rangeEnd: GalaxySlot | undefined;
-      let first = true;
-
-      leadIt.onsuccess = () => {
-        leadCursor = leadIt.result;
-        if (leadCursor) {
-          const slot = leadCursor.value;
-          if (!rangeStart) {
-            rangeStart = slot;
-            result.push(slot);
-          } else {
-            if (slotsEqual(slot, rangeStart)) {
-              if (rangeEnd)
-                followCursor!.delete();
-              rangeEnd = slot;
-            } else {
-              if (rangeEnd) result.push(rangeEnd);
-              result.push(rangeStart = slot);
-              rangeEnd = undefined;
-            }
-          }
-          if (first) {
-            first = false;
-            const followIt = slotHistoryStore.openCursor(query, 'next');
-            followIt.onsuccess = () => {
-              followCursor = followIt.result;
-              leadCursor!.continue();
-            }
-            followIt.onerror = leadIt.onerror;
-          } else
-            followCursor!.continue();
-        } else {
-          if (rangeEnd) result.push(rangeEnd);
-          resolve(result);
-        }
-      }
-
-      leadIt.onerror = e => reject(e);
-    }));
-  }
 }

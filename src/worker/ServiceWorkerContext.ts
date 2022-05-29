@@ -14,9 +14,10 @@ import {IDBRepository} from '../common/idb/IDBRepository';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
 import {IDBEspionageRepository} from '../common/idb/repositories/IDBEspionageRepository';
 import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
+import {IDBGalaxyHistoryRepositorySupport} from '../common/idb/repositories/IDBGalaxyHistoryRepositorySupport';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 import {GalaxyParser} from '../common/parsers';
-import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
+import {EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../common/repository-types';
 import {AjaxEventListLoader} from '../common/services/AjaxEventListLoader';
 import {AutoObserve} from '../common/services/AutoObserve';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
@@ -47,6 +48,7 @@ export class ServiceWorkerContext {
       readonly costCalc: CostCalculator,
       readonly repositoryProvider: IDBRepositoryProvider,
       readonly galaxyRepository: GalaxyRepository,
+      readonly galaxyHistoryRepository: GalaxyHistoryRepository,
       readonly espionageRepository: EspionageRepository,
       readonly espionageScrapper: EspionageReportScrapper,
       readonly galaxyParser: GalaxyParser,
@@ -76,20 +78,23 @@ export class ServiceWorkerContext {
     const flightCalc = new StaticFlightCalculator(universe);
     const costCalc = new CachingCostCalculator();
     const galaxyRepositorySupport = new IDBGalaxyRepositorySupport();
+    const galaxyHistoryRepositorySupport = new IDBGalaxyHistoryRepositorySupport();
     const espionageRepositorySupport = new IDBEspionageRepositorySupport();
     const repositoryProvider = new IDBRepositoryProvider(self.indexedDB, 'ogame', {
       'galaxy': galaxyRepositorySupport,
+      'galaxy-history': galaxyHistoryRepositorySupport,
       'espionage': espionageRepositorySupport
     });
-    const [galaxyRepository, espionageRepository] = await Promise.all([
+    const [galaxyRepository, galaxyHistoryRepository, espionageRepository] = await Promise.all([
       repositoryProvider.getRepository<IDBRepository & GalaxyRepository>('galaxy'),
+      repositoryProvider.getRepository<IDBRepository & GalaxyHistoryRepository>('galaxy-history'),
       repositoryProvider.getRepository<IDBEspionageRepository>('espionage')
     ]);
     const galaxyParser = new JSONGalaxyParser();
     const eventListParser = new NoDOMEventListParser();
     const espionageParser = new NoDOMEspionageReportParser();
-    const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyParser, fetcher, server);
-    const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyParser);
+    const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyHistoryRepository, galaxyParser, fetcher, server);
+    const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyHistoryRepository, galaxyParser);
     const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universe, {
       timeout: 3600 * 2,
       emptyTimeout: 3600 * 36,
@@ -115,6 +120,7 @@ export class ServiceWorkerContext {
         costCalc,
         repositoryProvider,
         galaxyRepository,
+        galaxyHistoryRepository,
         espionageRepository,
         espionageScrapper,
         galaxyParser,

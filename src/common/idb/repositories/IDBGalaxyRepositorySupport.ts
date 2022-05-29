@@ -87,19 +87,6 @@ export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBRepos
       player: player.id
       alliance: alliance.id, player.id
       inactive: class, player.status.inactive
-
-  galaxy-report-history
-    keyPath: galaxy, system, timestamp
-    indexes:
-      class: class, timestamp
-
-  galaxy-report-slot-history
-    keyPath: galaxy, system, position, timestamp
-    indexes:
-      system: galaxy, system, timestamp
-      class: class, timestamp
-      player: player.id, timestamp
-      alliance: alliance.id, timestamp
  */
   private version3(tx: IDBTransaction, db: IDBDatabase) {
     let slotExStore = tx.objectStore('galaxy-report-slot-ex');
@@ -108,22 +95,6 @@ export class IDBGalaxyRepositorySupport implements IDBRepositorySupport<IDBRepos
     slotExStore.createIndex('player', ['player.id'], {unique: false});
     slotExStore.deleteIndex('alliance');
     slotExStore.createIndex('alliance', ['alliance.id', 'player.id'], {unique: false});
-
-    let systemHistoryStore = db.createObjectStore('galaxy-report-history', {
-      autoIncrement: false,
-      keyPath: ['galaxy', 'system', 'timestamp']
-    });
-    systemHistoryStore.createIndex('class', ['class', 'timestamp'], {unique: false});
-
-    let slotHistoryStore = db.createObjectStore('galaxy-report-slot-history', {
-      autoIncrement: false,
-      keyPath: ['galaxy', 'system', 'position', 'timestamp']
-    });
-
-    slotHistoryStore.createIndex('system', ['galaxy', 'system', 'timestamp'], {unique: false});
-    slotHistoryStore.createIndex('class', ['class', 'timestamp'], {unique: false});
-    slotHistoryStore.createIndex('player', ['player.id', 'timestamp'], {unique: false});
-    slotHistoryStore.createIndex('alliance', ['alliance.id', 'timestamp'], {unique: false});
   }
 
   /*

@@ -3,13 +3,14 @@ import {Fetcher, RequestFacade} from '../core/Fetcher';
 import {ServerContext} from '../core/ServerContext';
 import {GalaxyParser} from '../parsers';
 import {GalaxySystemInfo} from '../report-types';
-import {GalaxyRepository} from '../repository-types';
+import {GalaxyHistoryRepository, GalaxyRepository} from '../repository-types';
 import {Coordinates} from '../types';
 
 export class GalaxyObserver {
   private readonly requestTemplate: RequestFacade;
 
   constructor(private repo: GalaxyRepository,
+              private historyRepo: GalaxyHistoryRepository,
               private parser: GalaxyParser,
               public fetcher: Fetcher,
               public serverContext: ServerContext) {
@@ -43,7 +44,9 @@ export class GalaxyObserver {
           let timestamp: Date = response.headers.has('date') ? new Date(response.headers.get('date')!) : new Date();
           return response.text().then(text => this.parser.parseGalaxy(text, timestamp))
         });
-    return skipSave ? reportPromise : after(reportPromise, report => this.repo.store(report), parallelSave);
+    return skipSave ? reportPromise : after(reportPromise,
+        report => Promise.all([this.repo.store(report), this.historyRepo.store(report)]),
+        parallelSave);
   }
 
   observeC(system: Coordinates, parallelSave: boolean = false, skipSave: boolean = false): Promise<GalaxySystemInfo> {

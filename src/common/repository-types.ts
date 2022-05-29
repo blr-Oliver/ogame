@@ -1,4 +1,4 @@
-import {DebrisGalaxyInfo, GalaxySlotCoordinates, GalaxySystemInfo, ShardedEspionageReport, StampedEspionageReport} from './report-types';
+import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, ShardedEspionageReport, StampedEspionageReport} from './report-types';
 import {Coordinates, CoordinateType, SystemCoordinates} from './types';
 
 export interface EspionageRepository {
@@ -18,4 +18,15 @@ export interface GalaxyRepository {
   findAllCurrentDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]>;
   findHangingDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]>
   selectLatestReports(): Promise<GalaxySystemInfo[]>;
+}
+
+export interface GalaxyHistoryRepository {
+  store(report: GalaxySystemInfo): Promise<any>;
+  loadSlotHistory(galaxy: number, system: number, position: number): Promise<GalaxySlot[]>;
+  loadSlotHistoryC(coordinates: Coordinates): Promise<GalaxySlot[]>;
+  loadSlotState(galaxy: number, system: number, position: number, timestamp: Date): Promise<[GalaxySlot?, GalaxySlot?]>;
+  loadSlotStateC(coordinates: Coordinates, timestamp: Date): Promise<[GalaxySlot?, GalaxySlot?]>;
+  loadSystemHistory(coordinates: SystemCoordinates): Promise<unknown>; // TODO
+  loadSystemState(coordinates: SystemCoordinates): Promise<[GalaxySystemInfo?, GalaxySystemInfo?]>;
+  condenseHistory(galaxy: number, system: number, position: number): Promise<GalaxySlot[]>;
 }
