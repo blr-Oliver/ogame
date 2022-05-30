@@ -86,12 +86,20 @@ export class RaidReportAnalyzer {
     });
     while (items.length > 0 && missions.length < request.maxMissions) {
       const candidate = items.pop()!;
-      if (!this.isClean(candidate.report)) continue;
+      if (!this.isClean(candidate.report)) { // maybe it's already clean?
+        // enough time passed
+        if (candidate.age >= 1000 * 3600 * 24 &&
+            // and it's safe to rescan
+            (candidate.report.counterEspionage === 0 || candidate.report.infoLevel > 0 && this.sumFields(candidate.report.fleet!) === 0)) {
+          missions.push({from: candidate!.nearestBody.id, to: candidate!.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
+        }
+        continue;
+      }
       if (candidate.distance > request.maxDistance) {
         this.excludeOriginAndReattempt(candidate, request, items);
         continue;
       }
-      if (candidate.age > request.maxReportAge) {
+      if (candidate.age > request.maxReportAge || candidate.age >= candidate.flightTime) {
         missions.push({from: candidate!.nearestBody.id, to: candidate!.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
       } else {
         const transports = candidate.transports;
