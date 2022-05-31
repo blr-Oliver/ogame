@@ -1,6 +1,7 @@
 import {parseCoordinates} from '../browser/parsers/parsers-common';
 import {processAll} from '../common/common';
 import {DebrisGalaxyInfo, ShardedEspionageReport} from '../common/report-types';
+import {condenseGalaxyHistory} from '../common/services/HistoryCondenser';
 import {Coordinates, MissionType} from '../common/types';
 import {ServiceWorkerContext} from './ServiceWorkerContext';
 import {wrappingSum} from './utils';
@@ -9,6 +10,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   const {
     shim,
     galaxyRepository,
+    galaxyHistoryRepository,
     espionageRepository,
     galaxyMonitor,
     autoObserve,
@@ -22,7 +24,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   autoObserve.continue();
 
   raider.settings.maxTotalSlots = 25;
-  raider.settings.maxRaidSlots = 0;
+  raider.settings.maxRaidSlots = 1;
   raider.settings.minFreeSlots = 1;
   raider.settings.excludedOrigins = [];
   raider.settings.desertedTargets = [
@@ -154,4 +156,5 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   (self as any)['launchExpedition'] = launchExpedition;
   (self as any)['expo1'] = () => launchExpedition(33811468, 7, 329);
   (self as any)['expo2'] = () => launchExpedition(33813378, 3, 242);
+  (self as any)['condenseHistory'] = () => condenseGalaxyHistory(galaxyHistoryRepository);
 }

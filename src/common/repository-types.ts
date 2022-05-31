@@ -21,7 +21,7 @@ export interface GalaxyRepository {
 }
 
 export interface GalaxyHistoryRepository {
-  store(report: GalaxySystemInfo): Promise<any>;
+  store(report: GalaxySystemInfo, condense?: boolean): Promise<any>;
   loadSlotHistory(galaxy: number, system: number, position: number): Promise<GalaxySlot[]>;
   loadSlotHistoryC(coordinates: Coordinates): Promise<GalaxySlot[]>;
   loadSlotState(galaxy: number, system: number, position: number, timestamp: Date): Promise<[GalaxySlot?, GalaxySlot?]>;

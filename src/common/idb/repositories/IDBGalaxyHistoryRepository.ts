@@ -97,10 +97,93 @@ export class IDBGalaxyHistoryRepository extends IDBRepository implements GalaxyH
   loadSystemState(coordinates: SystemCoordinates): Promise<[GalaxySystemInfo?, GalaxySystemInfo?]> {
     return Promise.reject('not implemented'); // TODO
   }
-  store(report: GalaxySystemInfo): Promise<any> {
+  store(report: GalaxySystemInfo, condense = true): Promise<any> {
+    if (condense) return this.storeAndCondense(report);
     let tx: IDBTransaction = this.db.transaction([IDBGalaxyHistoryRepository.OBJ_SLOT_HISTORY], 'readwrite');
     return this.withTransaction(tx,
         tx => upsertAll(tx.objectStore(IDBGalaxyHistoryRepository.OBJ_SLOT_HISTORY), ...report.slots),
         true);
+  }
+  storeAndCondense(report: GalaxySystemInfo): Promise<any> {
+    type SlotKey = [number, number, number, Date];
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyHistoryRepository.OBJ_SLOT_HISTORY], 'readwrite');
+    return this.withTransaction(tx, tx => new Promise((resolve, reject) => {
+      const store = tx.objectStore(IDBGalaxyHistoryRepository.OBJ_SLOT_HISTORY);
+      const headRequest = store.openCursor(
+          IDBKeyRange.bound(
+              [report.galaxy, report.system, 0, MIN_DATE],
+              [report.galaxy, report.system + 1, 0, MIN_DATE],
+              false, true),
+          'prev');
+      const followRequest = store.openCursor(
+          IDBKeyRange.bound(
+              [report.galaxy, report.system, 0, MIN_DATE],
+              [report.galaxy, report.system + 1, 0, MIN_DATE],
+              false, true),
+          'prev');
+
+      let headCursor: IDBCursorWithValue | null = null;
+      let followCursor: IDBCursor | null = null;
+      let lastPosition: [number, number, number] = [report.galaxy, report.system + 1, 0];
+      let candidateKey: SlotKey | undefined;
+
+      headRequest.onerror = (e) => reject(e);
+      followRequest.onerror = (e) => reject(e);
+      followRequest.onsuccess = () => {
+        followCursor = followRequest.result;
+        if (followCursor && candidateKey) {
+          if (!isFollowCursorInPosition(candidateKey)) {
+            followCursor.continue(candidateKey);
+          } else {
+            headCursor!.continue();
+          }
+        }
+      }
+
+      headRequest.onsuccess = () => {
+        headCursor = headRequest.result;
+        if (headCursor) {
+          const key: SlotKey = headCursor.primaryKey as SlotKey;
+          const lastValue = headCursor.value as GalaxySlot;
+          const newValue = report.slots[key[2] - 1]!;
+          const samePosition = lastPosition[0] === key[0] && lastPosition[1] === key[1] && lastPosition[2] === key[2];
+          lastPosition = key.slice(0, 3) as [number, number, number];
+          if (samePosition) {
+            // checking previous record
+            if (slotsEqual(lastValue, newValue)) {
+              // assert !!candidateKey
+              // assert isFollowCursorInPosition(candidateKey)
+              followCursor!.delete();
+            }
+            headCursor.continue([key[0], key[1], key[2], MIN_DATE]);
+          } else {
+            // next position
+            if (slotsEqual(lastValue, newValue)) {
+              // current report slot and last saved do match, now should check penultimate saved value for this slot
+              // but before that bring follow cursor to current position to be able to delete the record if needed
+              candidateKey = key.slice() as SlotKey;
+              if (followCursor) {
+                if (isFollowCursorInPosition(candidateKey)) {
+                  headCursor.continue();
+                } else {
+                  followCursor.continue(candidateKey);
+                }
+              } else {
+                // followRequest is not ready yet - just return to let it catch up
+              }
+            } else {
+              // first occurrence of the slot doesn't match - no need to condense, just skip to next
+              headCursor.continue([key[0], key[1], key[2], MIN_DATE]);
+            }
+          }
+        } else
+          resolve(upsertAll(store, ...report.slots));
+      }
+
+      function isFollowCursorInPosition(key: SlotKey): boolean {
+        const followKey: SlotKey = followCursor!.key as SlotKey;
+        return followKey[0] === key[0] && followKey[1] === key[1] && followKey[2] === key[2] && followKey[3].getTime() === key[3].getTime();
+      }
+    }));
   }
 }
