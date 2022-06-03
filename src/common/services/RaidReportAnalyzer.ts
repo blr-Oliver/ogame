@@ -5,7 +5,7 @@ import {UniverseContext} from '../core/UniverseContext';
 import {ShardedEspionageReport} from '../report-types';
 import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, Researches, sameCoordinates, SpaceBody} from '../types';
 
-type Triplet = [number, number, number];
+export type Triplet = [number, number, number];
 
 export interface SuggestionRequest {
   unexploredTargets: Coordinates[];
@@ -99,7 +99,7 @@ export class RaidReportAnalyzer {
         this.excludeOriginAndReattempt(candidate, request, items);
         continue;
       }
-      if (candidate.age > request.maxReportAge || candidate.age >= candidate.flightTime) {
+      if (candidate.age > request.maxReportAge || candidate.age >= candidate.flightTime * 1000) {
         missions.push({from: candidate!.nearestBody.id, to: candidate!.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
       } else {
         const transports = candidate.transports;
