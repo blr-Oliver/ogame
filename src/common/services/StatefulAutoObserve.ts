@@ -59,8 +59,10 @@ export class StatefulAutoObserve implements AutoObserve {
 
       if (!this.handler.paused) {
         const now = Date.now();
-        const threshold = now - this.settings.timeout * 1000;
-        const emptyThreshold = now - this.settings.emptyTimeout * 1000;
+        // also invalidate reports that are within 5% of allowed threshold
+        // with this batches will be slightly larger but not continuous
+        const threshold = now - this.settings.timeout * 1000 * 0.95;
+        const emptyThreshold = now - this.settings.emptyTimeout * 1000 * 0.95;
 
         let emptyOk: GalaxySystemInfo[] = [],
             normalOk: GalaxySystemInfo[] = [],
