@@ -85,13 +85,27 @@ export class IDBGalaxyHistoryRepository extends IDBRepository implements GalaxyH
   loadSlotHistoryC(coordinates: Coordinates): Promise<GalaxySlot[]> {
     return this.loadSlotHistory(coordinates.galaxy, coordinates.system, coordinates.position);
   }
-  loadSlotState(galaxy: number, system: number, position: number, timestamp: Date): Promise<[GalaxySlot?, GalaxySlot?]> {
-    return Promise.reject('not implemented'); // TODO
+  loadSlotState(galaxy: number, system: number, position: number, timestamp: Date = new Date()): Promise<[GalaxySlot?, GalaxySlot?]> {
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyHistoryRepository.OBJ_SLOT_HISTORY], 'readonly');
+    return this.withTransaction(tx, tx => {
+      const store = tx.objectStore(IDBGalaxyHistoryRepository.OBJ_SLOT_HISTORY);
+      const past = getFirst<GalaxySlot>(store, IDBKeyRange.bound(
+          [galaxy, system, position, MIN_DATE],
+          [galaxy, system, position, timestamp],
+          false, true), 'prev');
+
+      const future = getFirst<GalaxySlot>(store, IDBKeyRange.bound(
+          [galaxy, system, position, timestamp],
+          [galaxy, system, position, MAX_DATE],
+          false, false), 'next');
+
+      return Promise.all([past, future]);
+    });
   }
   loadSlotStateC(coordinates: Coordinates, timestamp: Date): Promise<[GalaxySlot?, GalaxySlot?]> {
     return this.loadSlotState(coordinates.galaxy, coordinates.system, coordinates.position, timestamp);
   }
-  loadSystemHistory(coordinates: SystemCoordinates): Promise<unknown> {
+  loadSystemHistory(coordinates: SystemCoordinates): Promise<GalaxySystemInfo[]> {
     return Promise.reject('not implemented'); // TODO
   }
   loadSystemState(coordinates: SystemCoordinates): Promise<[GalaxySystemInfo?, GalaxySystemInfo?]> {
