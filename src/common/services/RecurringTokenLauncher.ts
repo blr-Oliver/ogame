@@ -55,7 +55,7 @@ export class RecurringTokenLauncher implements Launcher {
   }
 
   private async processTask(task: LaunchTask): Promise<void> {
-    console.debug(`TwoStepLauncher#processTask(): starting`, task.mission);
+    // console.debug(`TwoStepLauncher#processTask(): starting`, task.mission);
     const body = this.prepareBody(task.mission);
     let attemptsLeft = task.maxAttempts || 3;
     let delay = 0;
@@ -65,13 +65,14 @@ export class RecurringTokenLauncher implements Launcher {
       let response = await this.doSend(RecurringTokenLauncher.#ACTION_SEND_FLEET, body);
       let responseData = await response.json();
       --attemptsLeft;
-      console.debug(`TwoStepLauncher#processTask(): attempts left: ${attemptsLeft}, response data:`, responseData);
       this.token = responseData['newAjaxToken'];
       if (responseData['success']) {
         task.resolve(void 0);
         return;
-      } else
+      } else {
+        console.debug(`TwoStepLauncher#processTask(): attempts left: ${attemptsLeft}, response data:`, responseData);
         delay += 100;
+      }
     }
     task.reject('too many attempts failed');
   }

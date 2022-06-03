@@ -29,7 +29,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   autoObserve.continue();
 
   raider.settings.maxTotalSlots = 25;
-  raider.settings.maxRaidSlots = 12;
+  raider.settings.maxRaidSlots = 15;
   raider.settings.minFreeSlots = 1;
   raider.settings.excludedOrigins = [];
   let desertedTargets = raider.settings.desertedTargets = [

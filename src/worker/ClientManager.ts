@@ -26,7 +26,7 @@ export class ClientManager {
     const clientId = event.clientId || event.resultingClientId;
     let actions: Promise<any>[] = [];
     if (!this.clients.has(clientId)) {
-      console.debug(`New client encountered: ${clientId}`);
+      // console.debug(`New client encountered: ${clientId}`);
       let setClient = this.self.clients.get(clientId).then(client => {
         if (client && !this.clients.has(clientId)) this.clients.set(clientId, {client});
       });
@@ -57,7 +57,7 @@ export class ClientManager {
   private acceptClient(data: any, client: Client) {
     const remoteId: string = data['id'];
     const localId = client.id;
-    console.debug(`Matched local clientId with remote clientId: ${localId} -> ${remoteId}`);
+    // console.debug(`Matched local clientId with remote clientId: ${localId} -> ${remoteId}`);
     this.installWatchDog(localId, remoteId);
 
     let clientContext: ClientContext;
@@ -91,7 +91,7 @@ export class ClientManager {
     clientContext.channel = channel;
     clientContext.autoObserve = new AutoObserveSkeleton(channel, this.autoObserve);
     channel.addEventListener('disconnect', e => {
-      console.debug(`${clientContext.client.id} disconnected`);
+      // console.debug(`${clientContext.client.id} disconnected`);
       if (clientContext.channel === channel) {
         delete clientContext.channel;
         delete clientContext.autoObserve;
@@ -101,7 +101,7 @@ export class ClientManager {
 
   private installWatchDog(localId: string, lockName: string) {
     this.locks.request(lockName, {mode: 'exclusive', ifAvailable: false}, () => {
-      console.debug(`Watchdog triggered for ${lockName}`);
+      // console.debug(`Watchdog triggered for ${lockName}`);
       this.clients.delete(localId);
       return Promise.resolve();
     });

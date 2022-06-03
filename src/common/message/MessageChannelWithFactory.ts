@@ -58,7 +58,7 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
 
   reconnect(): Promise<ReconnectableReplyingMessageChannel<R, L>> {
     if (this.channel) {
-      console.debug(`MessageChannelWithFactory#reconnect: closing current channel`);
+      // console.debug(`MessageChannelWithFactory#reconnect: closing current channel`);
       this.channel.close();
       this.channel = undefined;
     }
@@ -69,17 +69,17 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
 
   private connect(): Promise<ReplyingMessageChannel<R, L>> {
     if (this.channel) {
-      console.debug(`MessageChannelWithFactory#connect: already connected`);
+      // console.debug(`MessageChannelWithFactory#connect: already connected`);
       return Promise.resolve(this.channel);
     }
     if (this.connecting) {
-      console.debug(`MessageChannelWithFactory#connect: already connecting`);
+      // console.debug(`MessageChannelWithFactory#connect: already connecting`);
       return this.connecting;
     }
-    console.debug(`MessageChannelWithFactory#connect: using factory to connect`);
+    // console.debug(`MessageChannelWithFactory#connect: using factory to connect`);
     return this.connecting = this.factory.connect()
         .then(channel => {
-          console.debug(`MessageChannelWithFactory#connect: connected successfully`);
+          // console.debug(`MessageChannelWithFactory#connect: connected successfully`);
           this.channel = this.setupChannel(channel);
           this.connecting = undefined;
           return this.channel;
@@ -94,13 +94,13 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
   }
 
   private handleDisconnect() {
-    console.debug(`MessageChannelWithFactory#handleDisconnect`);
+    // console.debug(`MessageChannelWithFactory#handleDisconnect`);
     if (this.channel) {
       this.channel.close();
       this.channel = undefined;
     }
     if (this.options.auto) {
-      console.debug(`MessageChannelWithFactory#handleDisconnect: auto-reconnecting`);
+      // console.debug(`MessageChannelWithFactory#handleDisconnect: auto-reconnecting`);
       this.reconnect()
           .catch(() => this.dispatchUnrecovered('disconnect'));
     } else {
@@ -116,7 +116,7 @@ export class MessageChannelWithFactory<R = any, L = any> extends EventTarget imp
   }
 
   private dispatchUnrecovered(type: 'close' | 'disconnect') {
-    console.debug(`MessageChannelWithFactory#dispatchUnrecovered: ${type}`);
+    // console.debug(`MessageChannelWithFactory#dispatchUnrecovered: ${type}`);
     let e: Event = new Event(type, {bubbles: true, cancelable: false, composed: true});
     this.dispatchEvent(e);
   }

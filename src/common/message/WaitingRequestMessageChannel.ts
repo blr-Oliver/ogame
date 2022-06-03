@@ -19,7 +19,7 @@ export class WaitingRequestMessageChannel<R = any, L = any> extends EventTarget 
 
   private constructor(port: MessagePort, localLockHolder: (x: any) => void, pendingRemoteLock: Promise<any>, remoteLockWaiter: AbortController) {
     super();
-    console.debug(`WaitingRequestMessageChannel.<init>`);
+    // console.debug(`WaitingRequestMessageChannel.<init>`);
     this.port = port;
     this.localLockHolder = localLockHolder;
     this.remoteLockAbort = remoteLockWaiter;
@@ -27,11 +27,11 @@ export class WaitingRequestMessageChannel<R = any, L = any> extends EventTarget 
 
     pendingRemoteLock.then(
         () => {
-          console.debug(`WaitingRequestMessageChannel.<init>: remote lock broken`);
+          // console.debug(`WaitingRequestMessageChannel.<init>: remote lock broken`);
           this.shutdown('disconnect');
         },
         () => {
-          console.debug(`WaitingRequestMessageChannel.<init>: remote lock request aborted`);
+          // console.debug(`WaitingRequestMessageChannel.<init>: remote lock request aborted`);
           return void 0;
         });
 
@@ -54,7 +54,7 @@ export class WaitingRequestMessageChannel<R = any, L = any> extends EventTarget 
     super.removeEventListener(type, listener, options);
   }
   close() {
-    console.debug(`WaitingRequestMessageChannel#close`);
+    // console.debug(`WaitingRequestMessageChannel#close`);
     this.shutdown('close');
   }
   private handleError(event: MessageEvent) {
@@ -100,18 +100,18 @@ export class WaitingRequestMessageChannel<R = any, L = any> extends EventTarget 
   }
   private releaseLocks() {
     this.remoteLockAbort.abort();
-    console.debug(`WaitingRequestMessageChannel#releaseLocks: remote lock request cancelled`);
+    // console.debug(`WaitingRequestMessageChannel#releaseLocks: remote lock request cancelled`);
     this.localLockHolder(void 0);
-    console.debug(`WaitingRequestMessageChannel#releaseLocks: local lock released`);
+    // console.debug(`WaitingRequestMessageChannel#releaseLocks: local lock released`);
   }
   private shutdown(reason: 'close' | 'disconnect') {
-    console.debug(`WaitingRequestMessageChannel#shutdown: reason = ${reason}`);
+    // console.debug(`WaitingRequestMessageChannel#shutdown: reason = ${reason}`);
     this.port.close();
     this.releaseLocks();
     let event: Event = new Event(reason, {bubbles: true, cancelable: false, composed: true});
-    console.debug(`WaitingRequestMessageChannel#shutdown: dispatching ${reason} event`);
+    // console.debug(`WaitingRequestMessageChannel#shutdown: dispatching ${reason} event`);
     this.dispatchEvent(event);
-    console.debug(`WaitingRequestMessageChannel#shutdown: rejecting waiting replies`);
+    // console.debug(`WaitingRequestMessageChannel#shutdown: rejecting waiting replies`);
     for (let id in this.queue) {
       this.queue[id].reject(reason);
       delete this.queue[id];
@@ -136,14 +136,14 @@ export class WaitingRequestMessageChannel<R = any, L = any> extends EventTarget 
         steal: true,
         ifAvailable: false
       }, () => {
-        console.debug(`WaitingRequestMessageChannel.connect: [${uniqueId}] local lock acquired`);
+        // console.debug(`WaitingRequestMessageChannel.connect: [${uniqueId}] local lock acquired`);
         port.addEventListener('message', handleHandshake, {once: true});
         port.start();
         port.postMessage({
           type: 'handshake',
           id: uniqueId
         });
-        console.debug(`WaitingRequestMessageChannel.connect: [${uniqueId}] handshake sent`);
+        // console.debug(`WaitingRequestMessageChannel.connect: [${uniqueId}] handshake sent`);
         return waiter;
       });
 
@@ -152,7 +152,7 @@ export class WaitingRequestMessageChannel<R = any, L = any> extends EventTarget 
         if (data.type !== 'handshake' || !data.id) reject(new Error('handshake expected'));
         else {
           const remoteId: string = data.id;
-          console.debug(`WaitingRequestMessageChannel.connect: [${uniqueId}] handshake received from ${remoteId}`);
+          // console.debug(`WaitingRequestMessageChannel.connect: [${uniqueId}] handshake received from ${remoteId}`);
           let pendingRemoteLock = navigator.locks.request(remoteId, {
                 mode: 'exclusive',
                 ifAvailable: false,

@@ -26,13 +26,13 @@ if ('serviceWorker' in navigator) {
       .catch((error) => {
         console.error('Registration failed with ' + error);
       });
-  console.debug(`Creating components`);
+  // console.debug(`Creating components`);
   const factory = new ServiceWorkerConnector(() => getCurrentClientId(navigator.locks));
-  console.debug(`Factory created`);
+  // console.debug(`Factory created`);
   const channel = new MessageChannelWithFactory(factory);
-  console.debug(`Channel created (might be not ready)`);
+  // console.debug(`Channel created (might be not ready)`);
   const autoObserve = new AutoObserveStub(channel);
-  console.debug(`AutoObserve stub created (might be not ready)`);
+  // console.debug(`AutoObserve stub created (might be not ready)`);
   (window as any)['autoObserve'] = autoObserve;
   const fetcher = new RestrainedFetcher(new NativeFetcher());
   const serverContext = new LocationServerContext(window.location);
@@ -47,7 +47,7 @@ if ('serviceWorker' in navigator) {
 
   Promise.all([
     repositoryProvider.getRepository<IDBEspionageRepository>('espionage'),
-    repositoryProvider.getRepository<IDBRepository & GalaxyRepository>('galaxy'),
+    repositoryProvider.getRepository<IDBRepository & GalaxyRepository>('galaxy')
   ]).then(([espionageRepo, galaxyRepo]) => {
     (window as any)['espionageRepo'] = espionageRepo;
     (window as any)['galaxyRepo'] = galaxyRepo;
