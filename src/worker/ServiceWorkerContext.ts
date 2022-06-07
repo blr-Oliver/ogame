@@ -96,12 +96,12 @@ export class ServiceWorkerContext {
     const espionageParser = new NoDOMEspionageReportParser();
     const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyHistoryRepository, galaxyParser, fetcher, server);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyHistoryRepository, galaxyParser);
-    const settings = {
+    const autoObserveSettings = {
       timeout: 3600 * 2,
       emptyTimeout: 3600 * 36,
       delay: 20
     };
-    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universe, makeListenable(settings));
+    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universe, makeListenable(autoObserveSettings));
     const espionageScrapper = new EspionageReportScrapper(espionageRepository, espionageParser, fetcher, server);
     const launcher = new RecurringTokenLauncher(server, fetcher);
     const eventLoader = new AjaxEventListLoader(fetcher, eventListParser, server);

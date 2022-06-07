@@ -2,25 +2,33 @@ import {getNearest} from '../common';
 import {CostCalculator} from '../core/calculator/CostCalculator';
 import {FlightCalculator} from '../core/calculator/FlightCalculator';
 import {UniverseContext} from '../core/UniverseContext';
-import {ShardedEspionageReport} from '../report-types';
+import {EspionageReport, ShardedEspionageReport} from '../report-types';
 import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, Researches, sameCoordinates, SpaceBody} from '../types';
 
 export type Triplet = [number, number, number];
 
-export interface SuggestionRequest {
-  unexploredTargets: Coordinates[];
-  reports: ShardedEspionageReport[];
-  timeShift: number;
-  bodies: SpaceBody[];
-  researches: Researches;
-  fleet: { [bodyId: number]: FleetPartial };
+export interface AnalyzerSettings {
+  timeShift: number;    // ms
   rating: Triplet;
   maxReportAge: number; // ms
   minRaid: number;      // #transports
-  maxMissions: number;
   desertedPlanets: Coordinates[];
   ignoreBuildingProduction: boolean;
   maxDistance: number;
+}
+
+export interface SuggestionRequest extends AnalyzerSettings {
+  unexploredTargets: Coordinates[];
+  reports: ShardedEspionageReport[];
+  bodies: SpaceBody[];
+  researches: Researches;
+  fleet: { [bodyId: number]: FleetPartial };
+  maxMissions: number;
+}
+
+interface Production {
+  hourly: Triplet;
+  limit: Triplet;
 }
 
 interface ProcessingItem {
@@ -29,8 +37,7 @@ interface ProcessingItem {
   nearestBody: SpaceBody;
   distance: number;
   flightTime: number; // seconds
-  productionLimit: Triplet;
-  production: Triplet; // per hour
+  production: Production;
   expectedResources: Triplet;
   maximumPlunder: Triplet;
   transports: number;
@@ -46,11 +53,14 @@ function createProcessingItem(report: ShardedEspionageReport): ProcessingItem {
 
 export class RaidReportAnalyzer {
 
+  private settings: AnalyzerSettings;
+
   constructor(
       private universe: UniverseContext,
       private flightCalc: FlightCalculator,
       private costCalc: CostCalculator
   ) {
+    this.settings = {} as AnalyzerSettings; // FIXME
   }
 
   /*
@@ -69,6 +79,7 @@ export class RaidReportAnalyzer {
    */
   suggestMissions(request: SuggestionRequest): Mission[] {
     if (request.maxMissions <= 0) return [];
+    this.settings = request; // FIXME
     const items = request.reports.map(report => createProcessingItem(report));
     const now = Date.now();
     items.forEach(item => {
@@ -131,7 +142,7 @@ export class RaidReportAnalyzer {
 
   private computeUnconditional(request: SuggestionRequest, item: ProcessingItem, now: number) {
     this.computeAge(request, item, now);
-    this.computeProduction(request, item);
+    this.computeProduction(request, item, item.report);
     this.findNearestBody(request, item);
   }
 
@@ -148,7 +159,7 @@ export class RaidReportAnalyzer {
   }
 
   private computeAge(request: SuggestionRequest, item: ProcessingItem, now: number) {
-    item.age = Math.max(0, now - item.report.source[0].timestamp.getTime() - request.timeShift);
+    item.age = Math.max(0, now - item.report.source[0].timestamp.getTime() - this.settings.timeShift);
   }
 
   private findNearestBody(request: SuggestionRequest, item: ProcessingItem) {
@@ -161,13 +172,20 @@ export class RaidReportAnalyzer {
     item.flightTime = this.flightCalc.flightTime(item.distance, maxSpeed, 10, MissionType.Attack);
   }
 
-  private computeProduction(request: SuggestionRequest, item: ProcessingItem) {
-    const buildings = item.report.buildings;
-    const coordinates = item.report.coordinates;
+  private computeProduction(request: SuggestionRequest, item: ProcessingItem, report: ShardedEspionageReport) {
+    const ignoreProduction = request.ignoreBuildingProduction || request.desertedPlanets.some(deserted => sameCoordinates(deserted, report.coordinates));
+    item.production = this.calculateProduction(report, ignoreProduction);
+  }
+
+  private calculateProduction(report: EspionageReport, ignoreMines: boolean = false) {
+    const buildings = report.buildings;
+    const coordinates = report.coordinates;
     const isMoon = coordinates.type === CoordinateType.Moon;
-    const isDeserted = request.ignoreBuildingProduction || request.desertedPlanets.some(deserted => sameCoordinates(deserted, coordinates));
-    item.production = [0, 0, 0];
-    item.productionLimit = [Infinity, Infinity, Infinity];
+    const result: Production = {
+      hourly: [0, 0, 0],
+      limit: [Infinity, Infinity, Infinity]
+    };
+
     if (!isMoon) {
       const position = coordinates.position;
       const positionMultiplier = this.costCalc.getProductionMultiplier(position);
@@ -175,29 +193,30 @@ export class RaidReportAnalyzer {
       const naturalProduction = baseNaturalProduction.map((x, i) => x * positionMultiplier[i] * this.universe.economyFactor);
       if (buildings) {
         const storageLevels = [buildings.metalStorage || 0, buildings.crystalStorage || 0, buildings.deutStorage || 0];
-        item.productionLimit = storageLevels.map(level => this.costCalc.getStorageCapacity(level)) as Triplet;
+        result.limit = storageLevels.map(level => this.costCalc.getStorageCapacity(level)) as Triplet;
       }
-      if (buildings && !isDeserted) {
+      if (buildings && !ignoreMines) {
         const mineLevels = [buildings.metalMine || 0, buildings.crystalMine || 0, buildings.deutMine || 0];
-        const plasmaMultiplier = this.plasmaMultiplier(item.report.researches?.plasma);
-        const classMultiplier = 1 + (item.report.playerClass === 'collector' ? 0.25 : 0) + (item.report.allianceClass === 'trader' ? 0.05 : 0);
+        const plasmaMultiplier = this.plasmaMultiplier(report.researches?.plasma);
+        const classMultiplier = 1 + (report.playerClass === 'collector' ? 0.25 : 0) + (report.allianceClass === 'trader' ? 0.05 : 0);
         const mineProduction = mineLevels.map((level, i) => this.costCalc.getProduction(i, level)
             * positionMultiplier[i] * plasmaMultiplier[i] * classMultiplier * this.universe.economyFactor);
         const energyNeeded = mineLevels.reduce((sum, level, i) => sum + this.costCalc.getEnergyConsumption(i, level), 0);
-        const energyAvailable = item.report.resources.energy ?? energyNeeded;
+        const energyAvailable = report.resources.energy ?? energyNeeded;
         const productionFactor = Math.min(1, energyNeeded ? energyAvailable / energyNeeded : 0);
-        item.production = mineProduction.map((x, i) => x * productionFactor + naturalProduction[i]) as Triplet;
+        result.hourly = mineProduction.map((x, i) => x * productionFactor + naturalProduction[i]) as Triplet;
       } else {
-        item.production = naturalProduction as Triplet;
+        result.hourly = naturalProduction as Triplet;
       }
     }
+    return result;
   }
 
   private computeExpectedResources(request: SuggestionRequest, item: ProcessingItem) {
     let miningTime = (item.age + item.flightTime * 1000) / 1000 / 3600;
     let resources: Triplet = [item.report.resources.metal || 0, item.report.resources.crystal || 0, item.report.resources.deuterium || 0];
     item.expectedResources = resources.map((r, i) => Math.floor(
-        Math.max(r, Math.min(r + item.production[i] * miningTime, item.productionLimit[i]))
+        Math.max(r, Math.min(r + item.production.hourly[i] * miningTime, item.production.limit[i]))
     )) as Triplet;
   }
 
