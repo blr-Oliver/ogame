@@ -17,7 +17,17 @@ export interface AnalyzerSettings {
   maxDistance: number;
 }
 
-export interface SuggestionRequest extends AnalyzerSettings {
+export const DEFAULT_SETTINGS: AnalyzerSettings = {
+  timeShift: 1000 * 3600 * 3, // ms
+  rating: [1, 3, 4],
+  maxReportAge: 1000 * 3600 * 0.5, // ms
+  minRaid: 30, // #transports
+  desertedPlanets: [],
+  ignoreBuildingProduction: false,
+  maxDistance: 40000 // = 2 galaxy
+}
+
+export interface SuggestionRequest {
   unexploredTargets: Coordinates[];
   reports: ShardedEspionageReport[];
   bodies: SpaceBody[];
@@ -52,15 +62,12 @@ function createProcessingItem(report: ShardedEspionageReport): ProcessingItem {
 }
 
 export class RaidReportAnalyzer {
-
-  private settings: AnalyzerSettings;
-
   constructor(
       private universe: UniverseContext,
       private flightCalc: FlightCalculator,
-      private costCalc: CostCalculator
+      private costCalc: CostCalculator,
+      public readonly settings: AnalyzerSettings = DEFAULT_SETTINGS
   ) {
-    this.settings = {} as AnalyzerSettings; // FIXME
   }
 
   /*
@@ -79,7 +86,6 @@ export class RaidReportAnalyzer {
    */
   suggestMissions(request: SuggestionRequest): Mission[] {
     if (request.maxMissions <= 0) return [];
-    this.settings = request; // FIXME
     const items = request.reports.map(report => createProcessingItem(report));
     const now = Date.now();
     items.forEach(item => {
@@ -106,15 +112,15 @@ export class RaidReportAnalyzer {
         }
         continue;
       }
-      if (candidate.distance > request.maxDistance) {
+      if (candidate.distance > this.settings.maxDistance) {
         this.excludeOriginAndReattempt(candidate, request, items);
         continue;
       }
-      if (candidate.age > request.maxReportAge || candidate.age >= candidate.flightTime * 1000) {
+      if (candidate.age > this.settings.maxDistance || candidate.age >= candidate.flightTime * 1000) {
         missions.push({from: candidate!.nearestBody.id, to: candidate!.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
       } else {
         const transports = candidate.transports;
-        if (transports >= request.minRaid) {
+        if (transports >= this.settings.minRaid) {
           const from = candidate.nearestBody.id;
           if ((request.fleet[from]?.smallCargo || 0) >= transports) {
             request.fleet[from]!.smallCargo! -= transports;
@@ -173,7 +179,8 @@ export class RaidReportAnalyzer {
   }
 
   private computeProduction(request: SuggestionRequest, item: ProcessingItem, report: ShardedEspionageReport) {
-    const ignoreProduction = request.ignoreBuildingProduction || request.desertedPlanets.some(deserted => sameCoordinates(deserted, report.coordinates));
+    const ignoreProduction = this.settings.ignoreBuildingProduction ||
+        this.settings.desertedPlanets.some(deserted => sameCoordinates(deserted, report.coordinates));
     item.production = this.calculateProduction(report, ignoreProduction);
   }
 
@@ -239,8 +246,8 @@ export class RaidReportAnalyzer {
   }
 
   private computeRating(request: SuggestionRequest, item: ProcessingItem) {
-    item.ratedValue = item.maximumPlunder.reduce((sum, r, i) => sum + r * request.rating[i], 0);
-    item.ratedValue -= request.rating[2] * item.fuel;
+    item.ratedValue = item.maximumPlunder.reduce((sum, r, i) => sum + r * this.settings.rating[i], 0);
+    item.ratedValue -= this.settings.rating[2] * item.fuel;
     item.efficiency = item.ratedValue / item.flightTime;
   }
 

@@ -11,28 +11,16 @@ export interface Settings {
   maxRaidSlots: number;
   minFreeSlots: number;
   maxTotalSlots: number;
-  timeShift: number;
-  maxReportAge: number;
-  rate: [number, number, number];
   excludedOrigins: number[];
   excludedTargets: Coordinates[];
-  desertedTargets: Coordinates[];
-  ignoreBuildingProduction: boolean;
-  maxDistance: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   maxRaidSlots: 0,
   minFreeSlots: 0,
   maxTotalSlots: 0,
-  timeShift: 1000 * 3600 * 3,
-  maxReportAge: 1000 * 3600 * 0.5,
-  rate: [1, 3, 4],
   excludedOrigins: [],
-  excludedTargets: [],
-  desertedTargets: [],
-  ignoreBuildingProduction: false,
-  maxDistance: 40000
+  excludedTargets: []
 }
 
 export class Raider {
@@ -100,14 +88,7 @@ export class Raider {
           bodies,
           researches,
           fleet,
-          timeShift: this.settings.timeShift,
-          rating: this.settings.rate,
-          maxReportAge: this.settings.maxReportAge,
-          minRaid: 1,
           maxMissions: slotsLeft,
-          desertedPlanets: this.settings.desertedTargets,
-          ignoreBuildingProduction: this.settings.ignoreBuildingProduction,
-          maxDistance: this.settings.maxDistance
         };
         console.debug(`Raider: analyzing`);
         const missions = this.analyzer.suggestMissions(request);

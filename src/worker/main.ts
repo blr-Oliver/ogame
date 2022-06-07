@@ -1,5 +1,6 @@
 import {parseCoordinates} from '../browser/parsers/parsers-common';
 import {processAll} from '../common/common';
+import {makeListenable} from '../common/core/PropertyChangeEvent';
 import {ShardedEspionageReport} from '../common/report-types';
 import {condenseGalaxyHistory} from '../common/services/HistoryCondenser';
 import {Triplet} from '../common/services/RaidReportAnalyzer';
@@ -29,10 +30,14 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   autoObserve.continue();
 
   raider.settings.maxTotalSlots = 25;
-  raider.settings.maxRaidSlots = 15;
+  raider.settings.maxRaidSlots = 10;
   raider.settings.minFreeSlots = 1;
-  raider.settings.excludedOrigins = [];
-  let desertedTargets = raider.settings.desertedTargets = [
+  raider.settings.excludedOrigins = [33807552];
+  raider.settings.excludedTargets = [
+    '[5:383:7]',
+    '[5:383:8]'
+  ].map(s => parseCoordinates(s)!);
+  let desertedTargets = analyzer.settings.desertedPlanets = [
     '[3:206:8]',
     '[3:240:10]',
     '[3:240:12]',
@@ -152,7 +157,6 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
     return analyzer.suggestMissions({
       unexploredTargets: [],
       reports: reports,
-      timeShift: 1000 * 3600 * 3,
       bodies: [{
         id: 33821841,
         coordinates: {galaxy: 7, system: 417, position: 6}
@@ -173,13 +177,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
           smallCargo: 31
         }
       },
-      rating: [1, 2, 4],
-      maxReportAge: 1000 * 3600 * 24 * 1000,
-      minRaid: 1,
-      maxMissions: 6,
-      desertedPlanets: [],
-      ignoreBuildingProduction: true,
-      maxDistance: 6700
+      maxMissions: 6
     });
   }
 
@@ -196,4 +194,5 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   (self as any)['expo2'] = () => expo(33813378, 3, 242);
   (self as any)['condenseHistory'] = () => condenseGalaxyHistory(galaxyHistoryRepository);
   (self as any)['rateProximityTargets'] = rateProximityTargets;
+  (self as any)['makeListenable'] = makeListenable;
 }
