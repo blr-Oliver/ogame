@@ -135,20 +135,34 @@ export class PropertyEventTargetProxyHandler<T extends object> implements Proper
 export function makeListenable<T extends object>(target: T): ListenableObject<T> {
   const handler = new PropertyEventTargetProxyHandler<T>();
   const proxy = new Proxy(target, handler);
-  const delegateOnBefore: typeof handler.onBefore =
+  const onBefore: typeof handler.onBefore =
       (property, listener) => handler.onBefore(property, listener);
-  const delegateOffBefore: typeof handler.offBefore =
+  const offBefore: typeof handler.offBefore =
       (property, listener) => handler.offBefore(property, listener);
+  const onAfter: typeof handler.onAfter =
+      (property, listener) => handler.onAfter(property, listener);
+  const offAfter: typeof handler.onAfter =
+      (property, listener) => handler.offAfter(property, listener);
   return Object.defineProperties(proxy, {
     onBefore: {
       enumerable: false,
       writable: true,
-      value: delegateOnBefore
+      value: onBefore
     },
     offBefore: {
       enumerable: false,
       writable: true,
-      value: delegateOffBefore
+      value: offBefore
+    },
+    onAfter: {
+      enumerable: false,
+      writable: true,
+      value: onAfter
+    },
+    offAfter: {
+      enumerable: false,
+      writable: true,
+      value: offAfter
     }
   }) as ListenableObject<T>;
 }

@@ -7,6 +7,7 @@ import {FlightCalculator, StaticFlightCalculator} from '../common/core/calculato
 import {Fetcher} from '../common/core/Fetcher';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {PlayerContext} from '../common/core/PlayerContext';
+import {makeListenable} from '../common/core/PropertyChangeEvent';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {ServerContext} from '../common/core/ServerContext';
 import {UniverseContext} from '../common/core/UniverseContext';
@@ -95,11 +96,12 @@ export class ServiceWorkerContext {
     const espionageParser = new NoDOMEspionageReportParser();
     const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyHistoryRepository, galaxyParser, fetcher, server);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyHistoryRepository, galaxyParser);
-    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universe, {
+    const settings = {
       timeout: 3600 * 2,
       emptyTimeout: 3600 * 36,
       delay: 20
-    });
+    };
+    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universe, makeListenable(settings));
     const espionageScrapper = new EspionageReportScrapper(espionageRepository, espionageParser, fetcher, server);
     const launcher = new RecurringTokenLauncher(server, fetcher);
     const eventLoader = new AjaxEventListLoader(fetcher, eventListParser, server);

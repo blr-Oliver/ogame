@@ -1,4 +1,5 @@
 import {FloodGate} from '../core/FloodGate';
+import {ListenableObject, PropertyChangeListener} from '../core/PropertyChangeEvent';
 import {UniverseContext} from '../core/UniverseContext';
 import {GalaxySystemInfo} from '../report-types';
 import {GalaxyRepository} from '../repository-types';
@@ -16,9 +17,23 @@ export class StatefulAutoObserve implements AutoObserve {
       private observer: GalaxyObserver,
       private repo: GalaxyRepository,
       private universe: UniverseContext,
-      public readonly settings: AutoObserveSettings
+      public readonly settings: ListenableObject<AutoObserveSettings>
   ) {
     this.handler = new FloodGate((galaxy: number, system: number) => observer.observe(galaxy, system), 10, settings.delay);
+    settings.onBefore(null, e => {
+      let zeroAllowed = e.property === 'delay';
+      if (e.newValue < 0 || !zeroAllowed && e.newValue === 0) {
+        e.cancel();
+        console.warn(`Attempt to set property [${e.property}: ${e.oldValue} => ${e.newValue}] cancelled (invalid value)`);
+      }
+    });
+    settings.onAfter('delay', e => this.handler.delay = e.newValue);
+    const restarter: PropertyChangeListener<AutoObserveSettings, keyof AutoObserveSettings> = e => {
+      this.handler.dropWaiting();
+      this.continue();
+    };
+    settings.onAfter('emptyTimeout', restarter);
+    settings.onAfter('timeout', restarter);
   }
 
   get status(): AutoObserveStatus {

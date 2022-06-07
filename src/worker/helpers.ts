@@ -2,8 +2,7 @@ import {processAll} from '../common/common';
 import {DebrisGalaxyInfo, ShardedEspionageReport} from '../common/report-types';
 import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
 import {Launcher} from '../common/services/Mapper';
-import {Coordinates, MissionType} from '../common/types';
-import {wrappingSum} from './utils';
+import {MissionType} from '../common/types';
 
 export async function findUncertainTargets(galaxyRepository: GalaxyRepository, espionageRepository: EspionageRepository): Promise<{ [infoLevel: number]: ShardedEspionageReport[] }> {
   const targets = await galaxyRepository.findInactiveTargets();
@@ -58,7 +57,7 @@ export function launchExpedition(launcher: Launcher, from: number, galaxy: numbe
       reaper: 1,
       pathfinder: 1,
       espionageProbe: 1,
-      largeCargo: 408
+      largeCargo: 405 // 402
     },
     mission: MissionType.Expedition,
     to: {
