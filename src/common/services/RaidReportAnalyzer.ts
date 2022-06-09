@@ -14,16 +14,18 @@ export interface AnalyzerSettings {
   minRaid: number;      // #transports
   desertedPlanets: Coordinates[];
   ignoreBuildingProduction: boolean;
+  ignoreFlightProduction: boolean;
   maxDistance: number;
 }
 
 export const DEFAULT_SETTINGS: AnalyzerSettings = {
-  timeShift: 1000 * 3600 * 3, // ms
+  timeShift: 1000 * 3600 * 2, // ms
   rating: [1, 3, 4],
   maxReportAge: 1000 * 3600 * 0.5, // ms
   minRaid: 30, // #transports
   desertedPlanets: [],
   ignoreBuildingProduction: false,
+  ignoreFlightProduction: true,
   maxDistance: 40000 // = 2 galaxy
 }
 
@@ -103,12 +105,13 @@ export class RaidReportAnalyzer {
     });
     while (items.length > 0 && missions.length < request.maxMissions) {
       const candidate = items.pop()!;
+      const coordinates = candidate.report.coordinates;
       if (!this.isClean(candidate.report)) { // maybe it's already clean?
         // enough time passed
         if (candidate.age >= 1000 * 3600 * 24 &&
             // and it's safe to rescan
             (candidate.report.counterEspionage === 0 || candidate.report.infoLevel > 0 && this.sumFields(candidate.report.fleet!) === 0)) {
-          missions.push({from: candidate!.nearestBody.id, to: candidate!.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
+          missions.push({from: candidate.nearestBody.id, to: candidate.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
         }
         continue;
       }
@@ -116,8 +119,8 @@ export class RaidReportAnalyzer {
         this.excludeOriginAndReattempt(candidate, request, items);
         continue;
       }
-      if (candidate.age > this.settings.maxDistance || candidate.age >= candidate.flightTime * 1000) {
-        missions.push({from: candidate!.nearestBody.id, to: candidate!.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
+      if (this.isAged(candidate)) {
+        missions.push({from: candidate.nearestBody.id, to: candidate.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
       } else {
         const transports = candidate.transports;
         if (transports >= this.settings.minRaid) {
@@ -133,6 +136,10 @@ export class RaidReportAnalyzer {
     }
 
     return missions;
+  }
+
+  private isAged(candidate: ProcessingItem) {
+    return candidate.age > this.settings.maxReportAge || candidate.age >= candidate.flightTime * 1000;
   }
 
   private excludeOriginAndReattempt(candidate: ProcessingItem, request: SuggestionRequest, items: ProcessingItem[]) {
@@ -154,7 +161,7 @@ export class RaidReportAnalyzer {
 
   private computeConditional(request: SuggestionRequest, item: ProcessingItem) {
     this.computeFlightTime(request, item);
-    this.computeExpectedResources(request, item);
+    item.expectedResources = this.computeExpectedResources(request, item);
     this.computePlunder(request, item);
     this.computeTransports(request, item);
     this.computeRating(request, item);
@@ -219,10 +226,17 @@ export class RaidReportAnalyzer {
     return result;
   }
 
-  private computeExpectedResources(request: SuggestionRequest, item: ProcessingItem) {
-    let miningTime = (item.age + item.flightTime * 1000) / 1000 / 3600;
-    let resources: Triplet = [item.report.resources.metal || 0, item.report.resources.crystal || 0, item.report.resources.deuterium || 0];
-    item.expectedResources = resources.map((r, i) => Math.floor(
+  private computeExpectedResources(request: SuggestionRequest, item: ProcessingItem): Triplet {
+    const resources: Triplet = [item.report.resources.metal || 0, item.report.resources.crystal || 0, item.report.resources.deuterium || 0];
+    const aged = this.isAged(item);
+    let miningTime: number = item.age / 1000 / 3600;
+    if (this.settings.ignoreFlightProduction) {
+      if (!aged)
+        return resources; // just ignore extra mining for freshly scanned targets
+    } else {
+      miningTime += item.flightTime / 3600;
+    }
+    return resources.map((r, i) => Math.floor(
         Math.max(r, Math.min(r + item.production.hourly[i] * miningTime, item.production.limit[i]))
     )) as Triplet;
   }
