@@ -13,12 +13,12 @@ import {ServerContext} from '../common/core/ServerContext';
 import {UniverseContext} from '../common/core/UniverseContext';
 import {IDBRepository} from '../common/idb/IDBRepository';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
-import {IDBEspionageRepository} from '../common/idb/repositories/IDBEspionageRepository';
+import {IDBConfigRepositorySupport} from '../common/idb/repositories/IDBConfigRepositorySupport';
 import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
 import {IDBGalaxyHistoryRepositorySupport} from '../common/idb/repositories/IDBGalaxyHistoryRepositorySupport';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 import {GalaxyParser} from '../common/parsers';
-import {EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../common/repository-types';
+import {ConfigRepository, EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../common/repository-types';
 import {AjaxEventListLoader} from '../common/services/AjaxEventListLoader';
 import {AutoObserve} from '../common/services/AutoObserve';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
@@ -51,6 +51,7 @@ export class ServiceWorkerContext {
       readonly galaxyRepository: GalaxyRepository,
       readonly galaxyHistoryRepository: GalaxyHistoryRepository,
       readonly espionageRepository: EspionageRepository,
+      readonly configRepository: ConfigRepository,
       readonly espionageScrapper: EspionageReportScrapper,
       readonly galaxyParser: GalaxyParser,
       readonly galaxyObserver: GalaxyObserver,
@@ -81,15 +82,23 @@ export class ServiceWorkerContext {
     const galaxyRepositorySupport = new IDBGalaxyRepositorySupport();
     const galaxyHistoryRepositorySupport = new IDBGalaxyHistoryRepositorySupport();
     const espionageRepositorySupport = new IDBEspionageRepositorySupport();
+    const configSupport = new IDBConfigRepositorySupport();
     const repositoryProvider = new IDBRepositoryProvider(self.indexedDB, 'ogame', {
       'galaxy': galaxyRepositorySupport,
       'galaxy-history': galaxyHistoryRepositorySupport,
-      'espionage': espionageRepositorySupport
+      'espionage': espionageRepositorySupport,
+      'config': configSupport
     });
-    const [galaxyRepository, galaxyHistoryRepository, espionageRepository] = await Promise.all([
+    const [
+      galaxyRepository,
+      galaxyHistoryRepository,
+      espionageRepository,
+      configRepository
+    ] = await Promise.all([
       repositoryProvider.getRepository<IDBRepository & GalaxyRepository>('galaxy'),
       repositoryProvider.getRepository<IDBRepository & GalaxyHistoryRepository>('galaxy-history'),
-      repositoryProvider.getRepository<IDBEspionageRepository>('espionage')
+      repositoryProvider.getRepository<IDBRepository & EspionageRepository>('espionage'),
+      repositoryProvider.getRepository<IDBRepository & ConfigRepository>('config')
     ]);
     const galaxyParser = new JSONGalaxyParser();
     const eventListParser = new NoDOMEventListParser();
@@ -124,6 +133,7 @@ export class ServiceWorkerContext {
         galaxyRepository,
         galaxyHistoryRepository,
         espionageRepository,
+        configRepository,
         espionageScrapper,
         galaxyParser,
         galaxyObserver,

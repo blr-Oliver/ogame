@@ -2,6 +2,22 @@ import {AllianceClass, Buildings, Coordinates, Defense, DefensePartial, Fleet, F
 
 export type ZeroOne = 0 | 1;
 
+export interface MovingFleet {
+  id: number;
+  mission: MissionType;
+  isReturn: boolean;
+  startTime: number;
+  arrivalTime: number;
+  returnTime?: number;
+  from: Coordinates;
+  to: Coordinates;
+  fleet: FleetPartial;
+  cargo?: Resources;
+  recallToken?: string;
+  unionId?: number;
+  unionName?: string;
+}
+
 export interface FlightEvent {
   id: number;
   mission: MissionType;

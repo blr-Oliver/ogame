@@ -30,3 +30,8 @@ export interface GalaxyHistoryRepository {
   loadSystemState(coordinates: SystemCoordinates): Promise<[GalaxySystemInfo?, GalaxySystemInfo?]>;
   condenseHistory(galaxy: number, system: number, position: number): Promise<GalaxySlot[]>;
 }
+
+export interface ConfigRepository {
+  store<T extends object>(config: T, name: string, profile?: string): Promise<any>;
+  load<T extends object>(name: string, profile?: string): Promise<T | undefined>;
+}

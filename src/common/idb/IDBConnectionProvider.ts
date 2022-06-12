@@ -10,7 +10,7 @@ export class IDBConnectionProvider {
 
   connect(): Promise<IDBDatabase> {
     if (this.db) return Promise.resolve(this.db);
-    let openRequest: IDBOpenDBRequest = this.indexedDB.open(this.dbName, 5);
+    let openRequest: IDBOpenDBRequest = this.indexedDB.open(this.dbName, 6);
 
     return new Promise<IDBDatabase>((resolve, reject) => {
       openRequest.onsuccess = () => resolve(openRequest.result);
