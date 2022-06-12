@@ -88,7 +88,7 @@ export class Raider {
           bodies,
           researches,
           fleet,
-          maxMissions: slotsLeft,
+          maxMissions: slotsLeft
         };
         console.debug(`Raider: analyzing`);
         const missions = this.analyzer.suggestMissions(request);

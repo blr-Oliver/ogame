@@ -7,7 +7,6 @@ import {FlightCalculator, StaticFlightCalculator} from '../common/core/calculato
 import {Fetcher} from '../common/core/Fetcher';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {PlayerContext} from '../common/core/PlayerContext';
-import {makeListenable} from '../common/core/PropertyChangeEvent';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {ServerContext} from '../common/core/ServerContext';
 import {UniverseContext} from '../common/core/UniverseContext';
@@ -21,14 +20,15 @@ import {GalaxyParser} from '../common/parsers';
 import {ConfigRepository, EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../common/repository-types';
 import {AjaxEventListLoader} from '../common/services/AjaxEventListLoader';
 import {AutoObserve} from '../common/services/AutoObserve';
+import {ConfigManager} from '../common/services/ConfigManager';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
 import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {EventListLoader, Launcher} from '../common/services/Mapper';
-import {Raider} from '../common/services/Raider';
-import {RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
+import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Raider';
+import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {RecurringTokenLauncher} from '../common/services/RecurringTokenLauncher';
 import {Scanner} from '../common/services/Scanner';
 import {MissionScheduler} from '../common/services/Schedule';
@@ -52,6 +52,7 @@ export class ServiceWorkerContext {
       readonly galaxyHistoryRepository: GalaxyHistoryRepository,
       readonly espionageRepository: EspionageRepository,
       readonly configRepository: ConfigRepository,
+      readonly configManager: ConfigManager,
       readonly espionageScrapper: EspionageReportScrapper,
       readonly galaxyParser: GalaxyParser,
       readonly galaxyObserver: GalaxyObserver,
@@ -100,24 +101,27 @@ export class ServiceWorkerContext {
       repositoryProvider.getRepository<IDBRepository & EspionageRepository>('espionage'),
       repositoryProvider.getRepository<IDBRepository & ConfigRepository>('config')
     ]);
+    const configManager = new ConfigManager(configRepository);
     const galaxyParser = new JSONGalaxyParser();
     const eventListParser = new NoDOMEventListParser();
     const espionageParser = new NoDOMEspionageReportParser();
     const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyHistoryRepository, galaxyParser, fetcher, server);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyHistoryRepository, galaxyParser);
-    const autoObserveSettings = {
+    const autoObserveSettings = await configManager.prepareConfig({
       timeout: 3600 * 2,
       emptyTimeout: 3600 * 36,
       delay: 20
-    };
-    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universe, makeListenable(autoObserveSettings));
+    }, 'autoObserve');
+    const autoObserve = new StatefulAutoObserve(galaxyObserver, galaxyRepository, universe, autoObserveSettings);
     const espionageScrapper = new EspionageReportScrapper(espionageRepository, espionageParser, fetcher, server);
     const launcher = new RecurringTokenLauncher(server, fetcher);
     const eventLoader = new AjaxEventListLoader(fetcher, eventListParser, server);
     const clientManager = new ClientManager(self, locks, selfId, autoObserve);
     const scanner = new Scanner(player, espionageRepository, launcher, eventLoader, espionageScrapper, flightCalc);
-    const analyzer = new RaidReportAnalyzer(universe, flightCalc, costCalc);
-    const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher);
+    const analyzerSettings = await configManager.prepareConfig(ANALYZER_DEFAULTS, 'analyzer');
+    const analyzer = new RaidReportAnalyzer(universe, flightCalc, costCalc, analyzerSettings);
+    const raiderSettings = await configManager.prepareConfig(RAIDER_DEFAULTS, 'raider');
+    const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher, raiderSettings);
     const scheduler = new MissionScheduler(launcher);
 
     return new ServiceWorkerContext(
@@ -134,6 +138,7 @@ export class ServiceWorkerContext {
         galaxyHistoryRepository,
         espionageRepository,
         configRepository,
+        configManager,
         espionageScrapper,
         galaxyParser,
         galaxyObserver,

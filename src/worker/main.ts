@@ -1,4 +1,3 @@
-import {parseCoordinates} from '../browser/parsers/parsers-common';
 import {processAll} from '../common/common';
 import {makeListenable} from '../common/core/PropertyChangeEvent';
 import {ShardedEspionageReport} from '../common/report-types';
@@ -28,57 +27,6 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   self.addEventListener('fetch', (e: Event) => galaxyMonitor.spyGalaxyRequest(e as FetchEvent));
   shim.relay = true;
   autoObserve.continue();
-
-  raider.settings.maxTotalSlots = 25;
-  raider.settings.maxRaidSlots = 10;
-  raider.settings.minFreeSlots = 1;
-  raider.settings.excludedOrigins = [33807552];
-  raider.settings.excludedTargets = [
-    '[5:383:7]',
-    '[5:383:8]'
-  ].map(s => parseCoordinates(s)!);
-  let desertedTargets = analyzer.settings.desertedPlanets = [
-    '[3:206:8]',
-    '[3:240:10]',
-    '[3:240:12]',
-    '[3:241:13]',
-    '[3:244:5]',
-    '[3:244:6]',
-    '[3:244:7]',
-    '[3:247:6]',
-    '[3:247:6]',
-    '[3:273:8]',
-    '[4:191:15]',
-    '[4:388:5]',
-    '[4:388:7]',
-    '[4:388:8]',
-    '[4:392:7]',
-    '[4:397:4]',
-    '[4:398:4]',
-    '[4:398:14]',
-    '[4:399:14]',
-    '[4:455:8]',
-    '[5:14:7]',
-    '[5:18:7]',
-    '[6:6:7]',
-    '[6:23:12]',
-    '[6:36:1]',
-    '[6:36:4]',
-    '[6:36:6]',
-    '[6:36:10]',
-    '[6:37:8]',
-    '[6:47:13]',
-    '[6:105:15]',
-    '[6:135:14]',
-    '[6:139:15]',
-    '[6:245:6]',
-    '[6:495:9]',
-    '[7:329:8]',
-    '[7:329:9]',
-    '[7:329:10]',
-    '[7:331:10]',
-    '[7:332:8]'
-  ].map(s => parseCoordinates(s)!);
   raider.continue();
 
   type RatedCoordinates = [Coordinates, number];
@@ -114,7 +62,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
     const buildings = report.buildings;
     const coordinates = report.coordinates;
     const isMoon = coordinates.type === CoordinateType.Moon;
-    const isDeserted = desertedTargets.some(deserted => sameCoordinates(deserted, coordinates));
+    const isDeserted = analyzer.settings.desertedPlanets.some(deserted => sameCoordinates(deserted, coordinates));
     let production = [0, 0, 0];
     let productionLimit = [Infinity, Infinity, Infinity];
     if (!isMoon) {
