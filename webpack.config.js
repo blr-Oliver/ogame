@@ -4,7 +4,7 @@ const workerConfig = require('./.webpack/worker.config.js');
 const browserConfig = require('./.webpack/browser.config.js');
 
 const config = [
-//  proxyConfig,
+  proxyConfig,
   workerConfig,
   browserConfig
 ];

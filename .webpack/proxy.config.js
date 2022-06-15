@@ -18,6 +18,9 @@ const config = {
       use: 'ts-loader'
     }]
   },
+  resolve: {
+    extensions: ['.ts', '.tsx']
+  },
   externals: {
     fs: 'commonjs2 fs',
     url: 'commonjs2 url',
