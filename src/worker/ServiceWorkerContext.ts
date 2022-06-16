@@ -26,6 +26,7 @@ import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext'
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
+import {LoginService} from '../common/services/LoginService';
 import {EventListLoader, Launcher} from '../common/services/Mapper';
 import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Raider';
 import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
@@ -64,7 +65,8 @@ export class ServiceWorkerContext {
       readonly scanner: Scanner,
       readonly analyzer: RaidReportAnalyzer,
       readonly raider: Raider,
-      readonly scheduler: MissionScheduler
+      readonly scheduler: MissionScheduler,
+      readonly loginService: LoginService
   ) {
   }
 
@@ -123,6 +125,7 @@ export class ServiceWorkerContext {
     const raiderSettings = await configManager.prepareConfig(RAIDER_DEFAULTS, 'raider');
     const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher, raiderSettings);
     const scheduler = new MissionScheduler(launcher);
+    const loginService = new LoginService(self, server, fetcher);
 
     return new ServiceWorkerContext(
         selfId,
@@ -150,7 +153,8 @@ export class ServiceWorkerContext {
         scanner,
         analyzer,
         raider,
-        scheduler
+        scheduler,
+        loginService
     );
   }
 }

@@ -2,6 +2,7 @@ import {SimpleHandleFunction} from 'connect';
 import * as HttpMitmProxy from 'http-mitm-proxy';
 import {URL} from 'url';
 import {handleMainPage} from './handle-inject';
+import {handleLobbyForward} from './handle-lobby';
 import {createHttpToFsHandler, reroute} from './http-to-fs';
 
 type RouteName = 'browser' | 'src' | 'lobby';
@@ -91,6 +92,7 @@ function isMainPage(url: URL): boolean {
   return false;
 }
 
+
 function handleRoute(route: RouteName, ctx: HttpMitmProxy.IContext, proceed: (error?: Error) => void): void {
   let handler: SimpleHandleFunction;
   switch (route) {
@@ -101,7 +103,7 @@ function handleRoute(route: RouteName, ctx: HttpMitmProxy.IContext, proceed: (er
       handler = srcHandler;
       break;
     case 'lobby':
-      console.log('lobby request accepted');
+      return handleLobbyForward(ctx, proceed);
     default:
       return proceed();
   }
