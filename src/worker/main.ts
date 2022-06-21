@@ -99,10 +99,13 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   }
 
   async function rateProximityTargets() {
-    const targets = await galaxyRepository.findInactiveTargets();
+    let targets = await galaxyRepository.findInactiveTargets();
+    targets = targets.filter(x => x.galaxy === 7);
     const reports = await processAll(targets, c => espionageRepository.loadC(c));
+    const distance = analyzer.settings.maxDistance;
 
-    return analyzer.suggestMissions({
+    analyzer.settings.maxDistance = 19000;
+    const result = analyzer.suggestMissions({
       unexploredTargets: [],
       reports: reports,
       bodies: [{
@@ -113,20 +116,23 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
         coordinates: {galaxy: 7, system: 417, position: 8}
       }],
       researches: {
-        impulseDrive: 0,
-        combustionDrive: 4,
+        impulseDrive: 5,
+        combustionDrive: 6,
         hyperspace: 0
       } as Researches,
       fleet: {
         33821841: {
-          smallCargo: 28
+          smallCargo: 200
         },
         33822434: {
-          smallCargo: 31
+          smallCargo: 200
         }
       },
       maxMissions: 6
     });
+    analyzer.settings.maxDistance = distance;
+
+    return result;
   }
 
   (self as any)['raider'] = raider;

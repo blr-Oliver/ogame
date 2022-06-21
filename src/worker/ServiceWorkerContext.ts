@@ -9,6 +9,7 @@ import {NativeFetcher} from '../common/core/NativeFetcher';
 import {PlayerContext} from '../common/core/PlayerContext';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {ServerContext} from '../common/core/ServerContext';
+import {SessionAwareFetcher} from '../common/core/SessionAwareFetcher';
 import {UniverseContext} from '../common/core/UniverseContext';
 import {IDBRepository} from '../common/idb/IDBRepository';
 import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
@@ -75,8 +76,11 @@ export class ServiceWorkerContext {
       shim: ReplayingEventShim,
       locks: LockManager
   ): Promise<ServiceWorkerContext> {
-    const fetcher = new RestrainedFetcher(new NativeFetcher());
+    const rootFetcher = new NativeFetcher();
     const server = new LocationServerContext(self.location);
+    const loginService = new LoginService(self, server, rootFetcher);
+    const fetcher = new RestrainedFetcher(new SessionAwareFetcher(rootFetcher, loginService));
+    //const fetcher = new RestrainedFetcher(rootFetcher);
     const selfId = await getCurrentClientId(locks);
     const universe = await NoDOMUniverseContext.acquire(fetcher, server);
     const player = new NoDOMPlayerContext(server, fetcher);
@@ -125,7 +129,6 @@ export class ServiceWorkerContext {
     const raiderSettings = await configManager.prepareConfig(RAIDER_DEFAULTS, 'raider');
     const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher, raiderSettings);
     const scheduler = new MissionScheduler(launcher);
-    const loginService = new LoginService(self, server, fetcher);
 
     return new ServiceWorkerContext(
         selfId,

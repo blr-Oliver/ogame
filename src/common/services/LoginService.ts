@@ -44,7 +44,8 @@ export class LoginService {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
-      }
+      },
+      redirect: false
     }, true);
   }
 

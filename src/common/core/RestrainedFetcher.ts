@@ -7,7 +7,7 @@ export class RestrainedFetcher implements Fetcher {
 
   constructor(public readonly delegate: Fetcher,
               public readonly limit: number = RestrainedFetcher.DEFAULT_LIMIT) {
-    this.wrapper = parallelLimit(delegate.fetch, limit);
+    this.wrapper = parallelLimit(delegate.fetch.bind(delegate), limit);
   }
 
   fetch(options: RequestFacade, firstByteOnly?: boolean): Promise<ResponseFacade> {
