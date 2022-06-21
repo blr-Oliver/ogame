@@ -26,6 +26,7 @@ import {LocationServerContext} from '../common/services/context/LocationServerCo
 import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
 import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
+import {Expeditor, ExpeditorSettings} from '../common/services/Expeditor';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {LoginService} from '../common/services/LoginService';
 import {EventListLoader, Launcher} from '../common/services/Mapper';
@@ -67,7 +68,8 @@ export class ServiceWorkerContext {
       readonly analyzer: RaidReportAnalyzer,
       readonly raider: Raider,
       readonly scheduler: MissionScheduler,
-      readonly loginService: LoginService
+      readonly loginService: LoginService,
+      readonly expeditor: Expeditor
   ) {
   }
 
@@ -129,6 +131,17 @@ export class ServiceWorkerContext {
     const raiderSettings = await configManager.prepareConfig(RAIDER_DEFAULTS, 'raider');
     const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher, raiderSettings);
     const scheduler = new MissionScheduler(launcher);
+    const expeditorSettings: ExpeditorSettings = await configManager.prepareConfig({
+      fleet: {
+        reaper: 1,
+        pathfinder: 1,
+        espionageProbe: 1,
+        largeCargo: 405
+      },
+      origins: [33811468, 33813378, 33824121]
+    }, 'expeditor');
+    const expeditor = new Expeditor(launcher, expeditorSettings);
+    await expeditor.initBodies(player);
 
     return new ServiceWorkerContext(
         selfId,
@@ -157,7 +170,8 @@ export class ServiceWorkerContext {
         analyzer,
         raider,
         scheduler,
-        loginService
+        loginService,
+        expeditor
     );
   }
 }

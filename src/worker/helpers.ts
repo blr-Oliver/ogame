@@ -1,8 +1,6 @@
 import {processAll} from '../common/common';
 import {DebrisGalaxyInfo, ShardedEspionageReport} from '../common/report-types';
 import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
-import {Launcher} from '../common/services/Mapper';
-import {MissionType} from '../common/types';
 
 export async function findUncertainTargets(galaxyRepository: GalaxyRepository, espionageRepository: EspionageRepository): Promise<{ [infoLevel: number]: ShardedEspionageReport[] }> {
   const targets = await galaxyRepository.findInactiveTargets();
@@ -48,23 +46,4 @@ export async function rateAllDebris(galaxyRepository: GalaxyRepository) {
 export async function rateHangingDebris(galaxyRepository: GalaxyRepository) {
   let allDebris = await galaxyRepository.findHangingDebris();
   return allDebris.sort(debrisComparator);
-}
-
-export function launchExpedition(launcher: Launcher, from: number, galaxy: number, system: number) {
-  launcher.launch({
-    from,
-    fleet: {
-      reaper: 1,
-      pathfinder: 1,
-      espionageProbe: 1,
-      largeCargo: 405 // 402
-    },
-    mission: MissionType.Expedition,
-    to: {
-      galaxy,
-      system,
-      position: 16
-    },
-    holdTime: 1
-  });
 }

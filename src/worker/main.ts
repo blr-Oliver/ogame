@@ -4,7 +4,7 @@ import {ShardedEspionageReport} from '../common/report-types';
 import {condenseGalaxyHistory} from '../common/services/HistoryCondenser';
 import {Triplet} from '../common/services/RaidReportAnalyzer';
 import {Coordinates, CoordinateType, Researches, sameCoordinates} from '../common/types';
-import {findProtectedTargets, findUncertainTargets, launchExpedition, rateAllDebris, rateHangingDebris} from './helpers';
+import {findProtectedTargets, findUncertainTargets, rateAllDebris, rateHangingDebris} from './helpers';
 import {ServiceWorkerContext} from './ServiceWorkerContext';
 import {wrappingSum} from './utils';
 
@@ -142,10 +142,6 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   (self as any)['rankInactiveTargets'] = rankInactiveTargets;
   (self as any)['rateAllDebris'] = () => rateAllDebris(galaxyRepository);
   (self as any)['rateHangingDebris'] = () => rateHangingDebris(galaxyRepository);
-  const expo = (from: number, g: number, s: number) => launchExpedition(launcher, from, g, s);
-  (self as any)['launchExpedition'] = expo;
-  (self as any)['expo1'] = () => expo(33811468, 7, 329);
-  (self as any)['expo2'] = () => expo(33813378, 3, 242);
   (self as any)['condenseHistory'] = () => condenseGalaxyHistory(galaxyHistoryRepository);
   (self as any)['rateProximityTargets'] = rateProximityTargets;
   (self as any)['makeListenable'] = makeListenable;
