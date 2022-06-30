@@ -1,4 +1,4 @@
-import {compareCoordinatesKeys, deduplicate, slotsEqual} from '../../common';
+import {compareCoordinatesKeys, deduplicate} from '../../common';
 import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, PlayerInactivity} from '../../report-types';
 import {GalaxyRepository} from '../../repository-types';
 import {Coordinates, CoordinateType, SystemCoordinates} from '../../types';
@@ -213,9 +213,31 @@ export class IDBGalaxyRepository extends IDBRepository implements GalaxyReposito
     return this.findDebris(IDBKeyRange.lowerBound([GalaxyClass.Debris], false), slot => !!slot.debris);
   }
 
-  findHangingDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]> {
-    return this.findDebris(IDBKeyRange.bound([GalaxyClass.Debris], [GalaxyClass.Vacation]),
+  async findHangingDebris(): Promise<(GalaxySlotCoordinates & DebrisGalaxyInfo)[]> {
+    const getNormal = this.findDebris(IDBKeyRange.bound([GalaxyClass.Debris], [GalaxyClass.Vacation]),
         slot => slot.position < 16 && !!slot.debris);
+    let tx: IDBTransaction = this.db.transaction([IDBGalaxyRepository.OBJ_SYSTEM], 'readonly');
+    const getExpo = this.withTransaction(tx, tx =>
+        getTopMatchingFromIndex<GalaxySystemInfo>(
+            tx.objectStore(IDBGalaxyRepository.OBJ_SYSTEM),
+            IDBGalaxyRepository.IDX_SYSTEM_CLASS,
+            Infinity,
+            system => !!system.slots[15]?.debris,
+            IDBKeyRange.bound([GalaxyClass.Debris], [GalaxyClass.Vacation]),
+            'next'));
+    const [normalDebris, expoSystems] = await Promise.all([getNormal, getExpo]);
+    return normalDebris.concat(
+        expoSystems
+            .map(system => system.slots[15]!)
+            .map(s => ({
+              galaxy: s.galaxy,
+              system: s.system,
+              position: s.position,
+              timestamp: s.timestamp,
+              metal: s.debris!.metal,
+              crystal: s.debris!.crystal
+            }))
+    );
   }
 
   private findDebris(query: IDBKeyRange, test: (slot: GalaxySlot) => boolean) {
