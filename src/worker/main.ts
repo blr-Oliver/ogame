@@ -2,7 +2,7 @@ import {processAll} from '../common/common';
 import {makeListenable} from '../common/core/PropertyChangeEvent';
 import {ShardedEspionageReport} from '../common/report-types';
 import {condenseGalaxyHistory} from '../common/services/HistoryCondenser';
-import {Triplet} from '../common/services/RaidReportAnalyzer';
+import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
 import {Coordinates, CoordinateType, Researches, sameCoordinates} from '../common/types';
 import {findProtectedTargets, findUncertainTargets, rateAllDebris, rateHangingDebris} from './helpers';
 import {ServiceWorkerContext} from './ServiceWorkerContext';
@@ -48,9 +48,11 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
     return result;
   }
 
-  async function rankInactiveTargets(): Promise<RankInfo[]> {
+  async function rankInactiveTargets(withProtected: boolean = false): Promise<RankInfo[]> {
     const targets = await galaxyRepository.findInactiveTargets();
-    const reports = await processAll(targets, c => espionageRepository.loadC(c));
+    let reports = await processAll(targets, c => espionageRepository.loadC(c));
+    if (!withProtected)
+      reports = reports.filter(report => RaidReportAnalyzer.isClean(report));
     const ratings = reports.map(report => rateTarget(report));
     const targetsPerGalaxy = ratings.reduce((perGalaxy, target) =>
             (perGalaxy[target[0].galaxy].push(target), perGalaxy),

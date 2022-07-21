@@ -106,11 +106,11 @@ export class RaidReportAnalyzer {
     while (items.length > 0 && missions.length < request.maxMissions) {
       const candidate = items.pop()!;
       const coordinates = candidate.report.coordinates;
-      if (!this.isClean(candidate.report)) { // maybe it's already clean?
+      if (!RaidReportAnalyzer.isClean(candidate.report)) { // maybe it's already clean?
         // enough time passed
         if (candidate.age >= 1000 * 3600 * 24 &&
             // and it's safe to rescan
-            (candidate.report.counterEspionage === 0 || candidate.report.infoLevel > 0 && this.sumFields(candidate.report.fleet!) === 0)) {
+            (candidate.report.counterEspionage === 0 || candidate.report.infoLevel > 0 && RaidReportAnalyzer.sumFields(candidate.report.fleet!) === 0)) {
           missions.push({from: candidate.nearestBody.id, to: candidate.report.coordinates, fleet: {espionageProbe: 1}, mission: MissionType.Espionage});
         }
         continue;
@@ -269,14 +269,14 @@ export class RaidReportAnalyzer {
     return [0.01, 0.0066, 0.0033].map(x => 1 + level * x) as Triplet;
   }
 
-  private isClean(report: ShardedEspionageReport): boolean {
+  static isClean(report: ShardedEspionageReport): boolean {
     if (report.infoLevel < 2) return false;
-    if (this.sumFields(report.fleet!) !== 0) return false;
-    if (this.sumFields(report.defense!) !== (report.defense!.antiBallistic || 0) + (report.defense!.interplanetary || 0)) return false;
+    if (RaidReportAnalyzer.sumFields(report.fleet!) !== 0) return false;
+    if (RaidReportAnalyzer.sumFields(report.defense!) !== (report.defense!.antiBallistic || 0) + (report.defense!.interplanetary || 0)) return false;
     return true;
   }
 
-  private sumFields(data: { [key: string]: number }): number {
+  static sumFields(data: { [key: string]: number }): number {
     let sum = 0;
     for (let key in data)
       sum += data[key];
