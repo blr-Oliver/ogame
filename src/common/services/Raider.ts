@@ -13,6 +13,7 @@ export interface Settings {
   maxTotalSlots: number;
   excludedOrigins: number[];
   excludedTargets: Coordinates[];
+  maxSleepTimeMs: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -20,7 +21,8 @@ export const DEFAULT_SETTINGS: Settings = {
   minFreeSlots: 0,
   maxTotalSlots: 0,
   excludedOrigins: [],
-  excludedTargets: []
+  excludedTargets: [],
+  maxSleepTimeMs: 1000 * 60 * 10
 }
 
 export class Raider {
@@ -145,21 +147,20 @@ export class Raider {
   }
 
   private async scheduleContinue(events?: FlightEvent[]) {
+    let delay: number = this.settings.maxSleepTimeMs || 0;
     if (!events) {
       try {
         events = await this.eventLoader.loadEvents();
       } catch (e) {
         console.debug(`Raider: failed forecasting next wake up`);
-        this.doScheduleContinue(Date.now() + 1000 * 60 * 10); // sleeping for 10 minutes
-        return;
       }
     }
-    const nextFinishing = events.find(event => this.isFinishingEvent(event));
-    if (nextFinishing) {
-      this.doScheduleContinue(nextFinishing.time.getTime() + 5000);
-    } else {
-      console.debug(`Raider: going idle`);
+    if (events) {
+      const nextFinishing = events.find(event => this.isFinishingEvent(event));
+      if (nextFinishing)
+        delay = Math.min(nextFinishing.time.getTime() + 5000 - Date.now(), delay);
     }
+    this.doScheduleContinue(Date.now() + delay);
   }
 
   private doScheduleContinue(timestamp: number) {
