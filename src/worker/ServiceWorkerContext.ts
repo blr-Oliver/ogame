@@ -30,10 +30,10 @@ import {Expeditor, ExpeditorSettings} from '../common/services/Expeditor';
 import {GalaxyObserver} from '../common/services/GalaxyObserver';
 import {LoginService} from '../common/services/LoginService';
 import {EventListLoader, Launcher} from '../common/services/Mapper';
+import {ThreatNotifier} from '../common/services/notification/ThreatNotifier';
 import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Raider';
 import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {RecurringTokenLauncher} from '../common/services/RecurringTokenLauncher';
-import {Scanner} from '../common/services/Scanner';
 import {MissionScheduler} from '../common/services/Schedule';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {ClientManager} from './ClientManager';
@@ -64,7 +64,7 @@ export class ServiceWorkerContext {
       readonly launcher: Launcher,
       readonly eventLoader: EventListLoader,
       readonly clientManager: ClientManager,
-      readonly scanner: Scanner,
+      readonly threatNotifier: ThreatNotifier,
       readonly analyzer: RaidReportAnalyzer,
       readonly raider: Raider,
       readonly scheduler: MissionScheduler,
@@ -125,11 +125,11 @@ export class ServiceWorkerContext {
     const launcher = new RecurringTokenLauncher(server, fetcher);
     const eventLoader = new AjaxEventListLoader(fetcher, eventListParser, server);
     const clientManager = new ClientManager(self, locks, selfId, autoObserve);
-    const scanner = new Scanner(player, espionageRepository, launcher, eventLoader, espionageScrapper, flightCalc);
+    const threatNotifier = new ThreatNotifier(self.registration);
     const analyzerSettings = await configManager.prepareConfig(ANALYZER_DEFAULTS, 'analyzer');
     const analyzer = new RaidReportAnalyzer(universe, flightCalc, costCalc, analyzerSettings);
     const raiderSettings = await configManager.prepareConfig(RAIDER_DEFAULTS, 'raider');
-    const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher, raiderSettings);
+    const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher, threatNotifier, raiderSettings);
     const scheduler = new MissionScheduler(launcher);
     const expeditorSettings: ExpeditorSettings = await configManager.prepareConfig({
       fleet: {
@@ -166,7 +166,7 @@ export class ServiceWorkerContext {
         launcher,
         eventLoader,
         clientManager,
-        scanner,
+        threatNotifier,
         analyzer,
         raider,
         scheduler,

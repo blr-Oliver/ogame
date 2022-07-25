@@ -5,6 +5,7 @@ import {EspionageRepository, GalaxyRepository} from '../repository-types';
 import {Coordinates, FleetPartial, Mission, MissionType, sameCoordinates} from '../types';
 import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {EventListLoader, Launcher} from './Mapper';
+import {ThreatNotifier} from './notification/ThreatNotifier';
 import {RaidReportAnalyzer, SuggestionRequest} from './RaidReportAnalyzer';
 
 export interface Settings {
@@ -37,6 +38,7 @@ export class Raider {
       private readonly eventLoader: EventListLoader,
       private readonly analyzer: RaidReportAnalyzer,
       private readonly launcher: Launcher,
+      private readonly threatNotifier: ThreatNotifier,
       public settings: Settings = DEFAULT_SETTINGS
   ) {
   }
@@ -55,6 +57,7 @@ export class Raider {
     try {
       console.debug(`Raider: loading events`);
       events = await this.eventLoader.loadEvents();
+      this.threatNotifier.detectAndNotifyThreats(events);
       console.debug(`Raider: counting slots`);
       const [own, raid] = this.countSlots(events!);
       const slotsLeft = Math.min(this.settings.maxTotalSlots - this.settings.minFreeSlots - own, this.settings.maxRaidSlots - raid);
