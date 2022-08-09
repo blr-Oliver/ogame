@@ -97,9 +97,9 @@ export function objectsEqual<T>(a: T, b: T, mask: PropertyMask): boolean {
 
 const PMSK_PLANET_INFO: PropertyMask = {
   id: true,
-  name: true,
-  active: true,
-  activityTime: true
+  name: true
+//  active: true,
+//  activityTime: true
 }
 const PMSK_DEBRIS_INFO: PropertyMask = {
   metal: true,
