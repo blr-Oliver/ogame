@@ -2,7 +2,7 @@ import {processAll, sleep} from '../common';
 import {PlayerContext} from '../core/PlayerContext';
 import {FlightEvent} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
-import {Coordinates, FleetPartial, Mission, MissionType, sameCoordinates} from '../types';
+import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, sameCoordinates} from '../types';
 import {EspionageReportScrapper} from './EspionageReportScrapper';
 import {EventListLoader, Launcher} from './Mapper';
 import {ThreatNotifier} from './notification/ThreatNotifier';
@@ -86,6 +86,7 @@ export class Raider {
           fleet[body.id] = await this.player.getFleet(body.id);
         }, false, false);
         bodies = bodies.filter(body => (fleet[body.id].smallCargo || 0) > 0);
+        bodies = bodies.filter(body => !body.companion || body.coordinates.type === CoordinateType.Moon);
         bodies = bodies.filter(body => !this.settings.excludedOrigins.some(id => body.id === id));
         const request: SuggestionRequest = {
           unexploredTargets,
