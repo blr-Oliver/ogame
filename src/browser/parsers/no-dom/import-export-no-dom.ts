@@ -96,7 +96,7 @@ export function parseImportExportForBodies(body: string): SpaceBody[] {
     moons = [];
   } else {
     planets = parseBodies(body, CoordinateType.Planet, planetStart, moonStart);
-    moons = parseBodies(body, CoordinateType.Planet, moonStart);
+    moons = parseBodies(body, CoordinateType.Moon, moonStart);
   }
   for (let moon of moons)
     for (let planet of planets)
