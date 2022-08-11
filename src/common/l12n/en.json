@@ -13,7 +13,7 @@
     "battlecruiser": ["battlecruiser"],
     "bomber": ["bomber"],
     "destroyer": ["destroyer"],
-    "deathStar": ["death star"],
+    "deathStar": ["death star", "deathstar"],
     "smallCargo": ["small cargo"],
     "largeCargo": ["large cargo"],
     "colonyShip": ["colony ship"],
