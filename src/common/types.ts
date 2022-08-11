@@ -148,13 +148,21 @@ export type ResourceType =
 export type Resources = { [key in ResourceType]?: number };
 
 export type OneToTen = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type OneToThree = 1 | 2 | 3;
 export type Speed = OneToTen;
+
+export interface PlunderPriority {
+  metal: OneToThree;
+  crystal: OneToThree;
+  deuterium: OneToThree;
+}
 
 export interface Mission {
   from?: number;
   to: Coordinates;
   fleet: FleetPartial;
   mission: MissionType;
+  priority?: PlunderPriority;
   speed?: Speed;
   cargo?: Resources;
   holdTime?: number;

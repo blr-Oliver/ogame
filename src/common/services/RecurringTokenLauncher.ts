@@ -102,6 +102,11 @@ export class RecurringTokenLauncher implements Launcher {
     body['mission'] = mission.mission;
     body['speed'] = mission.speed || 10;
     if (mission.cargo) Object.assign(body, mission.cargo);
+    if (mission.priority) {
+      body['prioMetal'] = mission.priority.metal;
+      body['prioCrystal'] = mission.priority.crystal;
+      body['prioDeuterium'] = mission.priority.deuterium;
+    }
     if (mission.holdTime) body['holdingtime'] = mission.holdTime;
     return body;
   }

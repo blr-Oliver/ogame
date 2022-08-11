@@ -1,9 +1,9 @@
 import {getNearest} from '../common';
 import {CostCalculator} from '../core/calculator/CostCalculator';
-import {FlightCalculator} from '../core/calculator/FlightCalculator';
+import {FlightCalculator, ResourceOrder} from '../core/calculator/FlightCalculator';
 import {UniverseContext} from '../core/UniverseContext';
 import {EspionageReport, ShardedEspionageReport} from '../report-types';
-import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, Researches, sameCoordinates, SpaceBody} from '../types';
+import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, sameCoordinates, SpaceBody} from '../types';
 
 export type Triplet = [number, number, number];
 
@@ -16,6 +16,7 @@ export interface AnalyzerSettings {
   ignoreBuildingProduction: boolean;
   ignoreFlightProduction: boolean;
   maxDistance: number;
+  enablePriority: boolean;
 }
 
 export const DEFAULT_SETTINGS: AnalyzerSettings = {
@@ -26,7 +27,8 @@ export const DEFAULT_SETTINGS: AnalyzerSettings = {
   desertedPlanets: [],
   ignoreBuildingProduction: false,
   ignoreFlightProduction: true,
-  maxDistance: 40000 // = 2 galaxy
+  maxDistance: 40000, // = 2 galaxy
+  enablePriority: true
 }
 
 export interface SuggestionRequest {
@@ -52,6 +54,7 @@ interface ProcessingItem {
   production: Production;
   expectedResources: Triplet;
   maximumPlunder: Triplet;
+  plunderPriority: PlunderPriority;
   transports: number;
   fuel: number;
   ratedValue: number;
@@ -127,7 +130,15 @@ export class RaidReportAnalyzer {
           const from = candidate.nearestBody.id;
           if ((request.fleet[from]?.smallCargo || 0) >= transports) {
             request.fleet[from]!.smallCargo! -= transports;
-            missions.push({from: candidate.nearestBody.id, to: candidate.report.coordinates, fleet: {smallCargo: transports}, mission: MissionType.Attack});
+            const raidMission: Mission = {
+              from: candidate.nearestBody.id,
+              to: candidate.report.coordinates,
+              fleet: {smallCargo: transports},
+              mission: MissionType.Attack
+            };
+            if (this.settings.enablePriority)
+              raidMission.priority = candidate.plunderPriority;
+            missions.push(raidMission);
           } else if ((candidate.limitOrigins || request.bodies).length > 1) {
             this.excludeOriginAndReattempt(candidate, request, items);
           }
@@ -163,6 +174,7 @@ export class RaidReportAnalyzer {
     this.computeFlightTime(request, item);
     item.expectedResources = this.computeExpectedResources(request, item);
     this.computePlunder(request, item);
+    item.plunderPriority = this.computePlunderPriority(request, item);
     this.computeTransports(request, item);
     this.computeRating(request, item);
   }
@@ -246,8 +258,23 @@ export class RaidReportAnalyzer {
     item.maximumPlunder = item.expectedResources.map(r => Math.floor(r * loot)) as Triplet;
   }
 
+  private computePlunderPriority(request: SuggestionRequest, item: ProcessingItem): PlunderPriority {
+    const [m, c, d] = item.maximumPlunder;
+    return {
+      metal: 3 - +(m >= c) - +(m >= d),
+      crystal: 3 - +(c > m) - +(c >= d),
+      deuterium: 3 - +(d > m) - +(d > c)
+    } as PlunderPriority;
+  }
+
   private computeTransports(request: SuggestionRequest, item: ProcessingItem) {
-    const capacity = this.flightCalc.capacityFor(item.maximumPlunder[0], item.maximumPlunder[1], item.maximumPlunder[2]);
+    const plunderPriority = this.settings.enablePriority ? item.plunderPriority : {
+      metal: 1,
+      crystal: 2,
+      deuterium: 3
+    };
+    const resourceOrder = [plunderPriority.metal - 1, plunderPriority.crystal - 1, plunderPriority.deuterium - 1] as ResourceOrder;
+    const capacity = this.flightCalc.capacityFor(item.maximumPlunder[0], item.maximumPlunder[1], item.maximumPlunder[2], resourceOrder);
     const transportCapacity = 5000 * (1 + (request.researches.hyperspace || 0) * 0.05);
     item.transports = Math.ceil(capacity / transportCapacity);
     /*
