@@ -1,0 +1,5 @@
+Request URL: https://s156-en.ogame.gameforge.com/game/index.php?page=federationlayer&ajax=1&union=0&fleet=6334509&target=33810149
+Request Method: GET
+
+Headers:
+	X-Requested-With: XMLHttpRequest

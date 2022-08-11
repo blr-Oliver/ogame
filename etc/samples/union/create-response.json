@@ -1,0 +1,11 @@
+{
+  "fleetID": 6334509,
+  "unionID": 3889,
+  "targetID": 33810149,
+  "token": "522e85c9103384b01c49d036169224c3",
+  "errorbox": {
+    "type": "fadeBox",
+    "text": "Fleet union successfully created.",
+    "failed": 0
+  }
+}

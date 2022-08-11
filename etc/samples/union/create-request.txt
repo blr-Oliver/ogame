@@ -1,0 +1,19 @@
+https://s156-en.ogame.gameforge.com/game/index.php?page=unionchange&ajax=1
+Request Method: POST
+
+Headers:
+	X-Requested-With: XMLHttpRequest
+	Accept: */*
+	Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+
+Query
+	page: unionchange
+	ajax: 1
+
+Body (FormData)
+	fleetID: 6334509
+  targetID: 33810149
+  unionID: 0
+  unionUsers: Commander Jameson
+  token: e90502ba093adfb861840e68d50ece4a
+  groupname: union_name
