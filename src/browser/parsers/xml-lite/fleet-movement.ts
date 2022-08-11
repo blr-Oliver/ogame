@@ -56,7 +56,7 @@ function parseMovementBlock(block: Element): MovingFleet {
   const result: MovingFleet = {
     id, mission, isReturn, arrivalTime, from, to, fleet, cargo
   };
-  if (isReturn) {
+  if (!isReturn) {
     const recallBlock = block.children.find(e => e.attributes['class']?.indexOf('reversal') !== -1);
     if (recallBlock)
       result.recallToken = getToken(recallBlock);
