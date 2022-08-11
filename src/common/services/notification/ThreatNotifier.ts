@@ -30,7 +30,7 @@ export interface NotificationService {
 export class ThreatNotifier {
   private knownThreats: { [key: string]: ThreatInfo } = {};
   private ignoredThreats: { [key: string]: true } = {};
-  checkMissionType = false;
+  checkMissionType = true;
 
   constructor(private readonly notifier: NotificationService) {
   }
