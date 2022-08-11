@@ -3,7 +3,7 @@ import {FleetMovementParser} from '../../../common/parsers';
 import {MovingFleet, StringNumberMap} from '../../../common/report-types';
 import {translateEntries} from '../../../common/translate';
 import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../../../common/types';
-import {parseCoordinates} from '../parsers-common';
+import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
 
 export class XmlLiteFleetMovementParser implements FleetMovementParser {
   constructor() {
@@ -120,11 +120,12 @@ function getFleetDetails(fleetInfo: Element): [FleetPartial, Resources] {
   ];
 
   function parseSection(): StringNumberMap {
-    while (!!rows[i++].children[0].attributes['colspan']) ;
+    while (+rows[i].children[0].attributes['colspan']! > 1)
+      ++i;
     const section: StringNumberMap = {};
     while (i < rows.length && !rows[i].children[0].attributes['colspan']) {
       const name = textContent(rows[i].children[0]).trim().slice(0, -1);
-      const count = +textContent(rows[i].children[1]).trim();
+      const count = parseOnlyNumbers(textContent(rows[i].children[1]).trim());
       section[name] = count;
       ++i;
     }
