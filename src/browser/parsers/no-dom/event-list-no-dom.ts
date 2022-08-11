@@ -34,19 +34,19 @@ function parseEvent(body: string, rowStart: number): FlightEvent {
   let isReturnFlight = readAttribute(body, rowStart, 'data-return-flight') === 'true';
   let arrivalTime = new Date(+readAttribute(body, rowStart, 'data-arrival-time') * 1000);
 
-  const cells = getCells(body, rowStart);
+  const cells = getCells(body, rowStart, body.indexOf('</tr>', rowStart));
   let isFriendly = readAttribute(cells[0], cells[0].indexOf(`<span`), 'class').indexOf('friendly') !== -1;
-  let fromName = readBetween(cells[3], 0, `</figure>`, `</td>`).trim();
+  let fromName = readBetween(cells[3], 0, `</figure>`, `</`).trim();
   let fromType = getType(readAttribute(cells[3], cells[3].indexOf(`<figure`), 'class'));
   let from = parseCoordinates(readBetween(cells[4], cells[4].indexOf(`<a`), `>`, `<`).trim())!;
 
-  let toName = readBetween(cells[7], 0, `</figure>`, `</td>`).trim();
+  let toName = readBetween(cells[7], 0, `</figure>`, `</`).trim(); // closing td or span
   let toType = getType(readAttribute(cells[7], cells[7].indexOf(`<figure`), 'class'));
   let to = parseCoordinates(readBetween(cells[8], cells[8].indexOf(`<a`), `>`, `<`).trim())!;
 
   let tooltipHolder = readAttribute(cells[6], 0, 'title');
   let fleet: FleetPartial, cargo: Resources | undefined;
-  [fleet, cargo] = parseFleetInfo(tooltipHolder);
+  [fleet, cargo] = parseFleetTooltip(tooltipHolder);
   if (!cargo.metal && !cargo.crystal && !cargo.deuterium) cargo = void 0;
 
   let result: FlightEvent = {
@@ -85,8 +85,8 @@ function getCells(body: string, position: number, end?: number): string[] {
   }
   let cells: string[] = [];
   let cellStart = position;
+  const cellEndMarker = `</td>`;
   while ((cellStart = body.indexOf(`<td`, cellStart)) !== -1 && cellStart < end) {
-    const cellEndMarker = `</td>`;
     let cellEnd = body.indexOf(cellEndMarker, cellStart) + cellEndMarker.length;
     cells.push(body.substring(cellStart, cellEnd));
     cellStart = cellEnd;
@@ -111,11 +111,12 @@ function readMapFromTable(cells: string[]): StringNumberMap {
   return data;
 }
 
-function parseFleetInfo(tooltip: string): [FleetPartial, Resources] {
-  tooltip = tooltip
-      .replaceAll('&lt;', '<')
-      .replaceAll('&gt;', '>')
-      .replaceAll('&quot;', '"');
+export function parseFleetTooltip(tooltip: string, replaceHtmlEntities: boolean = true): [FleetPartial, Resources] {
+  if(replaceHtmlEntities)
+    tooltip = tooltip
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"');
   let firstTh = tooltip.indexOf(`<th`);
   if (firstTh === -1) return [{}, {}];
   let secondTh = tooltip.indexOf(`<th`, firstTh + `<th`.length);

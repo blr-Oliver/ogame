@@ -1,17 +1,11 @@
 import {getCurrentClientId} from '../common/client-id';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
-import {IDBRepository} from '../common/idb/IDBRepository';
-import {IDBRepositoryProvider} from '../common/idb/IDBRepositoryProvider';
-import {IDBEspionageRepository} from '../common/idb/repositories/IDBEspionageRepository';
-import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
-import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
 import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
 import {AutoObserveStub} from '../common/remote/AutoObserveStub';
-import {GalaxyRepository} from '../common/repository-types';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
-import {EspionageReportScrapper} from '../common/services/EspionageReportScrapper';
-import {NoDOMEspionageReportParser} from './parsers/no-dom/espionage-report-no-dom';
+import {FleetMovementLoader} from '../common/services/FleetMovementLoader';
+import {XmlLiteFleetMovementParser} from './parsers/xml-lite/fleet-movement';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
 
 if ('serviceWorker' in navigator) {
@@ -33,27 +27,15 @@ if ('serviceWorker' in navigator) {
   // console.debug(`Channel created (might be not ready)`);
   const autoObserve = new AutoObserveStub(channel);
   // console.debug(`AutoObserve stub created (might be not ready)`);
-  (window as any)['autoObserve'] = autoObserve;
-  const fetcher = new RestrainedFetcher(new NativeFetcher());
   const serverContext = new LocationServerContext(window.location);
 
-  const galaxyRepositorySupport = new IDBGalaxyRepositorySupport();
-  const espionageRepositorySupport = new IDBEspionageRepositorySupport();
-  const repositoryProvider = new IDBRepositoryProvider(self.indexedDB, 'ogame', {
-    'galaxy': galaxyRepositorySupport,
-    'espionage': espionageRepositorySupport
-  });
-  const espionageParser = new NoDOMEspionageReportParser();
+  const fetcher = new RestrainedFetcher(new NativeFetcher());
 
-  Promise.all([
-    repositoryProvider.getRepository<IDBEspionageRepository>('espionage'),
-    repositoryProvider.getRepository<IDBRepository & GalaxyRepository>('galaxy')
-  ]).then(([espionageRepo, galaxyRepo]) => {
-    (window as any)['espionageRepo'] = espionageRepo;
-    (window as any)['galaxyRepo'] = galaxyRepo;
-    const espionageScrapper = new EspionageReportScrapper(espionageRepo, espionageParser, fetcher, serverContext);
-    (window as any)['espionageScrapper'] = espionageScrapper;
-  });
+  const parser = new XmlLiteFleetMovementParser();
+  const loader = new FleetMovementLoader(serverContext, fetcher, parser);
+  (window as any)['autoObserve'] = autoObserve;
+  (window as any)['movementLoader'] = loader;
+
 } else {
   console.error('Service workers not supported.')
 }

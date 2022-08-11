@@ -102,6 +102,9 @@ class LegacyResponseWrapper implements ResponseFacade {
   text(): Promise<string> {
     return Promise.resolve(this.response.body);
   }
+  arrayBuffer(): Promise<ArrayBuffer> {
+    throw new Error('Not implemented');
+  }
 }
 
 class LegacyHeadersWrapper implements HeadersFacade {

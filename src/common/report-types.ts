@@ -6,9 +6,7 @@ export interface MovingFleet {
   id: number;
   mission: MissionType;
   isReturn: boolean;
-  startTime: number;
   arrivalTime: number;
-  returnTime?: number;
   from: Coordinates;
   to: Coordinates;
   fleet: FleetPartial;

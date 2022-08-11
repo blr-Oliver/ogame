@@ -1,5 +1,8 @@
+import {Document} from 'xml-lite';
 import {EspionageReportList} from '../browser/parsers/no-dom/espionage-report-no-dom';
-import {FlightEvent, GalaxySystemInfo, StampedEspionageReport} from './report-types';
+import {FlightEvent, GalaxySystemInfo, MovingFleet, StampedEspionageReport} from './report-types';
+
+// TODO all these should accept ResponseFacade
 
 export interface GalaxyParser {
   parseGalaxy(body: string, timestamp?: Date): GalaxySystemInfo;
@@ -12,4 +15,8 @@ export interface EspionageReportParser {
 
 export interface EventListParser {
   parseEventList(body: string): FlightEvent[];
+}
+
+export interface FleetMovementParser {
+  parseFleetMovement(body: Document): MovingFleet[];
 }

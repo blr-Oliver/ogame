@@ -19,6 +19,7 @@ export interface ResponseFacade {
   readonly bodyUsed: boolean;
   json(): Promise<any>;
   text(): Promise<string>;
+  arrayBuffer(): Promise<ArrayBuffer>;
   clone(): ResponseFacade;
 }
 
