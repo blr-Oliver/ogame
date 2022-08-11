@@ -1,4 +1,4 @@
-import {Document, Element, Text, textContent} from 'xml-lite';
+import {Document, Element, Text, textContent} from 'my-xml-lite';
 import {FleetMovementParser} from '../../../common/parsers';
 import {MovingFleet, StringNumberMap} from '../../../common/report-types';
 import {translateEntries} from '../../../common/translate';

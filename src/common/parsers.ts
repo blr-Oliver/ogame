@@ -1,4 +1,4 @@
-import {Document} from 'xml-lite';
+import {Document} from 'my-xml-lite';
 import {EspionageReportList} from '../browser/parsers/no-dom/espionage-report-no-dom';
 import {FlightEvent, GalaxySystemInfo, MovingFleet, StampedEspionageReport} from './report-types';
 
