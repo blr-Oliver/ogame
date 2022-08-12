@@ -133,15 +133,32 @@ export class ServiceWorkerContext {
     const scheduler = new MissionScheduler(launcher);
     const expeditorSettings: ExpeditorSettings = await configManager.prepareConfig({
       fleet: {
-        reaper: 1,
-        pathfinder: 1,
-        espionageProbe: 1,
-        largeCargo: 405
+        reaper: {
+          type: 'fixed',
+          min: 1,
+          max: 1
+        },
+        pathfinder: {
+          type: 'fixed',
+          min: 1,
+          max: 1
+        },
+        espionageProbe: {
+          type: 'varying',
+          reserved: 20,
+          min: 2.7,
+          max: 3.2
+        },
+        smallCargo: {
+          type: 'varying',
+          reserved: 500,
+          min: 1,
+          max: 1
+        }
       },
-      origins: [33811468, 33813378, 33824121]
+      origins: [33811468, 33824121, 33827004]
     }, 'expeditor');
-    const expeditor = new Expeditor(launcher, expeditorSettings);
-    await expeditor.initBodies(player);
+    const expeditor = new Expeditor(launcher, player, expeditorSettings);
 
     return new ServiceWorkerContext(
         selfId,
