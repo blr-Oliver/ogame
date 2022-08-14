@@ -1,8 +1,8 @@
-import {sleep} from '../common';
-import {Fetcher, ResponseFacade} from '../core/Fetcher';
-import {ServerContext} from '../core/ServerContext';
-import {CoordinateType, Mission, ShipType, ShipTypeId} from '../types';
-import {Launcher} from './Mapper';
+import {sleep} from '../../common';
+import {Fetcher, ResponseFacade} from '../../core/Fetcher';
+import {ServerContext} from '../../core/ServerContext';
+import {CoordinateType, Mission, ShipType, ShipTypeId} from '../../types';
+import {Launcher} from '../Mapper';
 
 interface LaunchTask {
   maxAttempts?: number;

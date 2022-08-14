@@ -1,10 +1,10 @@
-import {after, processAll, waitUntil} from '../common';
-import {Fetcher, RequestFacade} from '../core/Fetcher';
-import {ServerContext} from '../core/ServerContext';
-import {GalaxyParser} from '../parsers';
-import {GalaxySystemInfo} from '../report-types';
-import {GalaxyHistoryRepository, GalaxyRepository} from '../repository-types';
-import {Coordinates} from '../types';
+import {after, processAll, waitUntil} from '../../common';
+import {Fetcher, RequestFacade} from '../../core/Fetcher';
+import {ServerContext} from '../../core/ServerContext';
+import {GalaxyParser} from '../../parsers';
+import {GalaxySystemInfo} from '../../report-types';
+import {GalaxyHistoryRepository, GalaxyRepository} from '../../repository-types';
+import {Coordinates} from '../../types';
 
 export class GalaxyObserver {
   private readonly requestTemplate: RequestFacade;

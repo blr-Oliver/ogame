@@ -3,7 +3,7 @@ import {PlayerContext} from '../core/PlayerContext';
 import {FlightEvent} from '../report-types';
 import {EspionageRepository, GalaxyRepository} from '../repository-types';
 import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, sameCoordinates} from '../types';
-import {EspionageReportScrapper} from './EspionageReportScrapper';
+import {EspionageReportScrapper} from './operations/EspionageReportScrapper';
 import {EventListLoader, Launcher} from './Mapper';
 import {ThreatNotifier} from './notification/ThreatNotifier';
 import {RaidReportAnalyzer, SuggestionRequest} from './RaidReportAnalyzer';

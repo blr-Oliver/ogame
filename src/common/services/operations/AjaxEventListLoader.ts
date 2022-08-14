@@ -1,8 +1,8 @@
-import {Fetcher} from '../core/Fetcher';
-import {ServerContext} from '../core/ServerContext';
-import {EventListParser} from '../parsers';
-import {FlightEvent} from '../report-types';
-import {EventListLoader} from './Mapper';
+import {Fetcher} from '../../core/Fetcher';
+import {ServerContext} from '../../core/ServerContext';
+import {EventListParser} from '../../parsers';
+import {FlightEvent} from '../../report-types';
+import {EventListLoader} from '../Mapper';
 
 export class AjaxEventListLoader implements EventListLoader {
   constructor(

@@ -3,7 +3,7 @@ import {parseEventList} from '../browser/parsers/dom/event-list-dom';
 import {Fetcher, ResponseFacade} from '../common/core/Fetcher';
 import {ServerContext} from '../common/core/ServerContext';
 import {FlightEvent} from '../common/report-types';
-import {getEventListResponse} from '../common/services/AjaxEventListLoader';
+import {getEventListResponse} from '../common/services/operations/AjaxEventListLoader';
 import {Mapper} from '../common/services/Mapper';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
 import {dumpFile} from '../standalone/files';

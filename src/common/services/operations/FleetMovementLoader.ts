@@ -1,8 +1,8 @@
-import {BufferedStringSource, StringSource, UTF8NonValidatingCharacterSource, XML} from 'my-xml-lite';
-import {Fetcher, ResponseFacade} from '../core/Fetcher';
-import {ServerContext} from '../core/ServerContext';
-import {FleetMovementParser} from '../parsers';
-import {MovingFleet} from '../report-types';
+import {BufferedStringSource, StringSource, UTF8NonValidatingCharacterSource, XML} from '../my-xml-lite';
+import {Fetcher, ResponseFacade} from '../../core/Fetcher';
+import {ServerContext} from '../../core/ServerContext';
+import {FleetMovementParser} from '../../parsers';
+import {MovingFleet} from '../../report-types';
 
 export class FleetMovementLoader {
   constructor(

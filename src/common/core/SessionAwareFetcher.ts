@@ -1,4 +1,4 @@
-import {LoginService} from '../services/LoginService';
+import {LoginService} from '../services/infra/LoginService';
 import {Fetcher, RequestFacade, ResponseFacade} from './Fetcher';
 
 export class SessionAwareFetcher implements Fetcher {

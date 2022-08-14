@@ -5,7 +5,7 @@ import {GalaxySystemInfo} from '../report-types';
 import {GalaxyRepository} from '../repository-types';
 import {SystemCoordinates} from '../types';
 import {AutoObserve, AutoObserveSettings, AutoObserveStatus} from './AutoObserve';
-import {GalaxyObserver} from './GalaxyObserver';
+import {GalaxyObserver} from './operations/GalaxyObserver';
 
 export class StatefulAutoObserve implements AutoObserve {
   private handler: FloodGate<(galaxy: number, system: number) => Promise<GalaxySystemInfo>>;

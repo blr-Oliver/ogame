@@ -4,7 +4,7 @@ import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
 import {AutoObserveStub} from '../common/remote/AutoObserveStub';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
-import {FleetMovementLoader} from '../common/services/FleetMovementLoader';
+import {FleetMovementLoader} from '../common/services/operations/FleetMovementLoader';
 import {XmlLiteFleetMovementParser} from './parsers/xml-lite/fleet-movement';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
 

@@ -1,5 +1,5 @@
-import {Mission} from '../types';
-import {Launcher} from './Mapper';
+import {Mission} from '../../types';
+import {Launcher} from '../Mapper';
 
 export class MissionScheduler {
   private tasks: number[] = [];

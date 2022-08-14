@@ -1,7 +1,7 @@
 import {processAll} from '../common/common';
 import {makeListenable} from '../common/core/PropertyChangeEvent';
 import {ShardedEspionageReport} from '../common/report-types';
-import {condenseGalaxyHistory} from '../common/services/HistoryCondenser';
+import {condenseGalaxyHistory} from '../common/services/infra/HistoryCondenser';
 import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
 import {Coordinates, CoordinateType, Researches, sameCoordinates} from '../common/types';
 import {findProtectedTargets, findUncertainTargets, rateAllDebris, rateHangingDebris} from './helpers';
