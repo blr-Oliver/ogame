@@ -1,4 +1,4 @@
-import {BufferedStringSource, StringSource, UTF8NonValidatingCharacterSource, XML} from '../my-xml-lite';
+import {BufferedStringSource, StringSource, UTF8NonValidatingCharacterSource, XML} from 'my-xml-lite';
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
 import {ServerContext} from '../../core/ServerContext';
 import {FleetMovementParser} from '../../parsers';
