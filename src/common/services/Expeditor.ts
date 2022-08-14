@@ -1,3 +1,4 @@
+import {processAll} from '../common';
 import {PlayerContext} from '../core/PlayerContext';
 import {Coordinates, Fleet, FleetPartial, MissionType, ShipType, SpaceBody} from '../types';
 import {Launcher} from './Mapper';
@@ -61,10 +62,7 @@ export class Expeditor {
   }
 
   private async calculateFleets(bodies: SpaceBody[], counts: number[]): Promise<FleetPartial[]> {
-    let allFleets: Fleet[] = await Promise.all(bodies
-        .map(body => body.id)
-        .map(id => this.player.getFleet(id))
-    );
+    let allFleets: Fleet[] = await processAll(bodies, async body => this.player.getFleet(body.id));
     let result: FleetPartial[] = Array(bodies.length);
     for (let i = 0; i < bodies.length; ++i) {
       const allFleet = allFleets[i];
