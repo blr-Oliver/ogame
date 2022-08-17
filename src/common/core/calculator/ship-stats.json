@@ -1,0 +1,431 @@
+{
+  "smallCargo": {
+    "cost": {
+      "metal": 2000,
+      "crystal": 2000
+    },
+    "shield": 10,
+    "attack": 5,
+    "capacity": 5000,
+    "drive": {
+      "combustion": 0,
+      "impulse": 5
+    },
+    "consumption": {
+      "combustion": 10,
+      "impulse": 20
+    },
+    "speed": {
+      "combustion": 5000,
+      "impulse": 10000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5
+    }
+  },
+  "largeCargo": {
+    "cost": {
+      "metal": 6000,
+      "crystal": 6000
+    },
+    "shield": 25,
+    "attack": 5,
+    "capacity": 25000,
+    "drive": {
+      "combustion": 0
+    },
+    "consumption": {
+      "combustion": 50
+    },
+    "speed": {
+      "combustion": 7500
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5
+    }
+  },
+  "colonyShip": {
+    "cost": {
+      "metal": 10000,
+      "crystal": 20000,
+      "deuterium": 10000
+    },
+    "shield": 100,
+    "attack": 50,
+    "capacity": 7500,
+    "drive": {
+      "impulse": 0
+    },
+    "consumption": {
+      "impulse": 1000
+    },
+    "speed": {
+      "impulse": 2500
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5
+    }
+  },
+  "recycler": {
+    "cost": {
+      "metal": 10000,
+      "crystal": 6000,
+      "deuterium": 2000
+    },
+    "shield": 10,
+    "attack": 1,
+    "capacity": 20000,
+    "drive": {
+      "combustion": 0,
+      "impulse": 17,
+      "hyperspace": 15
+    },
+    "consumption": {
+      "combustion": 300,
+      "impulse": 600,
+      "hyperspace": 900
+    },
+    "speed": {
+      "combustion": 2000,
+      "impulse": 4000,
+      "hyperspace": 6000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5
+    }
+  },
+  "espionageProbe": {
+    "cost": {
+      "crystal": 1000
+    },
+    "shield": 0,
+    "attack": 0,
+    "capacity": 5,
+    "drive": {
+      "combustion": 0
+    },
+    "consumption": {
+      "combustion": 1
+    },
+    "speed": {
+      "combustion": 100000000
+    },
+    "rapidFire": {}
+  },
+  "solarSatellite": {
+    "cost": {
+      "crystal": 2000,
+      "deuterium": 500
+    },
+    "shield": 1,
+    "attack": 1,
+    "capacity": 0,
+    "drive": {},
+    "consumption": {},
+    "speed": {},
+    "rapidFire": {}
+  },
+  "crawler": {
+    "cost": {
+      "metal": 2000,
+      "crystal": 2000,
+      "deuterium": 1000
+    },
+    "shield": 1,
+    "attack": 1,
+    "capacity": 0,
+    "drive": {},
+    "consumption": {},
+    "speed": {},
+    "rapidFire": {}
+  },
+  "lightFighter": {
+    "cost": {
+      "metal": 3000,
+      "crystal": 1000
+    },
+    "shield": 10,
+    "attack": 50,
+    "capacity": 50,
+    "drive": {
+      "combustion": 0
+    },
+    "consumption": {
+      "combustion": 20
+    },
+    "speed": {
+      "combustion": 12500
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5
+    }
+  },
+  "heavyFighter": {
+    "cost": {
+      "metal": 6000,
+      "crystal": 4000
+    },
+    "shield": 25,
+    "attack": 150,
+    "capacity": 100,
+    "drive": {
+      "impulse": 0
+    },
+    "consumption": {
+      "impulse": 75
+    },
+    "speed": {
+      "impulse": 10000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5,
+      "smallCargo": 3
+    }
+  },
+  "cruiser": {
+    "cost": {
+      "metal": 20000,
+      "crystal": 7000,
+      "deuterium": 2000
+    },
+    "shield": 50,
+    "attack": 400,
+    "capacity": 800,
+    "drive": {
+      "impulse": 0
+    },
+    "consumption": {
+      "impulse": 300
+    },
+    "speed": {
+      "impulse": 15000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5,
+      "lightFighter": 6,
+      "rocketLauncher": 10
+    }
+  },
+  "battleship": {
+    "cost": {
+      "metal": 45000,
+      "crystal": 15000
+    },
+    "shield": 200,
+    "attack": 1000,
+    "capacity": 1500,
+    "drive": {
+      "hyperspace": 0
+    },
+    "consumption": {
+      "hyperspace": 500
+    },
+    "speed": {
+      "hyperspace": 10000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5,
+      "pathfinder": 5
+    }
+  },
+  "battlecruiser": {
+    "cost": {
+      "metal": 30000,
+      "crystal": 40000,
+      "deuterium": 15000
+    },
+    "shield": 400,
+    "attack": 700,
+    "capacity": 750,
+    "drive": {
+      "hyperspace": 0
+    },
+    "consumption": {
+      "hyperspace": 250
+    },
+    "speed": {
+      "hyperspace": 10000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5,
+      "smallCargo": 3,
+      "largeCargo": 3,
+      "heavyFighter": 4,
+      "cruiser": 4,
+      "battleship": 7
+    }
+  },
+  "bomber": {
+    "cost": {
+      "metal": 50000,
+      "crystal": 25000,
+      "deuterium": 15000
+    },
+    "shield": 500,
+    "attack": 1000,
+    "capacity": 500,
+    "drive": {
+      "impulse": 0,
+      "hyperspace": 8
+    },
+    "consumption": {
+      "impulse": 1000,
+      "hyperspace": 700
+    },
+    "speed": {
+      "impulse": 4000,
+      "hyperspace": 5000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5,
+      "rocketLauncher": 20,
+      "lightLaser": 20,
+      "heavyLaser": 10,
+      "ionCannon": 10,
+      "gaussCannon": 5,
+      "plasmaTurret": 5
+    }
+  },
+  "destroyer": {
+    "cost": {
+      "metal": 60000,
+      "crystal": 50000,
+      "deuterium": 15000
+    },
+    "shield": 500,
+    "attack": 2000,
+    "capacity": 2000,
+    "drive": {
+      "hyperspace": 0
+    },
+    "consumption": {
+      "hyperspace": 1000
+    },
+    "speed": {
+      "hyperspace": 5000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5,
+      "lightLaser": 10,
+      "battlecruiser": 2
+    }
+  },
+  "deathStar": {
+    "cost": {
+      "metal": 5000000,
+      "crystal": 4000000,
+      "deuterium": 1000000
+    },
+    "shield": 50000,
+    "attack": 200000,
+    "capacity": 1000000,
+    "drive": {
+      "hyperspace": 0
+    },
+    "consumption": {
+      "hyperspace": 1
+    },
+    "speed": {
+      "hyperspace": 100
+    },
+    "rapidFire": {
+      "espionageProbe": 1250,
+      "solarSatellite": 1250,
+      "crawler": 1250,
+      "smallCargo": 250,
+      "largeCargo": 250,
+      "colonyShip": 250,
+      "recycler": 250,
+      "lightFighter": 200,
+      "heavyFighter": 100,
+      "cruiser": 33,
+      "battleship": 30,
+      "battlecruiser": 15,
+      "bomber": 25,
+      "destroyer": 5,
+      "reaper": 10,
+      "pathfinder": 30,
+      "rocketLauncher": 200,
+      "lightLaser": 200,
+      "heavyLaser": 100,
+      "ionCannon": 100,
+      "gaussCannon": 50
+    }
+  },
+  "reaper": {
+    "cost": {
+      "metal": 85000,
+      "crystal": 55000,
+      "deuterium": 20000
+    },
+    "shield": 700,
+    "attack": 2800,
+    "capacity": 10000,
+    "drive": {
+      "hyperspace": 0
+    },
+    "consumption": {
+      "hyperspace": 1100
+    },
+    "speed": {
+      "hyperspace": 7000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5,
+      "battleship": 7,
+      "bomber": 4,
+      "destroyer": 3
+    }
+  },
+  "pathfinder": {
+    "cost": {
+      "metal": 8000,
+      "crystal": 15000,
+      "deuterium": 8000
+    },
+    "shield": 100,
+    "attack": 200,
+    "capacity": 10000,
+    "drive": {
+      "hyperspace": 0
+    },
+    "consumption": {
+      "hyperspace": 300
+    },
+    "speed": {
+      "hyperspace": 12000
+    },
+    "rapidFire": {
+      "espionageProbe": 5,
+      "solarSatellite": 5,
+      "crawler": 5,
+      "lightFighter": 3,
+      "heavyFighter": 2,
+      "cruiser": 3
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "rocketLauncher": {
+    "cost": {
+      "metal": 2000
+    },
+    "shield": 20,
+    "attack": 80,
+    "rapidFire": {}
+  },
+  "lightLaser": {
+    "cost": {
+      "metal": 1500,
+      "crystal": 500
+    },
+    "shield": 25,
+    "attack": 100,
+    "rapidFire": {}
+  },
+  "heavyLaser": {
+    "cost": {
+      "metal": 6000,
+      "crystal": 2000
+    },
+    "shield": 100,
+    "attack": 250,
+    "rapidFire": {}
+  },
+  "gaussCannon": {
+    "cost": {
+      "metal": 20000,
+      "crystal": 15000,
+      "deuterium": 2000
+    },
+    "shield": 200,
+    "attack": 1100,
+    "rapidFire": {}
+  },
+  "ionCannon": {
+    "cost": {
+      "metal": 5000,
+      "crystal": 3000
+    },
+    "shield": 500,
+    "attack": 150,
+    "rapidFire": {
+      "reaper": 2
+    }
+  },
+  "plasmaTurret": {
+    "cost": {
+      "metal": 50000,
+      "crystal": 50000,
+      "deuterium": 30000
+    },
+    "shield": 300,
+    "attack": 3000,
+    "rapidFire": {}
+  },
+  "smallShield": {
+    "cost": {
+      "metal": 10000,
+      "crystal": 10000
+    },
+    "shield": 2000,
+    "attack": 1,
+    "rapidFire": {}
+  },
+  "largeShield": {
+    "cost": {
+      "metal": 50000,
+      "crystal": 50000
+    },
+    "shield": 10000,
+    "attack": 1,
+    "rapidFire": {}
+  },
+  "antiBallistic": {
+    "cost": {
+      "metal": 8000,
+      "deuterium": 2000
+    },
+    "shield": 0,
+    "attack": 0,
+    "rapidFire": {}
+  },
+  "interplanetary": {
+    "cost": {
+      "metal": 12500,
+      "crystal": 2500,
+      "deuterium": 10000
+    },
+    "shield": 0,
+    "attack": 12000,
+    "rapidFire": {}
+  }
+}
