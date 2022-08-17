@@ -1,4 +1,4 @@
-import {DefenseType, ResearchType, Resources, ShipType} from '../../types';
+import {DefenseType, Researches, ResearchType, Resources, ShipType} from '../../types';
 import * as DEFENCE_STATS_RAW from './defence-stats.json';
 import * as SHIP_STATS_RAW from './ship-stats.json';
 
@@ -47,3 +47,23 @@ export const DRIVE_TECH: { [drive in DriveName]: ResearchType } = {
   impulse: 'impulseDrive',
   hyperspace: 'hyperspaceDrive'
 };
+
+export const DRIVE_IMPROVEMENT: { [drive in DriveName]: number } = {
+  combustion: 0.1,
+  impulse: 0.2,
+  hyperspace: 0.3
+}
+
+export function shipDrive(ship: ShipType, researches?: Researches): DriveName | null {
+  const driveInfo = SHIP_STATS[ship].drive;
+  const suitableDrives: Drive[] = [];
+  for (let key in driveInfo) {
+    const drive = key as DriveName;
+    const requirement: number = driveInfo[drive]!;
+    const actual: number = researches?.[DRIVE_TECH[drive]] || 0;
+    if (actual >= requirement)
+      suitableDrives.push(Drive[drive]);
+  }
+  if (!suitableDrives.length) return null;
+  return Drive[Math.max(...suitableDrives)] as DriveName;
+}

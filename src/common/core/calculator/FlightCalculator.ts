@@ -1,5 +1,6 @@
-import {Coordinates, Fleet, FleetPartial, MissionType, Researches, ResearchType, ShipType, Speed} from '../../types';
+import {Coordinates, Fleet, FleetPartial, MissionType, Researches, ShipType, Speed} from '../../types';
 import {UniverseContext} from '../UniverseContext';
+import {DRIVE_IMPROVEMENT, DRIVE_TECH, SHIP_STATS, shipDrive} from './unit-stats-types';
 
 export type ResourcePriority = 0 | 1 | 2;
 export type ResourceOrder = [ResourcePriority, ResourcePriority, ResourcePriority];
@@ -18,65 +19,6 @@ export interface FlightCalculator {
 export class StaticFlightCalculator implements FlightCalculator {
   constructor(readonly universe: UniverseContext) {
   }
-
-  static readonly BASE_SPEED: { readonly [key in ShipType]: number } = {
-    lightFighter: 12500,
-    heavyFighter: 10000,
-    cruiser: 15000,
-    battleship: 10000,
-    battlecruiser: 10000,
-    bomber: 5000,
-    destroyer: 5000,
-    deathStar: 100,
-    smallCargo: 10000,
-    largeCargo: 7500,
-    colonyShip: 2500,
-    recycler: 2000,
-    espionageProbe: 100000000,
-    solarSatellite: 0,
-    reaper: 7000,
-    pathfinder: 12000,
-    crawler: 0
-  };
-  static readonly DRIVE_TYPES: (ResearchType | undefined)[] = [undefined, 'combustionDrive', 'impulseDrive', 'hyperspaceDrive'];
-  static readonly SHIP_DRIVES: { readonly [key in ShipType]: number } = {
-    lightFighter: 1,
-    heavyFighter: 2,
-    cruiser: 2,
-    battleship: 3,
-    battlecruiser: 3,
-    bomber: 3,
-    destroyer: 3,
-    deathStar: 3,
-    smallCargo: 2,
-    largeCargo: 1,
-    colonyShip: 2,
-    recycler: 1,
-    espionageProbe: 1,
-    solarSatellite: 0,
-    reaper: 3,
-    pathfinder: 3,
-    crawler: 0
-  };
-  static readonly BASE_CONSUMPTION: { readonly [key in ShipType]: number } = {
-    lightFighter: 20,
-    heavyFighter: 75,
-    cruiser: 300,
-    battleship: 500,
-    battlecruiser: 250,
-    bomber: 1000,
-    destroyer: 1000,
-    deathStar: 1,
-    smallCargo: 20,
-    largeCargo: 50,
-    colonyShip: 1000,
-    recycler: 300,
-    espionageProbe: 1,
-    solarSatellite: 0,
-    reaper: 1100,
-    pathfinder: 300,
-    crawler: 0
-  };
 
   speedMultiplier(mission: MissionType): number {
     switch (mission) {
@@ -135,15 +77,21 @@ export class StaticFlightCalculator implements FlightCalculator {
     let consumption = 0, holdingCosts = 0;
 
     for (let key in fleet) {
-      const shipType = key as ShipType;
-      let n = fleet[shipType] || 0;
+      const ship = key as ShipType;
+      const shipStats = SHIP_STATS[ship];
+      const n = fleet[ship] || 0;
       if (n > 0) {
-        const shipSpeed = this.fleetSpeed({[key]: 1}, researches);
-        const shipConsumption = StaticFlightCalculator.BASE_CONSUMPTION[shipType];
-        const shipSpeedPercentage = 35000 / fleetSpeedValue * Math.sqrt(distance * 10 / shipSpeed);
+        const drive = shipDrive(ship, researches);
+        if (drive) {
+          const baseSpeed: number = shipStats.speed[drive]!;
+          const driveLevel = researches[DRIVE_TECH[drive]] || 0;
+          const speed = baseSpeed * (1 + DRIVE_IMPROVEMENT[drive] * driveLevel);
+          const shipConsumption = shipStats.consumption[drive]!;
+          const shipSpeedPercentage = 35000 / fleetSpeedValue * Math.sqrt(distance * 10 / speed);
 
-        holdingCosts += shipConsumption * n * holdingTime;
-        consumption += Math.max(shipConsumption * n * distance / 35000 * (shipSpeedPercentage / 10 + 1) * (shipSpeedPercentage / 10 + 1), 1);
+          holdingCosts += shipConsumption * n * holdingTime;
+          consumption += Math.max(shipConsumption * n * distance / 35000 * (shipSpeedPercentage / 10 + 1) * (shipSpeedPercentage / 10 + 1), 1);
+        }
       }
     }
 
@@ -172,7 +120,7 @@ export class StaticFlightCalculator implements FlightCalculator {
     }
   }
 
-  capacityFor(m: number, c: number, d: number, order = [0, 1, 2]): number {
+  capacityFor(m: number, c: number, d: number, order: ResourceOrder = [0, 1, 2]): number {
     let res: number[] = [Math.floor(m || 0), Math.floor(c || 0), Math.floor(d || 0)];
     [m, c, d] = [...res].map((x, i) => res[order[i]]);
 
@@ -186,12 +134,16 @@ export class StaticFlightCalculator implements FlightCalculator {
   fleetSpeed(fleet: FleetPartial | Fleet, researches: Researches): number {
     let speed = Infinity;
     for (let key in fleet) {
-      let n = fleet[key as ShipType] || 0;
+      const ship = key as ShipType;
+      const n = fleet[ship] || 0;
       if (n > 0) {
-        let baseSpeed: number = StaticFlightCalculator.BASE_SPEED[key as ShipType];
-        let drive = StaticFlightCalculator.SHIP_DRIVES[key as ShipType];
-        let driveLevel = researches[StaticFlightCalculator.DRIVE_TYPES[drive]!] || 0;
-        speed = Math.min(baseSpeed * (1 + driveLevel * drive / 10));
+        const drive = shipDrive(ship, researches);
+        if (drive) {
+          const baseSpeed: number = SHIP_STATS[ship].speed[drive]!;
+          const driveLevel = researches[DRIVE_TECH[drive]] || 0;
+          const shipSpeed = baseSpeed * (1 + DRIVE_IMPROVEMENT[drive] * driveLevel);
+          speed = Math.min(speed, shipSpeed);
+        }
       }
     }
     return isFinite(speed) ? speed : 0;
