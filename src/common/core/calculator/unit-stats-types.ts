@@ -2,10 +2,11 @@ import {DefenseType, ResearchType, Resources, ShipType} from '../../types';
 import * as DEFENCE_STATS_RAW from './defence-stats.json';
 import * as SHIP_STATS_RAW from './ship-stats.json';
 
-export type UnitType = ShipType | DefenseType;
-export type RapidFireTable = { [key in UnitType]?: number };
 export const SHIP_STATS: { [key in ShipType]: ShipStats } = SHIP_STATS_RAW;
 export const DEFENCE_STATS: { [key in DefenseType]: DefenceStats } = DEFENCE_STATS_RAW;
+
+export type UnitType = ShipType | DefenseType;
+export type RapidFireTable = { [key in UnitType]?: number };
 
 export enum Drive {
   combustion = 1,
