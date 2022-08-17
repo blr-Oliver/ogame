@@ -1,7 +1,7 @@
 import {map} from '../../../common/common';
 import {StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
 import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from '../../../common/types';
-import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
+import {parseLocalDate, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {HtmlParser} from './HtmlParser';
 
 /**

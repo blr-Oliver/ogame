@@ -1,4 +1,4 @@
-import {EspionageBrief, EspionageReportList} from '../../../browser/parsers/no-dom/espionage-report-no-dom';
+import {EspionageBrief, EspionageReportList} from '../../parsers/no-dom/espionage-report-no-dom';
 import {deduplicate, processAll} from '../../common';
 import {Fetcher} from '../../core/Fetcher';
 import {parallelLimit} from '../../core/FloodGate';

@@ -1,8 +1,8 @@
 import {Document, Element, Text, textContent} from 'my-xml-lite';
-import {FleetMovementParser} from '../../../common/parsers';
-import {MovingFleet, StringNumberMap} from '../../../common/report-types';
-import {translateEntries} from '../../../common/translate';
-import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../../../common/types';
+import {FleetMovementParser} from '../../parsers';
+import {MovingFleet, StringNumberMap} from '../../report-types';
+import {translateEntries} from '../../translate';
+import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../../types';
 import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
 
 export class XmlLiteFleetMovementParser implements FleetMovementParser {

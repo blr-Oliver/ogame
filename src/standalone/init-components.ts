@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';
 import {HtmlParser} from '../browser/parsers/dom/HtmlParser';
-import {JSONGalaxyParser} from '../browser/parsers/json/galaxy-report-json';
-import {NoDOMEspionageReportParser} from '../browser/parsers/no-dom/espionage-report-no-dom';
+import {JSONGalaxyParser} from '../common/parsers/json/galaxy-report-json';
+import {NoDOMEspionageReportParser} from '../common/parsers/no-dom/espionage-report-no-dom';
 import {CachingCostCalculator} from '../common/core/calculator/CostCalculator';
 import {FlightCalculator, StaticFlightCalculator} from '../common/core/calculator/FlightCalculator';
 import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext} from '../common/core/ServerContext';

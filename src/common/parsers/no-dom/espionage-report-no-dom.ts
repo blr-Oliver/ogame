@@ -1,5 +1,5 @@
-import {EspionageReportParser} from '../../../common/parsers';
-import {PlanetActivity, StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
+import {EspionageReportParser} from '../../parsers';
+import {PlanetActivity, StampedEspionageReport, StringNumberMap} from '../../report-types';
 import {
   AllianceClass,
   Buildings,
@@ -12,8 +12,9 @@ import {
   ResearchTypeId,
   Resources,
   ShipTypeId
-} from '../../../common/types';
-import {parseLocalDate, parseOnlyNumbers, readAttribute, readBetween} from '../parsers-common';
+} from '../../types';
+import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
+import {readAttribute, readBetween} from './no-dom-common';
 
 export class NoDOMEspionageReportParser implements EspionageReportParser {
   parseReport(body: string): StampedEspionageReport | undefined {

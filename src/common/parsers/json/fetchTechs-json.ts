@@ -1,7 +1,7 @@
-import {Fetcher} from '../../../common/core/Fetcher';
-import {ServerContext} from '../../../common/core/ServerContext';
-import {TechContext} from '../../../common/report-types';
-import {Buildings, BuildingTypeId, Defense, DefenseTypeId, Fleet, Researches, ResearchTypeId, ShipTypeId} from '../../../common/types';
+import {Fetcher} from '../../core/Fetcher';
+import {ServerContext} from '../../core/ServerContext';
+import {TechContext} from '../../report-types';
+import {Buildings, BuildingTypeId, Defense, DefenseTypeId, Fleet, Researches, ResearchTypeId, ShipTypeId} from '../../types';
 
 export type TechResponse = { [techId: number]: number };
 

@@ -1,4 +1,4 @@
-import {evalFleetConfig, getFleetPageResponse, parseFleetPageForConfig} from '../../../browser/parsers/no-dom/fleet-no-dom';
+import {evalFleetConfig, getFleetPageResponse, parseFleetPageForConfig} from '../../parsers/no-dom/fleet-no-dom';
 import {Fetcher} from '../../core/Fetcher';
 import {ServerContext} from '../../core/ServerContext';
 import {initUniverseContext, UniverseContext} from '../../core/UniverseContext';

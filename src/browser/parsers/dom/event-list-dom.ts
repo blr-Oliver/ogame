@@ -2,7 +2,7 @@ import {EventListParser} from '../../../common/parsers';
 import {FlightEvent, StringNumberMap} from '../../../common/report-types';
 import {translateEntries} from '../../../common/translate';
 import {CoordinateType, FleetPartial, MissionType, Resources} from '../../../common/types';
-import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
+import {parseCoordinates, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {HtmlParser} from './HtmlParser';
 
 export class DOMEventListParser implements EventListParser {

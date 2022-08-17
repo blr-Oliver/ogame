@@ -11,7 +11,7 @@ import {
   PlayerInactivity,
   PlayerStatusInfo
 } from '../../../common/report-types';
-import {parseOnlyNumbers} from '../parsers-common';
+import {parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {HtmlParser} from './HtmlParser';
 
 /**

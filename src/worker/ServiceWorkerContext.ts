@@ -1,6 +1,6 @@
-import {JSONGalaxyParser} from '../browser/parsers/json/galaxy-report-json';
-import {NoDOMEspionageReportParser} from '../browser/parsers/no-dom/espionage-report-no-dom';
-import {NoDOMEventListParser} from '../browser/parsers/no-dom/event-list-no-dom';
+import {JSONGalaxyParser} from '../common/parsers/json/galaxy-report-json';
+import {NoDOMEspionageReportParser} from '../common/parsers/no-dom/espionage-report-no-dom';
+import {NoDOMEventListParser} from '../common/parsers/no-dom/event-list-no-dom';
 import {getCurrentClientId} from '../common/client-id';
 import {CachingCostCalculator, CostCalculator} from '../common/core/calculator/CostCalculator';
 import {FlightCalculator, StaticFlightCalculator} from '../common/core/calculator/FlightCalculator';

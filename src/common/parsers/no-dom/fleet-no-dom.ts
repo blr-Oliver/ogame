@@ -1,5 +1,5 @@
-import {Fetcher} from '../../../common/core/Fetcher';
-import {ServerContext} from '../../../common/core/ServerContext';
+import {Fetcher} from '../../core/Fetcher';
+import {ServerContext} from '../../core/ServerContext';
 
 const firstSearch = `class="maincontent"`;
 const secondSearch = `var token`;

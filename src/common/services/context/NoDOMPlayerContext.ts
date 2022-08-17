@@ -5,13 +5,13 @@ import {
   extractFleet,
   extractResearches,
   getTechResponse
-} from '../../../browser/parsers/json/fetchTechs-json';
+} from '../../parsers/json/fetchTechs-json';
 import {
   getImportExportRefreshResponse,
   getImportExportResponse,
   parseImportExportForBodies,
   parseImportExportForResources
-} from '../../../browser/parsers/no-dom/import-export-no-dom';
+} from '../../parsers/no-dom/import-export-no-dom';
 import {Fetcher} from '../../core/Fetcher';
 import {PlayerContext} from '../../core/PlayerContext';
 import {ServerContext} from '../../core/ServerContext';

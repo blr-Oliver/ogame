@@ -5,7 +5,7 @@ import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFac
 import {AutoObserveStub} from '../common/remote/AutoObserveStub';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
 import {FleetMovementLoader} from '../common/services/operations/FleetMovementLoader';
-import {XmlLiteFleetMovementParser} from './parsers/xml-lite/fleet-movement';
+import {XmlLiteFleetMovementParser} from '../common/parsers/xml-lite/fleet-movement';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
 
 if ('serviceWorker' in navigator) {

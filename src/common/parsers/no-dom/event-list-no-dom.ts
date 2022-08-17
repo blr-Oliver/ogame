@@ -1,8 +1,9 @@
-import {EventListParser} from '../../../common/parsers';
-import {FlightEvent, StringNumberMap} from '../../../common/report-types';
-import {translateEntries} from '../../../common/translate';
-import {CoordinateType, FleetPartial, MissionType, Resources} from '../../../common/types';
-import {parseCoordinates, parseOnlyNumbers, readAttribute, readBetween} from '../parsers-common';
+import {EventListParser} from '../../parsers';
+import {FlightEvent, StringNumberMap} from '../../report-types';
+import {translateEntries} from '../../translate';
+import {CoordinateType, FleetPartial, MissionType, Resources} from '../../types';
+import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
+import {readAttribute, readBetween} from './no-dom-common';
 
 export class NoDOMEventListParser implements EventListParser {
   parseEventList(body: string): FlightEvent[] {
