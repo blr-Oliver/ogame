@@ -72,7 +72,7 @@ export async function serviceWorkerMain(self: ServiceWorkerGlobalScope, context:
   (self as any)['raider'] = raider;
   (self as any)['scheduler'] = scheduler;
   (self as any)['findUncertainTargets'] = () => findUncertainTargets(galaxyRepository, espionageRepository);
-  (self as any)['findProtectedTargets'] = () => findProtectedTargets(galaxyRepository, espionageRepository);
+  (self as any)['findProtectedTargets'] = () => findProtectedTargets(galaxyRepository, espionageRepository, costCalc);
   (self as any)['rankInactiveTargets'] = rankInactiveTargets;
   (self as any)['rateAllDebris'] = () => rateAllDebris(galaxyRepository);
   (self as any)['rateHangingDebris'] = () => rateHangingDebris(galaxyRepository);
