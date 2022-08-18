@@ -40,7 +40,7 @@ export interface SuggestionRequest {
   maxMissions: number;
 }
 
-interface Production {
+export interface Production {
   hourly: Triplet;
   limit: Triplet;
 }
@@ -203,7 +203,7 @@ export class RaidReportAnalyzer {
     item.production = this.calculateProduction(report, ignoreProduction);
   }
 
-  private calculateProduction(report: EspionageReport, ignoreMines: boolean = false) {
+  static calculateProduction(report: EspionageReport, costCalc: CostCalculator, economyFactor: number, ignoreMines: boolean = false): Production {
     const buildings = report.buildings;
     const coordinates = report.coordinates;
     const isMoon = coordinates.type === CoordinateType.Moon;
@@ -214,20 +214,20 @@ export class RaidReportAnalyzer {
 
     if (!isMoon) {
       const position = coordinates.position;
-      const positionMultiplier = this.costCalc.getProductionMultiplier(position);
-      const baseNaturalProduction = this.costCalc.data.naturalProduction;
-      const naturalProduction = baseNaturalProduction.map((x, i) => x * positionMultiplier[i] * this.universe.economyFactor);
+      const positionMultiplier = costCalc.getProductionMultiplier(position);
+      const baseNaturalProduction = costCalc.data.naturalProduction;
+      const naturalProduction = baseNaturalProduction.map((x, i) => x * positionMultiplier[i] * economyFactor);
       if (buildings) {
         const storageLevels = [buildings.metalStorage || 0, buildings.crystalStorage || 0, buildings.deutStorage || 0];
-        result.limit = storageLevels.map(level => this.costCalc.getStorageCapacity(level)) as Triplet;
+        result.limit = storageLevels.map(level => costCalc.getStorageCapacity(level)) as Triplet;
       }
       if (buildings && !ignoreMines) {
         const mineLevels = [buildings.metalMine || 0, buildings.crystalMine || 0, buildings.deutMine || 0];
-        const plasmaMultiplier = this.plasmaMultiplier(report.researches?.plasma);
+        const plasmaMultiplier = RaidReportAnalyzer.plasmaMultiplier(report.researches?.plasma);
         const classMultiplier = 1 + (report.playerClass === 'collector' ? 0.25 : 0) + (report.allianceClass === 'trader' ? 0.05 : 0);
-        const mineProduction = mineLevels.map((level, i) => this.costCalc.getProduction(i, level)
-            * positionMultiplier[i] * plasmaMultiplier[i] * classMultiplier * this.universe.economyFactor);
-        const energyNeeded = mineLevels.reduce((sum, level, i) => sum + this.costCalc.getEnergyConsumption(i, level), 0);
+        const mineProduction = mineLevels.map((level, i) => costCalc.getProduction(i, level)
+            * positionMultiplier[i] * plasmaMultiplier[i] * classMultiplier * economyFactor);
+        const energyNeeded = mineLevels.reduce((sum, level, i) => sum + costCalc.getEnergyConsumption(i, level), 0);
         const energyAvailable = report.resources.energy ?? energyNeeded;
         const productionFactor = Math.min(1, energyNeeded ? energyAvailable / energyNeeded : 0);
         result.hourly = mineProduction.map((x, i) => x * productionFactor + naturalProduction[i]) as Triplet;
@@ -236,6 +236,10 @@ export class RaidReportAnalyzer {
       }
     }
     return result;
+  }
+
+  private calculateProduction(report: EspionageReport, ignoreMines: boolean = false): Production {
+    return RaidReportAnalyzer.calculateProduction(report, this.costCalc, this.universe.economyFactor, ignoreMines);
   }
 
   private computeExpectedResources(request: SuggestionRequest, item: ProcessingItem): Triplet {
@@ -292,7 +296,7 @@ export class RaidReportAnalyzer {
     item.efficiency = item.ratedValue / item.flightTime;
   }
 
-  private plasmaMultiplier(level: number = 0): Triplet {
+  static plasmaMultiplier(level: number = 0): Triplet {
     return [0.01, 0.0066, 0.0033].map(x => 1 + level * x) as Triplet;
   }
 

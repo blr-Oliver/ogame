@@ -30,7 +30,6 @@ export async function findProtectedTargets(galaxyRepository: GalaxyRepository, e
       sum += data[key];
     return sum;
   }
-
 }
 
 const rate: [number, number] = [1, 3];
