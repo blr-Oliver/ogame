@@ -1,20 +1,21 @@
-import {BufferedStringSource, StringSource, UTF8NonValidatingCharacterSource, XML} from 'my-xml-lite';
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
 import {ServerContext} from '../../core/ServerContext';
 import {FleetMovementParser} from '../../parsers';
+import {XmlLiteResponseParser} from '../../parsers/xml-lite/XmlLiteResponseParser';
 import {MovingFleet} from '../../report-types';
 
 export class FleetMovementLoader {
   constructor(
       private readonly server: ServerContext,
       private readonly fetcher: Fetcher,
-      private readonly parser: FleetMovementParser) {
+      private readonly documentParser: XmlLiteResponseParser,
+      private readonly movementParser: FleetMovementParser) {
   }
 
   async load(): Promise<MovingFleet[]> {
     const response = await this.getMovementResponse();
-    const source = await this.prepareResponse(response);
-    return this.parser.parseFleetMovement(XML.parse(source));
+    const document = await this.documentParser.parseResponse(response);
+    return this.movementParser.parseFleetMovement(document);
   }
 
   private async getMovementResponse(): Promise<ResponseFacade> {
@@ -26,10 +27,5 @@ export class FleetMovementLoader {
         component: 'movement'
       }
     });
-  }
-
-  private async prepareResponse(response: ResponseFacade): Promise<StringSource> {
-    const buffer = await response.arrayBuffer();
-    return new BufferedStringSource(new UTF8NonValidatingCharacterSource(new Uint8Array(buffer)));
   }
 }

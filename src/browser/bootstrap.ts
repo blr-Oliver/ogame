@@ -2,6 +2,7 @@ import {getCurrentClientId} from '../common/client-id';
 import {NativeFetcher} from '../common/core/NativeFetcher';
 import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
+import {XmlLiteResponseParser} from '../common/parsers/xml-lite/XmlLiteResponseParser';
 import {AutoObserveStub} from '../common/remote/AutoObserveStub';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';
 import {FleetMovementLoader} from '../common/services/operations/FleetMovementLoader';
@@ -31,8 +32,9 @@ if ('serviceWorker' in navigator) {
 
   const fetcher = new RestrainedFetcher(new NativeFetcher());
 
-  const parser = new XmlLiteFleetMovementParser();
-  const loader = new FleetMovementLoader(serverContext, fetcher, parser);
+  const documentParser = new XmlLiteResponseParser();
+  const movementParser = new XmlLiteFleetMovementParser();
+  const loader = new FleetMovementLoader(serverContext, fetcher, documentParser, movementParser);
   (window as any)['autoObserve'] = autoObserve;
   (window as any)['movementLoader'] = loader;
 

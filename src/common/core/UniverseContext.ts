@@ -8,6 +8,7 @@ export interface UniverseContext {
   readonly peacefulFleetSpeed: number;
   readonly warFleetSpeed: number;
   readonly holdingFleetSpeed: number;
+  readonly name: string;
 }
 
 export function initUniverseContext(data: Partial<UniverseContext>): UniverseContext {
@@ -54,6 +55,11 @@ export function initUniverseContext(data: Partial<UniverseContext>): UniverseCon
     },
     holdingFleetSpeed: {
       value: data.holdingFleetSpeed || 1.0,
+      writable: false,
+      enumerable: true
+    },
+    name: {
+      value: data.name || 'Dorado',
       writable: false,
       enumerable: true
     }
