@@ -6,3 +6,4 @@ node_modules
 /etc/certs/
 /etc/keys/
 /proxy/
+/terraform/.terraform
