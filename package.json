@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "",
   "scripts": {
-    "webpack": "webpack",
+    "webpack": "webpack"
   },
   "author": "Vasily Liaskovsky <vasily.liaskovsky@gmail.com>",
   "license": "UNLICENSED",

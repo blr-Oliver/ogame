@@ -65,6 +65,8 @@ function prepareContext(): { [key: string]: any } {
 
 function evalAgainstContext(script: string, context: any) {
   script = script.replaceAll('var ', 'this.');
+  script = script.replaceAll('let ', 'this.');
+  script = script.replaceAll('const ', 'this.');
   evaluator.call(context, script);
 }
 
@@ -79,4 +81,5 @@ function cleanContext(context: any) {
   delete context['ogame'];
   delete context['window'];
   delete context['document'];
+  delete context['reloadResources'];
 }
