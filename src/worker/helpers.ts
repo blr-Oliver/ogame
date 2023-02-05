@@ -20,7 +20,8 @@ export async function findProtectedTargets(galaxyRepository: GalaxyRepository,
                                            costCalculator: CostCalculator): Promise<ShardedEspionageReport[]> {
   type ReportWithAnalysis = ShardedEspionageReport & {
     power?: number,
-    value?: number
+    longTermValue?: number,
+    immediateValue?: number
   }
 
   const targets = await galaxyRepository.findInactiveTargets();
@@ -41,10 +42,13 @@ export async function findProtectedTargets(galaxyRepository: GalaxyRepository,
     if (r.power) {
       const {hourly: production} = RaidReportAnalyzer.calculateProduction(r, costCalculator, 1);
       const rate = [1, 3, 4];
+      const loot = (r.loot || 75) / 75;
       const resources = [r.resources.metal, r.resources.crystal, r.resources.deuterium] as Triplet;
-      resources[0] += debrisMetal;
-      resources[1] += debrisCrystal;
-      r.value = Math.round(production.map((x, i) => (24 * 21 * x + resources[i]) * rate[i]).reduce((a, b) => a + b, 0));
+      resources[0] = resources[0] * loot + debrisMetal;
+      resources[1] = resources[1] * loot + debrisCrystal;
+      resources[2] = resources[2] * loot;
+      r.immediateValue = resources.map((x, i) => x * rate[i]).reduce((a, b) => a + b, 0);
+      r.longTermValue = Math.round(production.map((x, i) => (24 * 35 * x) * rate[i]).reduce((a, b) => a + b, 0));
     }
   });
 

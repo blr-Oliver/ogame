@@ -71,7 +71,8 @@ export class ServiceWorkerContext {
       readonly raider: Raider,
       readonly scheduler: MissionScheduler,
       readonly loginService: LoginService,
-      readonly expeditor: Expeditor
+      readonly expeditor: Expeditor,
+      readonly fleetPageLoader: FleetPageInfoLoader
   ) {
   }
 
@@ -192,7 +193,8 @@ export class ServiceWorkerContext {
         raider,
         scheduler,
         loginService,
-        expeditor
+        expeditor,
+        fleetPageLoader
     );
   }
 }

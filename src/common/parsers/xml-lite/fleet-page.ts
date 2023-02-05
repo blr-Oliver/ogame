@@ -23,20 +23,44 @@ const evaluator = new Function('s', `
 
 function getElementsByName(parent: NodeContainer, tag: string, list: Element[]) {
   parent.children.forEach(e => {
-    if (e.name === tag) {
+    if (e.name === tag)
       list.push(e);
-      getElementsByName(e, 'script', list);
-    }
+    getElementsByName(e, tag, list);
   });
 }
 
 function prepareContext(): { [key: string]: any } {
-  // mock jQuery
-  const dummy = () => void 0;
-  return {
-    $: dummy,
-    jQuery: dummy
+  // mock everything
+  function dummy() {
+  }
+  function $dummy() {
+    return {
+      ready: dummy,
+      bind: dummy
+    }
+  }
+  const context: { [key: string]: any } = {
+    $: $dummy,
+    jQuery: $dummy,
+    'TimerHandler': dummy,
+    'baulisteCountdown': dummy,
+    'eventboxCountdown': dummy,
+    'initStandardFleet': dummy,
+    'initIndex': dummy,
+    'ogame': {
+      chat: {
+        showPlayerList: dummy
+      }
+    },
+    'window': {
+      setInterval: dummy
+    },
+    'document': {
+      addEventListener: dummy
+    }
   };
+  context['reloadResources'] = (x: any) => context['$reloadResources'] = x;
+  return context;
 }
 
 function evalAgainstContext(script: string, context: any) {
@@ -47,4 +71,12 @@ function evalAgainstContext(script: string, context: any) {
 function cleanContext(context: any) {
   delete context.$;
   delete context.jQuery;
+  delete context['TimerHandler'];
+  delete context['baulisteCountdown'];
+  delete context['eventboxCountdown'];
+  delete context['initStandardFleet'];
+  delete context['initIndex'];
+  delete context['ogame'];
+  delete context['window'];
+  delete context['document'];
 }
