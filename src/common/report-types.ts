@@ -152,6 +152,7 @@ export interface ShardHeader {
   id: number;
   timestamp: Date;
   infoLevel: number;
+  apiKey: string;
 }
 
 export interface ShardedEspionageReport extends EspionageReport {

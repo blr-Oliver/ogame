@@ -14,10 +14,11 @@ export class IDBEspionageRepositorySupport implements IDBRepositorySupport<IDBEs
   }
   init(tx: IDBTransaction, oldVersion: number, newVersion: number): void {
     let db: IDBDatabase = tx.db;
-    if (oldVersion < 1) this.version1(db);
+    if (oldVersion < 1) this.version1(tx, db);
+    if (oldVersion < 7) this.version7(tx, db);
   }
 
-  private version1(db: IDBDatabase) {
+  private version1(tx: IDBTransaction, db: IDBDatabase) {
     let reportStore = db.createObjectStore(IDBEspionageRepository.REPORT_STORE, {
       autoIncrement: false,
       keyPath: ['coordinates.galaxy', 'coordinates.system', 'coordinates.position', 'coordinates.type', 'timestamp']
@@ -28,6 +29,14 @@ export class IDBEspionageRepositorySupport implements IDBRepositorySupport<IDBEs
         {unique: true});
     let externalIdIndex = reportStore.createIndex(IDBEspionageRepository.EXTERNAL_ID_INDEX,
         ['id'],
+        {unique: true});
+  }
+
+  private version7(tx: IDBTransaction, db: IDBDatabase) {
+    let reportStore = tx.objectStore(IDBEspionageRepository.REPORT_STORE);
+
+    let apiKeyIndex = reportStore.createIndex(IDBEspionageRepository.API_KEY_INDEX,
+        ['apiKey'],
         {unique: true});
   }
 }

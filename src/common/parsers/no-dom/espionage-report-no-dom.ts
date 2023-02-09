@@ -80,6 +80,13 @@ function parsePagination(block: string): [number, number] {
     +rawValues.substring(slashIndex + 1).trim()
   ]
 }
+function parseApiKey(block: string, index: number): string {
+  const nearby = block.indexOf('icon_apikey', index);
+  const title = readAttribute(block, nearby, 'title');
+  const valuePosition = title.indexOf('value');
+  return readBetween(title, valuePosition, '\'', '\'');
+}
+
 function parseBrief(body: string): EspionageBrief {
   const headStart = body.indexOf(`<div class="msg_head">`);
   const contentStart = body.indexOf(`<span class="msg_content">`, headStart);
@@ -195,8 +202,10 @@ export function parseReport(body: string): StampedEspionageReport | undefined {
   let researchInfo = parseInfoSection(sectionsByType[4][0], 'research', ResearchTypeId);
 
   let infoLevel = +!!fleetInfo + +!!defenseInfo + +!!buildingInfo + +!!researchInfo;
+  const apiKey = parseApiKey(body, body.indexOf('msg_actions'));
+
   return {
-    id, timestamp, infoLevel, coordinates,
+    id, timestamp, infoLevel, coordinates, apiKey,
     planetName, playerName, playerStatus,
     activity, counterEspionage,
     playerClass, allianceClass,

@@ -1,7 +1,7 @@
 import {map} from '../../../common/common';
+import {parseLocalDate, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {StampedEspionageReport, StringNumberMap} from '../../../common/report-types';
 import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from '../../../common/types';
-import {parseLocalDate, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {HtmlParser} from './HtmlParser';
 
 /**
@@ -61,8 +61,11 @@ export function parseReport(doc: ParentNode): StampedEspionageReport | undefined
   let researchInfo = parseInfoSection(doc.querySelector(`.detail_list[data-type="research"]`)!, 'research', ResearchTypeId);
 
   let infoLevel = +!!fleetInfo + +!!defenseInfo + +!!buildingInfo + +!!researchInfo;
+  let apiKey = parseApiKey(doc.querySelector(`span.icon_apikey`)!);
+
   return {
     id,
+    apiKey,
     timestamp,
     infoLevel,
     coordinates: {
@@ -105,4 +108,9 @@ function parseInfoSection(container: Element, prefix: string, mapping: { [techId
     });
     return result;
   }
+}
+
+function parseApiKey(container: Element): string {
+  container.insertAdjacentHTML('beforeend', `<div class="xxx-title">${container.getAttribute('title')}</div>`);
+  return container.querySelector('.xxx-title input')!.getAttribute('value')!;
 }

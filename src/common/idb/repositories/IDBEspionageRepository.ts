@@ -22,6 +22,7 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
   static readonly REPORT_STORE = 'espionage-report';
   static readonly SHARDS_INDEX = 'shards';
   static readonly EXTERNAL_ID_INDEX = 'external-id';
+  static readonly API_KEY_INDEX = 'api-key';
 
   constructor(db: IDBDatabase) {
     super(db);
@@ -113,7 +114,8 @@ export class IDBEspionageRepository extends IDBRepository implements EspionageRe
       source.unshift({
         id: shard.id,
         timestamp: shard.timestamp,
-        infoLevel: shard.infoLevel
+        infoLevel: shard.infoLevel,
+        apiKey: shard.apiKey
       });
       if (infoLevel >= 1) result.fleet = shard.fleet;
       if (infoLevel >= 2) result.defense = shard.defense;
