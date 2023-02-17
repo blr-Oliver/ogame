@@ -1,13 +1,7 @@
 import {getCurrentClientId} from '../common/client-id';
-import {NativeFetcher} from '../common/core/NativeFetcher';
-import {RestrainedFetcher} from '../common/core/RestrainedFetcher';
 import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
-import {XmlLiteResponseParser} from '../common/parsers/xml-lite/XmlLiteResponseParser';
-import {AutoObserveStub} from '../common/remote/AutoObserveStub';
-import {LocationServerContext} from '../common/services/context/LocationServerContext';
-import {FleetMovementLoader} from '../common/services/operations/FleetMovementLoader';
-import {XmlLiteFleetMovementParser} from '../common/parsers/xml-lite/fleet-movement';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
+import {initSkin} from './ui/skin';
 
 if ('serviceWorker' in navigator) {
   const url = '/sw.js';
@@ -26,6 +20,7 @@ if ('serviceWorker' in navigator) {
   // console.debug(`Factory created`);
   const channel = new MessageChannelWithFactory(factory);
   // console.debug(`Channel created (might be not ready)`);
+  /*
   const autoObserve = new AutoObserveStub(channel);
   // console.debug(`AutoObserve stub created (might be not ready)`);
   const serverContext = new LocationServerContext(window.location);
@@ -37,7 +32,9 @@ if ('serviceWorker' in navigator) {
   const loader = new FleetMovementLoader(serverContext, fetcher, documentParser, movementParser);
   (window as any)['autoObserve'] = autoObserve;
   (window as any)['movementLoader'] = loader;
-
+  */
 } else {
   console.error('Service workers not supported.')
 }
+
+initSkin();

@@ -78,7 +78,10 @@ function getRoute(url: URL): RouteName | undefined {
     let pathname = url.pathname.toLowerCase();
     if (pathname.startsWith('/src/')) return 'src';
     if (pathname.startsWith('/lobby/')) return 'lobby';
-    if (pathname.startsWith('/sw.js') || pathname.startsWith('/browser/')) return 'browser';
+    if (pathname.startsWith('/sw.js')
+        || pathname.startsWith('/browser/')
+        || pathname.startsWith('/terminal/'))
+      return 'browser';
   }
 }
 

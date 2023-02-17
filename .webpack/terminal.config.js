@@ -1,14 +1,15 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = {
-  name: 'browser',
+  name: 'terminal',
   mode: 'development',
   devtool: 'source-map',
   entry: {
-    bootstrap: {
+    terminal: {
       asyncChunks: false,
       chunkLoading: false,
-      import: './src/browser/bootstrap.ts'
+      import: './src/terminal/terminal.ts'
     }
   },
   module: {
@@ -26,7 +27,7 @@ const config = {
     chunkFormat: 'module',
     clean: false,
     iife: false,
-    path: path.resolve('./dist/browser'),
+    path: path.resolve('./dist/terminal'),
     filename: '[name].js'
   },
   experiments: {
@@ -44,7 +45,13 @@ const config = {
     removeEmptyChunks: true,
     splitChunks: false,
     usedExports: true
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'OGame Terminal',
+      template: 'src/terminal/index.html'
+    })
+  ]
 };
 
 module.exports = config;

@@ -22,5 +22,3 @@ function customizeStyles() {
   document.body.style.overflowY = 'auto';
   ((window as any)['siteFooter'] as HTMLElement).style.zIndex = '10';
 }
-
-initSkin();
