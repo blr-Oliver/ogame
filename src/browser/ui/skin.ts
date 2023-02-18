@@ -9,7 +9,7 @@ export function initSkin() {
 }
 
 function init() {
-  removeBanners();
+  // removeBanners();
   customizeStyles();
 }
 

@@ -32,6 +32,7 @@ export interface GalaxyHistoryRepository {
 }
 
 export interface ConfigRepository {
-  store<T extends object>(config: T, name: string, profile?: string): Promise<any>;
+  store<T extends object>(config: T, name: string, profile?: string): Promise<unknown>;
   load<T extends object>(name: string, profile?: string): Promise<T | undefined>;
+  remove(name: string, profile?: string): Promise<void>;
 }

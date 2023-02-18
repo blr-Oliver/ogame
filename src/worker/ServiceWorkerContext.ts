@@ -39,6 +39,7 @@ import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Ra
 import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {ClientManager} from './ClientManager';
+import * as defaultExpeditorSettings from './expeditor-settings.json';
 import {GalaxyRequestMonitor} from './GalaxyRequestMonitor';
 import {ReplayingEventShim} from './ReplayingEventShim';
 
@@ -136,33 +137,7 @@ export class ServiceWorkerContext {
     const raiderSettings = await configManager.prepareConfig(RAIDER_DEFAULTS, 'raider');
     const raider = new Raider(player, galaxyRepository, espionageRepository, espionageScrapper, eventLoader, analyzer, launcher, threatNotifier, raiderSettings);
     const scheduler = new MissionScheduler(launcher);
-    const expeditorSettings: ExpeditorSettings = await configManager.prepareConfig({
-      fleet: {
-        reaper: {
-          type: 'fixed',
-          min: 1,
-          max: 1
-        },
-        pathfinder: {
-          type: 'fixed',
-          min: 1,
-          max: 1
-        },
-        espionageProbe: {
-          type: 'varying',
-          reserved: 20,
-          min: 2.7,
-          max: 3.2
-        },
-        smallCargo: {
-          type: 'varying',
-          reserved: 500,
-          min: 1,
-          max: 1
-        }
-      },
-      origins: [33811468, 33824121, 33827004]
-    }, 'expeditor');
+    const expeditorSettings: ExpeditorSettings = await configManager.prepareConfig(defaultExpeditorSettings as ExpeditorSettings, 'expeditor');
     const expeditor = new Expeditor(launcher, player, expeditorSettings);
 
     return new ServiceWorkerContext(

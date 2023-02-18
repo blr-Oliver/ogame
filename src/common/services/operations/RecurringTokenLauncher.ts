@@ -71,7 +71,7 @@ export class RecurringTokenLauncher implements Launcher {
         return;
       } else {
         console.debug(`TwoStepLauncher#processTask(): attempts left: ${attemptsLeft}, response data:`, responseData);
-        delay += 100;
+        delay = 100;
       }
     }
     task.reject('too many attempts failed');
