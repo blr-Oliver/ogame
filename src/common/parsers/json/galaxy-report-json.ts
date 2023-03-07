@@ -65,8 +65,8 @@ function extractMoon(rawPlanet: any): MoonGalaxyInfo {
 }
 function extractDebris(rawPlanet: any): DebrisGalaxyInfo {
   return {
-    metal: rawPlanet.resources?.metal?.amount,
-    crystal: rawPlanet.resources?.crystal?.amount
+    metal: +rawPlanet.resources?.metal?.amount || 0,
+    crystal: +rawPlanet.resources?.crystal?.amount || 0
   }
 }
 export function determineSlotClass(slot: GalaxySlotInfo): GalaxyClass {
