@@ -58,13 +58,9 @@ export class Expeditor {
   }
   private async getOrigin(galaxy: number): Promise<SpaceBody> {
     let bodies = await this.player.getBodies();
-    let origin = bodies.find(body => body.coordinates.galaxy === galaxy && body.coordinates.type !== CoordinateType.Moon);
+    let origin = bodies.find(body => body.coordinates.galaxy === galaxy && body.coordinates.type == CoordinateType.Moon);
     if (!origin)
       throw new Error(`Expeditor: origin from galaxy ${galaxy} not found`);
-    if (origin.companion)
-      origin = origin.companion;
-    else
-      console.warn(`Expeditor: origin is not a moon`);
     return origin;
   }
 
