@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export class Raider {
   private nextWakeUp?: Date;
-  private nextWakeUpId?: number;
+  private nextWakeUpId?: ReturnType<typeof setTimeout>;
 
   constructor(
       private readonly player: PlayerContext,

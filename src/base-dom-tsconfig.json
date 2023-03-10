@@ -1,5 +1,5 @@
 {
-  "extends": "../../base-tsconfig.json",
+  "extends": "../base-tsconfig.json",
   "compilerOptions": {
     "lib": [
       "es5",
@@ -10,7 +10,8 @@
       "es2019",
       "es2020",
       "es2021",
-      "webworker"
+      "dom",
+      "dom.iterable"
     ],
     "types": [
       "web-locks-api"
