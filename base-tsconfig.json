@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
-    "downlevelIteration": true,
-    "esModuleInterop": false,
+    "downlevelIteration": false,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "module": "es2020",
     "moduleResolution": "node",
@@ -29,5 +30,13 @@
       "es2020"
     ]
   },
-  "include": []
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "proxy",
+    "./.*"
+  ]
 }
