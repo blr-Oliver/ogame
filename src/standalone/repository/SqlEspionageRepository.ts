@@ -1,6 +1,7 @@
+import {sameCoordinates} from '../../common/common';
 import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../common/report-types';
 import {EspionageRepository} from '../../common/repository-types';
-import {Coordinates, CoordinateType, sameCoordinates} from '../../common/types';
+import {Coordinates, CoordinateType} from '../../common/types';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
 import {COORDINATES_MAPPING, extractFrom, extractObject, FieldMapping, packObject} from './object-mapping';

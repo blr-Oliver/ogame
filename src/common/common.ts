@@ -1,6 +1,6 @@
 import {FlightCalculator} from './core/calculator/FlightCalculator';
 import {GalaxySlot} from './report-types';
-import {Coordinates, SpaceBody, SystemCoordinates} from './types';
+import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SpaceBody, SystemCoordinates} from './types';
 
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =
     Function.prototype.call.bind(Array.prototype.map);
@@ -132,4 +132,23 @@ const PMSK_GALAXY_SLOT: PropertyMask = {
 
 export function slotsEqual(a: GalaxySlot, b: GalaxySlot): boolean {
   return objectsEqual(a, b, PMSK_GALAXY_SLOT);
+}
+export function coordinateComparator(a: Coordinates, b: Coordinates): number {
+  return a.galaxy - b.galaxy || a.system - b.system || a.position - b.position || (a.type ?? CoordinateType.Planet) - (b.type ?? CoordinateType.Planet)
+}
+export function sameCoordinates(a?: Coordinates, b?: Coordinates): boolean {
+  if (a && b) return coordinateComparator(a, b) === 0;
+  return !a === !b;
+}
+export function sameFleet(a: Fleet | FleetPartial, b: Fleet | FleetPartial): boolean {
+  for (let shipType in ShipTypeId) {
+    if (typeof shipType === 'string') {
+      const shipName = shipType as ShipType;
+      if ((a[shipName] || 0) !== (b[shipName] || 0)) return false;
+    }
+  }
+  return true;
+}
+export function toSortableString(c: Coordinates): string {
+  return `[${c.galaxy.toFixed(0).padStart(2, '0')}:${c.system.toFixed(0).padStart(3, '0')}:${c.position.toFixed(0).padStart(2, '0')}:${c.type ?? CoordinateType.Planet}]`;
 }

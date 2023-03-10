@@ -28,29 +28,6 @@ export interface SpaceBody {
   companion?: SpaceBody;
 }
 
-export function coordinateComparator(a: Coordinates, b: Coordinates): number {
-  return a.galaxy - b.galaxy || a.system - b.system || a.position - b.position || (a.type ?? CoordinateType.Planet) - (b.type ?? CoordinateType.Planet)
-}
-
-export function sameCoordinates(a?: Coordinates, b?: Coordinates): boolean {
-  if (a && b) return coordinateComparator(a, b) === 0;
-  return !a === !b;
-}
-
-export function sameFleet(a: Fleet | FleetPartial, b: Fleet | FleetPartial): boolean {
-  for (let shipType in ShipTypeId) {
-    if (typeof shipType === 'string') {
-      const shipName = shipType as ShipType;
-      if ((a[shipName] || 0) !== (b[shipName] || 0)) return false;
-    }
-  }
-  return true;
-}
-
-export function toSortableString(c: Coordinates): string {
-  return `[${c.galaxy.toFixed(0).padStart(2, '0')}:${c.system.toFixed(0).padStart(3, '0')}:${c.position.toFixed(0).padStart(2, '0')}:${c.type ?? CoordinateType.Planet}]`;
-}
-
 export enum BuildingTypeId {
   metalMine = 1,
   crystalMine = 2,
