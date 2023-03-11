@@ -1,5 +1,5 @@
-import {TechContext} from '../report-types';
-import {Buildings, Defense, Fleet, Researches, Resources, SpaceBody} from '../types';
+import {TechContext} from './types/reports';
+import {Buildings, Defense, Fleet, Researches, Resources, SpaceBody} from './types/core';
 
 export interface PlayerContext {
   getBodies(): Promise<SpaceBody[]>;

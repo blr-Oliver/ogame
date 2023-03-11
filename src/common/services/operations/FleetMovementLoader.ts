@@ -1,8 +1,8 @@
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
 import {ServerContext} from '../../core/ServerContext';
-import {FleetMovementParser} from '../../parsers';
+import {FleetMovementParser} from '../../core/types/parsers';
 import {XmlLiteResponseParser} from '../../parsers/xml-lite/XmlLiteResponseParser';
-import {MovingFleet} from '../../report-types';
+import {MovingFleet} from '../../core/types/reports';
 
 export class FleetMovementLoader {
   constructor(

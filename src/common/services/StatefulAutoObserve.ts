@@ -1,9 +1,9 @@
 import {FloodGate} from '../core/FloodGate';
 import {ListenableObject, PropertyChangeListener} from '../core/PropertyChangeEvent';
 import {UniverseContext} from '../core/UniverseContext';
-import {GalaxySystemInfo} from '../report-types';
-import {GalaxyRepository} from '../repository-types';
-import {SystemCoordinates} from '../types';
+import {GalaxySystemInfo} from '../core/types/reports';
+import {GalaxyRepository} from '../core/types/repositories';
+import {SystemCoordinates} from '../core/types/core';
 import {AutoObserve, AutoObserveSettings, AutoObserveStatus} from './AutoObserve';
 import {GalaxyObserver} from './operations/GalaxyObserver';
 

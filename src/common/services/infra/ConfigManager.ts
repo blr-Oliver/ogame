@@ -1,5 +1,5 @@
 import {ListenableObject, makeListenable} from '../../core/PropertyChangeEvent';
-import {ConfigRepository} from '../../repository-types';
+import {ConfigRepository} from '../../core/types/repositories';
 
 export class ConfigManager {
   constructor(private readonly configRepo: ConfigRepository) {

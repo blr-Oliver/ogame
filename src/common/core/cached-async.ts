@@ -1,4 +1,4 @@
-import {AsyncSupplier, Supplier} from '../functional';
+import {AsyncSupplier, Supplier} from './types/functional';
 
 export function cacheResult<T>(supplier: Supplier<T>): Supplier<T> {
   let value: T;

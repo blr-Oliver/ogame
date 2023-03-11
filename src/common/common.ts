@@ -1,6 +1,6 @@
 import {FlightCalculator} from './core/calculator/FlightCalculator';
-import {GalaxySlot} from './report-types';
-import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SpaceBody, SystemCoordinates} from './types';
+import {GalaxySlot} from './core/types/reports';
+import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SpaceBody, SystemCoordinates} from './core/types/core';
 
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =
     Function.prototype.call.bind(Array.prototype.map);

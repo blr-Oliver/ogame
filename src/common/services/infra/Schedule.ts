@@ -1,4 +1,4 @@
-import {Mission} from '../../types';
+import {Mission} from '../../core/types/core';
 import {Launcher} from '../Mapper';
 
 export class MissionScheduler {

@@ -1,4 +1,4 @@
-import {GalaxyHistoryRepository} from '../../repository-types';
+import {GalaxyHistoryRepository} from '../../core/types/repositories';
 import {IDBRepository} from '../IDBRepository';
 import {IDBRepositorySupport} from '../IDBRepositorySupport';
 import {IDBGalaxyHistoryRepository} from './IDBGalaxyHistoryRepository';

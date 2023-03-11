@@ -14,12 +14,12 @@ import {IDBConfigRepositorySupport} from '../common/idb/repositories/IDBConfigRe
 import {IDBEspionageRepositorySupport} from '../common/idb/repositories/IDBEspionageRepositorySupport';
 import {IDBGalaxyHistoryRepositorySupport} from '../common/idb/repositories/IDBGalaxyHistoryRepositorySupport';
 import {IDBGalaxyRepositorySupport} from '../common/idb/repositories/IDBGalaxyRepositorySupport';
-import {GalaxyParser} from '../common/parsers';
+import {GalaxyParser} from '../common/core/types/parsers';
 import {JSONGalaxyParser} from '../common/parsers/json/galaxy-report-json';
 import {NoDOMEspionageReportParser} from '../common/parsers/no-dom/espionage-report-no-dom';
 import {NoDOMEventListParser} from '../common/parsers/no-dom/event-list-no-dom';
 import {XmlLiteResponseParser} from '../common/parsers/xml-lite/XmlLiteResponseParser';
-import {ConfigRepository, EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../common/repository-types';
+import {ConfigRepository, EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../common/core/types/repositories';
 import {AutoObserve} from '../common/services/AutoObserve';
 import {FleetPageUniverseContext} from '../common/services/context/FleetPageUniverseContext';
 import {LocationServerContext} from '../common/services/context/LocationServerContext';

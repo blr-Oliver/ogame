@@ -2,8 +2,8 @@ import {getNearest, sameCoordinates} from '../common';
 import {CostCalculator} from '../core/calculator/CostCalculator';
 import {FlightCalculator, ResourceOrder} from '../core/calculator/FlightCalculator';
 import {UniverseContext} from '../core/UniverseContext';
-import {EspionageReport, ShardedEspionageReport} from '../report-types';
-import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from '../types';
+import {EspionageReport, ShardedEspionageReport} from '../core/types/reports';
+import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from '../core/types/core';
 
 export type Triplet = [number, number, number];
 

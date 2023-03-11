@@ -2,10 +2,10 @@ import {JSDOM} from 'jsdom';
 import {parseEventList} from '../browser/parsers/dom/event-list-dom';
 import {Fetcher, ResponseFacade} from '../common/core/Fetcher';
 import {ServerContext} from '../common/core/ServerContext';
-import {FlightEvent} from '../common/report-types';
+import {FlightEvent} from '../common/core/types/reports';
 import {getEventListResponse} from '../common/services/operations/AjaxEventListLoader';
 import {Mapper} from '../common/services/Mapper';
-import {CoordinateType, Mission, ShipType, ShipTypeId} from '../common/types';
+import {CoordinateType, Mission, ShipType, ShipTypeId} from '../common/core/types/core';
 import {dumpFile} from '../standalone/files';
 
 type Form = { [key: string]: string | number };

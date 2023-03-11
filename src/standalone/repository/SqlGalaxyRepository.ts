@@ -1,6 +1,6 @@
-import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo} from '../../common/report-types';
-import {GalaxyRepository} from '../../common/repository-types';
-import {Coordinates, SystemCoordinates} from '../../common/types';
+import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo} from '../../common/core/types/reports';
+import {GalaxyRepository} from '../../common/core/types/repositories';
+import {Coordinates, SystemCoordinates} from '../../common/core/types/core';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
 import {COORDINATES_MAPPING, createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';

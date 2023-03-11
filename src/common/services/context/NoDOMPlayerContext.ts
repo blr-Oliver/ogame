@@ -15,8 +15,8 @@ import {
 import {Fetcher} from '../../core/Fetcher';
 import {PlayerContext} from '../../core/PlayerContext';
 import {ServerContext} from '../../core/ServerContext';
-import {TechContext} from '../../report-types';
-import {Buildings, Defense, Fleet, Researches, Resources, SpaceBody} from '../../types';
+import {TechContext} from '../../core/types/reports';
+import {Buildings, Defense, Fleet, Researches, Resources, SpaceBody} from '../../core/types/core';
 
 export class NoDOMPlayerContext implements PlayerContext {
   constructor(

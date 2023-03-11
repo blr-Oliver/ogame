@@ -1,4 +1,4 @@
-import {ConfigRepository} from '../../repository-types';
+import {ConfigRepository} from '../../core/types/repositories';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils} from '../IDBUtils';
 

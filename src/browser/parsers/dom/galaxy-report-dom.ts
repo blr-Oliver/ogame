@@ -1,4 +1,4 @@
-import {GalaxyParser} from '../../../common/parsers';
+import {GalaxyParser} from '../../../common/core/types/parsers';
 import {
   AllianceGalaxyInfo,
   DebrisGalaxyInfo,
@@ -10,7 +10,7 @@ import {
   PlayerGalaxyInfo,
   PlayerInactivity,
   PlayerStatusInfo
-} from '../../../common/report-types';
+} from '../../../common/core/types/reports';
 import {parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {HtmlParser} from './HtmlParser';
 

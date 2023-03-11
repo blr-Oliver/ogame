@@ -1,5 +1,5 @@
-import {FlightEvent} from '../../report-types';
-import {MissionType} from '../../types';
+import {FlightEvent} from '../../core/types/reports';
+import {MissionType} from '../../core/types/core';
 
 interface ThreatInfo {
   event: FlightEvent;

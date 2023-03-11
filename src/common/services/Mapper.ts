@@ -1,5 +1,5 @@
-import {FlightEvent} from '../report-types';
-import {Mission} from '../types';
+import {FlightEvent} from '../core/types/reports';
+import {Mission} from '../core/types/core';
 
 export interface Launcher {
   launch(mission: Mission, maxAttempts?: number): Promise<unknown>;

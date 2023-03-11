@@ -1,7 +1,7 @@
 import {slotsEqual} from '../../common';
-import {GalaxySlot, GalaxySystemInfo} from '../../report-types';
-import {GalaxyHistoryRepository} from '../../repository-types';
-import {Coordinates, SystemCoordinates} from '../../types';
+import {GalaxySlot, GalaxySystemInfo} from '../../core/types/reports';
+import {GalaxyHistoryRepository} from '../../core/types/repositories';
+import {Coordinates, SystemCoordinates} from '../../core/types/core';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
 

@@ -1,7 +1,7 @@
-import {EventListParser} from '../../../common/parsers';
-import {FlightEvent, StringNumberMap} from '../../../common/report-types';
-import {translateEntries} from '../../../common/translate';
-import {CoordinateType, FleetPartial, MissionType, Resources} from '../../../common/types';
+import {EventListParser} from '../../../common/core/types/parsers';
+import {FlightEvent, StringNumberMap} from '../../../common/core/types/reports';
+import {translateEntries} from '../../../common/l12n/translate';
+import {CoordinateType, FleetPartial, MissionType, Resources} from '../../../common/core/types/core';
 import {parseCoordinates, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {HtmlParser} from './HtmlParser';
 

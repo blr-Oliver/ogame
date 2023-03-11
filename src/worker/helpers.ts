@@ -1,10 +1,10 @@
 import {processAll} from '../common/common';
 import {CostCalculator} from '../common/core/calculator/CostCalculator';
 import {DEFENCE_STATS, SHIP_STATS} from '../common/core/calculator/unit-stats-types';
-import {DebrisGalaxyInfo, ShardedEspionageReport} from '../common/report-types';
-import {EspionageRepository, GalaxyRepository} from '../common/repository-types';
+import {DebrisGalaxyInfo, ShardedEspionageReport} from '../common/core/types/reports';
+import {EspionageRepository, GalaxyRepository} from '../common/core/types/repositories';
 import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
-import {DefensePartial, DefenseType, FleetPartial, ShipType} from '../common/types';
+import {DefensePartial, DefenseType, FleetPartial, ShipType} from '../common/core/types/core';
 
 export async function findUncertainTargets(galaxyRepository: GalaxyRepository, espionageRepository: EspionageRepository): Promise<{ [infoLevel: number]: ShardedEspionageReport[] }> {
   const targets = await galaxyRepository.findInactiveTargets();

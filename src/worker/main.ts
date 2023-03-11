@@ -1,8 +1,8 @@
 import {processAll} from '../common/common';
-import {ShardedEspionageReport} from '../common/report-types';
+import {ShardedEspionageReport} from '../common/core/types/reports';
 import {condenseGalaxyHistory} from '../common/services/infra/HistoryCondenser';
 import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
-import {Coordinates} from '../common/types';
+import {Coordinates} from '../common/core/types/core';
 import {findProtectedTargets, findUncertainTargets, rateAllDebris, rateHangingDebris} from './helpers';
 import {ServiceWorkerContext} from './ServiceWorkerContext';
 import {wrappingSum} from './utils';

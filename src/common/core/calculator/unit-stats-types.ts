@@ -1,4 +1,4 @@
-import {DefenseType, Researches, ResearchType, Resources, ShipType} from '../../types';
+import {DefenseType, Researches, ResearchType, Resources, ShipType} from '../types/core';
 import * as DEFENCE_STATS_RAW from './defence-stats.json';
 import * as SHIP_STATS_RAW from './ship-stats.json';
 

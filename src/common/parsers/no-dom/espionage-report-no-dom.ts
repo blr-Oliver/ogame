@@ -1,5 +1,5 @@
-import {EspionageReportParser} from '../../parsers';
-import {PlanetActivity, StampedEspionageReport, StringNumberMap} from '../../report-types';
+import {EspionageReportParser} from '../../core/types/parsers';
+import {PlanetActivity, StampedEspionageReport, StringNumberMap} from '../../core/types/reports';
 import {
   AllianceClass,
   Buildings,
@@ -12,7 +12,7 @@ import {
   ResearchTypeId,
   Resources,
   ShipTypeId
-} from '../../types';
+} from '../../core/types/core';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {readAttribute, readBetween} from './no-dom-common';
 

@@ -3,9 +3,9 @@ import {deduplicate, processAll} from '../../common';
 import {Fetcher} from '../../core/Fetcher';
 import {parallelLimit} from '../../core/FloodGate';
 import {ServerContext} from '../../core/ServerContext';
-import {EspionageReportParser} from '../../parsers';
-import {StampedEspionageReport} from '../../report-types';
-import {EspionageRepository} from '../../repository-types';
+import {EspionageReportParser} from '../../core/types/parsers';
+import {StampedEspionageReport} from '../../core/types/reports';
+import {EspionageRepository} from '../../core/types/repositories';
 
 export class EspionageReportScrapper {
   loadingQueue: EspionageBrief[] = [];

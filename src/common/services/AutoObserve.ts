@@ -1,4 +1,4 @@
-import {SystemCoordinates} from '../types';
+import {SystemCoordinates} from '../core/types/core';
 
 export type AutoObserveStatus = 'paused' | 'idle' | 'active' | 'sleeping';
 

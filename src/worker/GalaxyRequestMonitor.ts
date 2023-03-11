@@ -1,5 +1,5 @@
-import {GalaxyParser} from '../common/parsers';
-import {GalaxyHistoryRepository, GalaxyRepository} from '../common/repository-types';
+import {GalaxyParser} from '../common/core/types/parsers';
+import {GalaxyHistoryRepository, GalaxyRepository} from '../common/core/types/repositories';
 import {spyRequest} from './spy-request';
 
 export class GalaxyRequestMonitor {

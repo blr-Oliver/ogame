@@ -1,5 +1,5 @@
 import {PlayerContext} from '../core/PlayerContext';
-import {Coordinates, CoordinateType, Fleet, FleetPartial, Mission, MissionType, ShipType, SpaceBody} from '../types';
+import {Coordinates, CoordinateType, Fleet, FleetPartial, Mission, MissionType, ShipType, SpaceBody} from '../core/types/core';
 import {Launcher} from './Mapper';
 
 export type ShipCompositionRule = {

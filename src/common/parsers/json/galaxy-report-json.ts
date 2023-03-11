@@ -1,4 +1,4 @@
-import {GalaxyParser} from '../../parsers';
+import {GalaxyParser} from '../../core/types/parsers';
 import {
   AllianceGalaxyInfo,
   DebrisGalaxyInfo,
@@ -10,8 +10,8 @@ import {
   PlanetGalaxyInfo,
   PlayerGalaxyInfo,
   PlayerStatusInfo
-} from '../../report-types';
-import {CoordinateType} from '../../types';
+} from '../../core/types/reports';
+import {CoordinateType} from '../../core/types/core';
 
 export class JSONGalaxyParser implements GalaxyParser {
   parseGalaxy(body: string, timestamp?: Date): GalaxySystemInfo {
