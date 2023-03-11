@@ -1,8 +1,8 @@
 import {Document, Element, Text, textContent} from 'my-xml-lite';
-import {FleetMovementParser} from '../../core/types/parsers';
-import {MovingFleet, StringNumberMap} from '../../core/types/reports';
+import {FleetMovementParser} from '../../../uniplatform/core/types/parsers';
+import {MovingFleet, StringNumberMap} from '../../../uniplatform/core/types/reports';
 import {translateEntries} from '../../l12n/translate';
-import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../../core/types/core';
+import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from '../../../uniplatform/core/types/core';
 import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
 
 export class XmlLiteFleetMovementParser implements FleetMovementParser {

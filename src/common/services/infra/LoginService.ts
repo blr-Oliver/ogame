@@ -1,5 +1,5 @@
 import {Fetcher, RequestFacade} from '../../core/Fetcher';
-import {ServerContext} from '../../core/ServerContext';
+import {ServerContext} from '../../../uniplatform/core/ServerContext';
 
 export class LoginService {
   constructor(

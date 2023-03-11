@@ -1,9 +1,9 @@
-import {getNearest, sameCoordinates} from '../common';
-import {CostCalculator} from '../core/calculator/CostCalculator';
-import {FlightCalculator, ResourceOrder} from '../core/calculator/FlightCalculator';
-import {UniverseContext} from '../core/UniverseContext';
-import {EspionageReport, ShardedEspionageReport} from '../core/types/reports';
-import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from '../core/types/core';
+import {getNearest, sameCoordinates} from '../../uniplatform/util/common';
+import {CostCalculator} from '../../uniplatform/core/calculator/CostCalculator';
+import {FlightCalculator, ResourceOrder} from '../../uniplatform/core/calculator/FlightCalculator';
+import {UniverseContext} from '../../uniplatform/core/UniverseContext';
+import {EspionageReport, ShardedEspionageReport} from '../../uniplatform/core/types/reports';
+import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from '../../uniplatform/core/types/core';
 
 export type Triplet = [number, number, number];
 

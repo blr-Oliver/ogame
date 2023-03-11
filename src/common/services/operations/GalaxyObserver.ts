@@ -1,10 +1,10 @@
-import {after, processAll, waitUntil} from '../../common';
+import {after, processAll, waitUntil} from '../../../uniplatform/util/common';
 import {Fetcher, RequestFacade} from '../../core/Fetcher';
-import {ServerContext} from '../../core/ServerContext';
-import {GalaxyParser} from '../../core/types/parsers';
-import {GalaxySystemInfo} from '../../core/types/reports';
-import {GalaxyHistoryRepository, GalaxyRepository} from '../../core/types/repositories';
-import {Coordinates} from '../../core/types/core';
+import {ServerContext} from '../../../uniplatform/core/ServerContext';
+import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
+import {GalaxySystemInfo} from '../../../uniplatform/core/types/reports';
+import {GalaxyHistoryRepository, GalaxyRepository} from '../../../uniplatform/core/types/repositories';
+import {Coordinates} from '../../../uniplatform/core/types/core';
 
 export class GalaxyObserver {
   private readonly requestTemplate: RequestFacade;

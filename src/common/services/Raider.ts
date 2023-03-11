@@ -1,8 +1,8 @@
-import {processAll, sameCoordinates, sleep} from '../common';
-import {PlayerContext} from '../core/PlayerContext';
-import {FlightEvent} from '../core/types/reports';
-import {EspionageRepository, GalaxyRepository} from '../core/types/repositories';
-import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType} from '../core/types/core';
+import {processAll, sameCoordinates, sleep} from '../../uniplatform/util/common';
+import {PlayerContext} from '../../uniplatform/core/PlayerContext';
+import {FlightEvent} from '../../uniplatform/core/types/reports';
+import {EspionageRepository, GalaxyRepository} from '../../uniplatform/core/types/repositories';
+import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType} from '../../uniplatform/core/types/core';
 import {EspionageReportScrapper} from './operations/EspionageReportScrapper';
 import {EventListLoader, Launcher} from './Mapper';
 import {ThreatNotifier} from './notification/ThreatNotifier';

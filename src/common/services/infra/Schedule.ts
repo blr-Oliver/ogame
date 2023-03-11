@@ -1,4 +1,4 @@
-import {Mission} from '../../core/types/core';
+import {Mission} from '../../../uniplatform/core/types/core';
 import {Launcher} from '../Mapper';
 
 export class MissionScheduler {

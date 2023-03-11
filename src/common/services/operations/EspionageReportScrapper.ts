@@ -1,11 +1,11 @@
 import {EspionageBrief, EspionageReportList} from '../../parsers/no-dom/espionage-report-no-dom';
-import {deduplicate, processAll} from '../../common';
+import {deduplicate, processAll} from '../../../uniplatform/util/common';
 import {Fetcher} from '../../core/Fetcher';
 import {parallelLimit} from '../../core/FloodGate';
-import {ServerContext} from '../../core/ServerContext';
-import {EspionageReportParser} from '../../core/types/parsers';
-import {StampedEspionageReport} from '../../core/types/reports';
-import {EspionageRepository} from '../../core/types/repositories';
+import {ServerContext} from '../../../uniplatform/core/ServerContext';
+import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
+import {StampedEspionageReport} from '../../../uniplatform/core/types/reports';
+import {EspionageRepository} from '../../../uniplatform/core/types/repositories';
 
 export class EspionageReportScrapper {
   loadingQueue: EspionageBrief[] = [];

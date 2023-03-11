@@ -1,4 +1,4 @@
-import {GalaxyHistoryRepository} from '../../core/types/repositories';
+import {GalaxyHistoryRepository} from '../../../uniplatform/core/types/repositories';
 import {IDBRepository} from '../IDBRepository';
 import {IDBRepositorySupport} from '../IDBRepositorySupport';
 import {IDBGalaxyHistoryRepository} from './IDBGalaxyHistoryRepository';

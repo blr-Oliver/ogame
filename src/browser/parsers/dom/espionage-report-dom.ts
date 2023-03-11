@@ -1,7 +1,7 @@
-import {map} from '../../../common/common';
+import {map} from '../../../uniplatform/util/common';
 import {parseLocalDate, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
-import {StampedEspionageReport, StringNumberMap} from '../../../common/core/types/reports';
-import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from '../../../common/core/types/core';
+import {StampedEspionageReport, StringNumberMap} from '../../../uniplatform/core/types/reports';
+import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from '../../../uniplatform/core/types/core';
 import {HtmlParser} from './HtmlParser';
 
 /**

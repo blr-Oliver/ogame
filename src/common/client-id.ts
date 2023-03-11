@@ -1,4 +1,4 @@
-import {AsyncFunction} from './core/types/functional';
+import {AsyncFunction} from '../uniplatform/core/types/functional';
 
 export type IdProvider = AsyncFunction<LockManager, string>;
 export const getCurrentClientId: IdProvider = (locks: LockManager) =>

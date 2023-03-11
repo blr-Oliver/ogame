@@ -1,6 +1,6 @@
-import {FlightCalculator} from './core/calculator/FlightCalculator';
-import {GalaxySlot} from './core/types/reports';
-import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SpaceBody, SystemCoordinates} from './core/types/core';
+import {FlightCalculator} from '../core/calculator/FlightCalculator';
+import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SpaceBody, SystemCoordinates} from '../core/types/core';
+import {GalaxySlot} from '../core/types/reports';
 
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =
     Function.prototype.call.bind(Array.prototype.map);
@@ -48,6 +48,7 @@ export function compareCoordinatesKeys(a: SystemCoordinates, b: SystemCoordinate
   return a[0] - b[0] || a[1] - b[1];
 }
 
+// TODO add it to calculator maybe
 export function getNearest(bodies: SpaceBody[], coordinates: Coordinates, calculator: FlightCalculator) {
   let nearestDistance = Infinity, nearestBody: SpaceBody = bodies[0];
   for (let body of bodies) {

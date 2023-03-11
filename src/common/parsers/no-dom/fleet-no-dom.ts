@@ -1,5 +1,5 @@
 import {Fetcher} from '../../core/Fetcher';
-import {ServerContext} from '../../core/ServerContext';
+import {ServerContext} from '../../../uniplatform/core/ServerContext';
 
 const firstSearch = `class="maincontent"`;
 const secondSearch = `var token`;

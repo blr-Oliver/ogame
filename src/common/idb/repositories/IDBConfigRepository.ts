@@ -1,4 +1,4 @@
-import {ConfigRepository} from '../../core/types/repositories';
+import {ConfigRepository} from '../../../uniplatform/core/types/repositories';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils} from '../IDBUtils';
 

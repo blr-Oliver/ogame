@@ -1,5 +1,5 @@
 import {FloodGate} from '../../core/FloodGate';
-import {GalaxyHistoryRepository} from '../../core/types/repositories';
+import {GalaxyHistoryRepository} from '../../../uniplatform/core/types/repositories';
 
 export function condenseGalaxyHistory(repo: GalaxyHistoryRepository) {
   let slotHandler = new FloodGate((g, s, p) => repo.condenseHistory(g, s, p), 5);

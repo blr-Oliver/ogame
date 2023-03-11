@@ -1,7 +1,7 @@
 import {Fetcher} from '../../core/Fetcher';
-import {ServerContext} from '../../core/ServerContext';
-import {EventListParser} from '../../core/types/parsers';
-import {FlightEvent} from '../../core/types/reports';
+import {ServerContext} from '../../../uniplatform/core/ServerContext';
+import {EventListParser} from '../../../uniplatform/core/types/parsers';
+import {FlightEvent} from '../../../uniplatform/core/types/reports';
 import {EventListLoader} from '../Mapper';
 
 export class AjaxEventListLoader implements EventListLoader {

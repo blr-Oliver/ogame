@@ -1,6 +1,6 @@
 import {Fetcher} from '../../core/Fetcher';
-import {ServerContext} from '../../core/ServerContext';
-import {CoordinateType, Resources, SpaceBody} from '../../core/types/core';
+import {ServerContext} from '../../../uniplatform/core/ServerContext';
+import {CoordinateType, Resources, SpaceBody} from '../../../uniplatform/core/types/core';
 import {parseCoordinates} from '../parsers-common';
 import {readAttribute} from './no-dom-common';
 

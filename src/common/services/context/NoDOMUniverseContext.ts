@@ -1,6 +1,6 @@
 import {Fetcher} from '../../core/Fetcher';
-import {ServerContext} from '../../core/ServerContext';
-import {initUniverseContext, UniverseContext} from '../../core/UniverseContext';
+import {ServerContext} from '../../../uniplatform/core/ServerContext';
+import {initUniverseContext, UniverseContext} from '../../../uniplatform/core/UniverseContext';
 import {evalFleetConfig, getFleetPageResponse, parseFleetPageForConfig} from '../../parsers/no-dom/fleet-no-dom';
 
 /**

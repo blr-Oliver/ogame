@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
-import {CoordinateType, SystemCoordinates} from '../common/core/types/core';
+import {CoordinateType, SystemCoordinates} from '../uniplatform/core/types/core';
 import {autoObserve, espionageRepo, espionageReportScrapper, fetcher, galaxyRepo, mapper, serverContext, universeContext} from './init-components';
 
 const app = express();

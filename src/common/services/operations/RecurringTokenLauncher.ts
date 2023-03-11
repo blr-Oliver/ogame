@@ -1,7 +1,7 @@
-import {sleep} from '../../common';
+import {sleep} from '../../../uniplatform/util/common';
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
-import {ServerContext} from '../../core/ServerContext';
-import {CoordinateType, Mission, ShipType, ShipTypeId} from '../../core/types/core';
+import {ServerContext} from '../../../uniplatform/core/ServerContext';
+import {CoordinateType, Mission, ShipType, ShipTypeId} from '../../../uniplatform/core/types/core';
 import {Launcher} from '../Mapper';
 
 interface LaunchTask {

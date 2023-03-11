@@ -1,4 +1,4 @@
-import {Coordinates} from '../core/types/core';
+import {Coordinates} from '../../uniplatform/core/types/core';
 
 export function parseOnlyNumbers(text: string): number {
   return +text.replace(/[\D]/g, '');

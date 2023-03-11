@@ -1,7 +1,7 @@
-import {compareCoordinatesKeys, deduplicate} from '../../common';
-import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, PlayerInactivity} from '../../core/types/reports';
-import {GalaxyRepository} from '../../core/types/repositories';
-import {Coordinates, CoordinateType, SystemCoordinates} from '../../core/types/core';
+import {compareCoordinatesKeys, deduplicate} from '../../../uniplatform/util/common';
+import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, PlayerInactivity} from '../../../uniplatform/core/types/reports';
+import {GalaxyRepository} from '../../../uniplatform/core/types/repositories';
+import {Coordinates, CoordinateType, SystemCoordinates} from '../../../uniplatform/core/types/core';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
 

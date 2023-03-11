@@ -1,6 +1,6 @@
-import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../core/types/reports';
-import {EspionageRepository} from '../../core/types/repositories';
-import {Coordinates, CoordinateType} from '../../core/types/core';
+import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../../uniplatform/core/types/reports';
+import {EspionageRepository} from '../../../uniplatform/core/types/repositories';
+import {Coordinates, CoordinateType} from '../../../uniplatform/core/types/core';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MIN_DATE} from '../IDBUtils';
 
