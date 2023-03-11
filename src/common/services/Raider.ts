@@ -81,13 +81,13 @@ export class Raider {
         }, true, true);
         console.debug(`Raider: loading context`);
         let [researches, bodies] = await Promise.all([this.player.getResearches(), this.player.getBodies()]);
+        bodies = bodies.filter(body => !body.companion || body.coordinates.type === CoordinateType.Moon);
+        bodies = bodies.filter(body => !this.settings.excludedOrigins.some(id => body.id === id));
         let fleet: { [bodyId: number]: FleetPartial } = {};
         await processAll(bodies, async body => {
           fleet[body.id] = await this.player.getFleet(body.id);
         }, false, false);
         bodies = bodies.filter(body => (fleet[body.id].smallCargo || 0) > 0);
-        bodies = bodies.filter(body => !body.companion || body.coordinates.type === CoordinateType.Moon);
-        bodies = bodies.filter(body => !this.settings.excludedOrigins.some(id => body.id === id));
         const request: SuggestionRequest = {
           unexploredTargets,
           reports,
