@@ -49,8 +49,8 @@ export class FloodGate<H extends (...args: any[]) => Promise<any>> {
 
   set paused(paused: boolean) {
     if (!!paused !== this.#paused) {
-      this.#paused = !!paused;
-      if (!paused) this.#proceed();
+      if (!(this.#paused = !!paused))
+        this.#proceed();
     }
   }
 
@@ -104,11 +104,11 @@ export class FloodGate<H extends (...args: any[]) => Promise<any>> {
         if (promise) {
           promise.finally(() => {
             --this.#processing;
-            setTimeout(() => this.#proceed(), 0);
+            queueMicrotask(() => this.#proceed());
           });
           promise.then(result => task.resolve(result), error => task.reject(error));
         }
-        setTimeout(() => this.#proceed(), 0);
+        queueMicrotask(() => this.#proceed());
       } else {
         // console.debug(`FloodGate.proceed(): too early`);
         if (!this.#isNextScheduled) {

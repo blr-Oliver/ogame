@@ -11,7 +11,7 @@ export class StatefulAutoObserve implements AutoObserve {
   private handler: FloodGate<(galaxy: number, system: number) => Promise<GalaxySystemInfo>>;
   #nextWakeUp?: Date;
   #status: AutoObserveStatus = 'idle';
-  #scheduledContinueId?: number;
+  #scheduledContinueId?: ReturnType<typeof setTimeout>;
 
   constructor(
       private observer: GalaxyObserver,
