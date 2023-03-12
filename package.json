@@ -15,8 +15,10 @@
     "jsdom": "19.0.0",
     "my-xml-lite": "file:../my-xml-lite",
     "mysql": "2.18.1",
-    "ogame-core": "file:./ogame-core",
+    "ogame-api-facade": "file:./ogame-api-facade",
     "ogame-calc": "file:./ogame-calc",
+    "ogame-common": "file:./ogame-common",
+    "ogame-core": "file:./ogame-core",
     "ogame-l12n": "file:./ogame-l12n",
     "request": "2.88.2"
   },
