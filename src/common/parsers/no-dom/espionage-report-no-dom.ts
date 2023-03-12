@@ -1,3 +1,4 @@
+import {StringNumberMap} from 'ogame-common/common';
 import {
   AllianceClass,
   Buildings,
@@ -13,7 +14,6 @@ import {
 } from 'ogame-core/types/core';
 import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
 import {PlanetActivity, StampedEspionageReport} from '../../../uniplatform/core/types/reports';
-import {StringNumberMap} from '../../../uniplatform/util/common';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {readAttribute, readBetween} from './no-dom-common';
 

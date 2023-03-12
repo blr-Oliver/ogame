@@ -1,8 +1,8 @@
+import {deduplicate, processAll} from 'ogame-common/common';
 import {ServerContext} from 'ogame-core/context/ServerContext';
 import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
 import {StampedEspionageReport} from '../../../uniplatform/core/types/reports';
 import {EspionageRepository} from '../../../uniplatform/core/types/repositories';
-import {deduplicate, processAll} from '../../../uniplatform/util/common';
 import {Fetcher} from '../../core/Fetcher';
 import {parallelLimit} from '../../core/FloodGate';
 import {EspionageBrief, EspionageReportList} from '../../parsers/no-dom/espionage-report-no-dom';

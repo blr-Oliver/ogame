@@ -1,5 +1,7 @@
 import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SystemCoordinates} from 'ogame-core/types/core';
 
+declare function setTimeout<TArgs extends any[]>(callback: (...args: TArgs) => void, ms?: number, ...args: TArgs): unknown;
+
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =
     Function.prototype.call.bind(Array.prototype.map);
 

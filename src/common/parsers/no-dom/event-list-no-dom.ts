@@ -1,7 +1,7 @@
+import {StringNumberMap} from 'ogame-common/common';
 import {CoordinateType, FleetPartial, MissionType, Resources} from 'ogame-core/types/core';
 import {EventListParser} from '../../../uniplatform/core/types/parsers';
 import {FlightEvent} from '../../../uniplatform/core/types/reports';
-import {StringNumberMap} from '../../../uniplatform/util/common';
 import {translateEntries} from '../../l12n/translate';
 import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
 import {readAttribute, readBetween} from './no-dom-common';

@@ -1,8 +1,8 @@
+import {processAll, sameCoordinates, sleep} from 'ogame-common/common';
 import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType} from 'ogame-core/types/core';
 import {PlayerContext} from '../../uniplatform/core/PlayerContext';
 import {FlightEvent} from '../../uniplatform/core/types/reports';
 import {EspionageRepository, GalaxyRepository} from '../../uniplatform/core/types/repositories';
-import {processAll, sameCoordinates, sleep} from '../../uniplatform/util/common';
 import {EventListLoader, Launcher} from './Mapper';
 import {ThreatNotifier} from './notification/ThreatNotifier';
 import {EspionageReportScrapper} from './operations/EspionageReportScrapper';

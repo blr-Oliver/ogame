@@ -1,9 +1,9 @@
+import {after, processAll, waitUntil} from 'ogame-common/common';
 import {ServerContext} from 'ogame-core/context/ServerContext';
 import {Coordinates} from 'ogame-core/types/core';
 import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 import {GalaxySystemInfo} from '../../../uniplatform/core/types/reports';
 import {GalaxyHistoryRepository, GalaxyRepository} from '../../../uniplatform/core/types/repositories';
-import {after, processAll, waitUntil} from '../../../uniplatform/util/common';
 import {Fetcher, RequestFacade} from '../../core/Fetcher';
 
 export class GalaxyObserver {

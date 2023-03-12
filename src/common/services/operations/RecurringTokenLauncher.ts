@@ -1,6 +1,6 @@
+import {sleep} from 'ogame-common/common';
 import {ServerContext} from 'ogame-core/context/ServerContext';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from 'ogame-core/types/core';
-import {sleep} from '../../../uniplatform/util/common';
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
 import {Launcher} from '../Mapper';
 

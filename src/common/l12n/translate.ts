@@ -1,5 +1,5 @@
+import {StringNumberMap} from 'ogame-common/common';
 import {InfoCategory} from '../../uniplatform/core/types/reports';
-import {StringNumberMap} from '../../uniplatform/util/common';
 import * as l18n_en from './en.json';
 
 export type TranslationMapping = { [key: string]: string[] };

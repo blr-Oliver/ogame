@@ -1,3 +1,5 @@
+import {CachingCostCalculator, CostCalculator} from 'ogame-calc/CostCalculator';
+import {FlightCalculator, StaticFlightCalculator} from 'ogame-calc/FlightCalculator';
 import {ServerContext} from 'ogame-core/context/ServerContext';
 import {UniverseContext} from 'ogame-core/context/UniverseContext';
 import {getCurrentClientId} from '../common/client-id';
@@ -33,8 +35,6 @@ import {RecurringTokenLauncher} from '../common/services/operations/RecurringTok
 import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Raider';
 import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
-import {CachingCostCalculator, CostCalculator} from 'ogame-calc/CostCalculator';
-import {FlightCalculator, StaticFlightCalculator} from 'ogame-calc/FlightCalculator';
 import {PlayerContext} from '../uniplatform/core/PlayerContext';
 import {GalaxyParser} from '../uniplatform/core/types/parsers';
 import {ConfigRepository, EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../uniplatform/core/types/repositories';
