@@ -171,8 +171,6 @@ export interface ShardedEspionageReport extends EspionageReport {
   source: ShardHeader[];
 }
 
-export type InfoCategory = 'resources' | 'ships' | 'defense' | 'buildings' | 'research';
-
 export interface TechContext {
   researches: Researches;
   buildings: Buildings;

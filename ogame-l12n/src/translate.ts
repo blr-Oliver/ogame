@@ -1,5 +1,5 @@
 import {StringNumberMap} from 'ogame-common/common';
-import {InfoCategory} from '../../uniplatform/core/types/reports';
+import {InfoCategory} from 'ogame-core/types/core';
 import * as l18n_en from './en.json';
 
 export type TranslationMapping = { [key: string]: string[] };
@@ -41,7 +41,7 @@ export function reverseTranslationMapping(categoryTranslation: TranslationMappin
   return reversedMapping;
 }
 export function reverseCategorizedMapping(mapping: CategorizedTranslationMapping): CategorizedReverseTranslationMapping {
-  let result: { [category in InfoCategory]?: ReverseTranslationMapping } = {};
+  let result: Partial<CategorizedReverseTranslationMapping> = {};
   for (let category in mapping) {
     if (category !== 'default')
       result[category as InfoCategory] = reverseTranslationMapping(mapping[category as InfoCategory]);
