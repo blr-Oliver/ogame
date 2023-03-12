@@ -9,7 +9,6 @@
     "moduleResolution": "node",
     "noImplicitAny": true,
     "noPropertyAccessFromIndexSignature": true,
-    "outDir": "dist",
     "paths": {
       "*": [
         "node_modules/*"
@@ -35,6 +34,7 @@
   "exclude": [
     "node_modules",
     "dist",
+    "typings",
     "proxy",
     "./.*"
   ]

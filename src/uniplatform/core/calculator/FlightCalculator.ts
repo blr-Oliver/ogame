@@ -1,4 +1,4 @@
-import {Coordinates, Fleet, FleetPartial, MissionType, Researches, ShipType, Speed} from '../types/core';
+import {Coordinates, Fleet, FleetPartial, MissionType, Researches, ShipType, Speed} from 'ogame-core/types/core';
 import {UniverseContext} from '../UniverseContext';
 import {DRIVE_IMPROVEMENT, DRIVE_TECH, SHIP_STATS, shipDrive} from './unit-stats-types';
 

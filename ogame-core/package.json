@@ -1,0 +1,23 @@
+{
+  "name": "ogame-core",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Vasily Liaskovsky <vasily.liaskovsky@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "exports": {
+    "./context/*": "./dist/context/*",
+    "./types/*": "./dist/types/*"
+  },
+  "typesVersions": {
+    ">1.0": {
+      "*": ["typings/*"]
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "~4.9"
+  }
+}

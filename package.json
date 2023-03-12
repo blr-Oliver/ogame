@@ -15,6 +15,7 @@
     "jsdom": "19.0.0",
     "my-xml-lite": "file:../my-xml-lite",
     "mysql": "2.18.1",
+    "ogame-core": "file:./ogame-core",
     "request": "2.88.2"
   },
   "devDependencies": {
