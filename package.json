@@ -17,6 +17,7 @@
     "mysql": "2.18.1",
     "ogame-core": "file:./ogame-core",
     "ogame-calc": "file:./ogame-calc",
+    "ogame-l12n": "file:./ogame-l12n",
     "request": "2.88.2"
   },
   "devDependencies": {
