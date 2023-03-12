@@ -8,8 +8,7 @@
   "license": "UNLICENSED",
   "private": true,
   "exports": {
-    "./context/*": "./dist/context/*",
-    "./types/*": "./dist/types/*"
+    "./*": "./dist/*"
   },
   "typesVersions": {
     ">1.0": {
