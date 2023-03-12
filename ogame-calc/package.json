@@ -15,7 +15,10 @@
       "*": ["typings/*"]
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "ogame-common": "file:../ogame-common",
+    "ogame-core": "file:../ogame-core"
+  },
   "devDependencies": {
     "typescript": "~4.9"
   }
