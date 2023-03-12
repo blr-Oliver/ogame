@@ -11,8 +11,8 @@ import {EspionageReportScrapper} from '../common/services/operations/EspionageRe
 import {GalaxyObserver} from '../common/services/operations/GalaxyObserver';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {LegacyMapper} from '../uncertain/LegacyMapper';
-import {CachingCostCalculator} from '../uniplatform/core/calculator/CostCalculator';
-import {FlightCalculator, StaticFlightCalculator} from '../uniplatform/core/calculator/FlightCalculator';
+import {CachingCostCalculator} from 'ogame-calc/CostCalculator';
+import {FlightCalculator, StaticFlightCalculator} from 'ogame-calc/FlightCalculator';
 import {LegacyFetcher} from './LegacyFetcher';
 import {SqlEspionageRepository} from './repository/SqlEspionageRepository';
 import {SqlGalaxyRepository} from './repository/SqlGalaxyRepository';

@@ -1,7 +1,7 @@
 import {DefensePartial, DefenseType, FleetPartial, ShipType} from 'ogame-core/types/core';
 import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
-import {CostCalculator} from '../uniplatform/core/calculator/CostCalculator';
-import {DEFENCE_STATS, SHIP_STATS} from '../uniplatform/core/calculator/unit-stats-types';
+import {CostCalculator} from 'ogame-calc/CostCalculator';
+import {DEFENCE_STATS, SHIP_STATS} from 'ogame-calc/unit-stats-types';
 import {DebrisGalaxyInfo, ShardedEspionageReport} from '../uniplatform/core/types/reports';
 import {EspionageRepository, GalaxyRepository} from '../uniplatform/core/types/repositories';
 import {processAll} from '../uniplatform/util/common';

@@ -33,8 +33,8 @@ import {RecurringTokenLauncher} from '../common/services/operations/RecurringTok
 import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Raider';
 import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
-import {CachingCostCalculator, CostCalculator} from '../uniplatform/core/calculator/CostCalculator';
-import {FlightCalculator, StaticFlightCalculator} from '../uniplatform/core/calculator/FlightCalculator';
+import {CachingCostCalculator, CostCalculator} from 'ogame-calc/CostCalculator';
+import {FlightCalculator, StaticFlightCalculator} from 'ogame-calc/FlightCalculator';
 import {PlayerContext} from '../uniplatform/core/PlayerContext';
 import {GalaxyParser} from '../uniplatform/core/types/parsers';
 import {ConfigRepository, EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../uniplatform/core/types/repositories';

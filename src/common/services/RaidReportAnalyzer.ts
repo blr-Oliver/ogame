@@ -1,7 +1,7 @@
+import {CostCalculator} from 'ogame-calc/CostCalculator';
+import {FlightCalculator, ResourceOrder} from 'ogame-calc/FlightCalculator';
 import {UniverseContext} from 'ogame-core/context/UniverseContext';
 import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from 'ogame-core/types/core';
-import {CostCalculator} from '../../uniplatform/core/calculator/CostCalculator';
-import {FlightCalculator, ResourceOrder} from '../../uniplatform/core/calculator/FlightCalculator';
 import {EspionageReport, ShardedEspionageReport} from '../../uniplatform/core/types/reports';
 import {getNearest, sameCoordinates} from '../../uniplatform/util/common';
 
