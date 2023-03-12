@@ -12,7 +12,8 @@ import {
   ShipTypeId
 } from 'ogame-core/types/core';
 import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
-import {PlanetActivity, StampedEspionageReport, StringNumberMap} from '../../../uniplatform/core/types/reports';
+import {PlanetActivity, StampedEspionageReport} from '../../../uniplatform/core/types/reports';
+import {StringNumberMap} from '../../../uniplatform/util/common';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {readAttribute, readBetween} from './no-dom-common';
 

@@ -3,7 +3,8 @@ import {FlightCalculator, ResourceOrder} from 'ogame-calc/FlightCalculator';
 import {UniverseContext} from 'ogame-core/context/UniverseContext';
 import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from 'ogame-core/types/core';
 import {EspionageReport, ShardedEspionageReport} from '../../uniplatform/core/types/reports';
-import {getNearest, sameCoordinates} from '../../uniplatform/util/common';
+import {sameCoordinates} from '../../uniplatform/util/common';
+import {getNearest} from '../../uniplatform/util/tied-coupling';
 
 export type Triplet = [number, number, number];
 

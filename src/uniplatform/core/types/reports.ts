@@ -171,10 +171,6 @@ export interface ShardedEspionageReport extends EspionageReport {
   source: ShardHeader[];
 }
 
-export interface StringNumberMap {
-  [key: string]: number;
-}
-
 export type InfoCategory = 'resources' | 'ships' | 'defense' | 'buildings' | 'research';
 
 export interface TechContext {
