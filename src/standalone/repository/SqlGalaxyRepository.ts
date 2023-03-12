@@ -1,6 +1,6 @@
+import {Coordinates, SystemCoordinates} from 'ogame-core/types/core';
 import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo} from '../../uniplatform/core/types/reports';
 import {GalaxyRepository} from '../../uniplatform/core/types/repositories';
-import {Coordinates, SystemCoordinates} from '../../uniplatform/core/types/core';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
 import {COORDINATES_MAPPING, createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';

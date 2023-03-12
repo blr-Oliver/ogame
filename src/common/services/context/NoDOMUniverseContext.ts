@@ -1,6 +1,6 @@
+import {ServerContext} from 'ogame-core/context/ServerContext';
+import {initUniverseContext, UniverseContext} from 'ogame-core/context/UniverseContext';
 import {Fetcher} from '../../core/Fetcher';
-import {ServerContext} from '../../../uniplatform/core/ServerContext';
-import {initUniverseContext, UniverseContext} from '../../../uniplatform/core/UniverseContext';
 import {evalFleetConfig, getFleetPageResponse, parseFleetPageForConfig} from '../../parsers/no-dom/fleet-no-dom';
 
 /**

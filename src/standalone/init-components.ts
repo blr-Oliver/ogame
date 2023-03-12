@@ -1,11 +1,9 @@
 import {JSDOM} from 'jsdom';
+import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext} from 'ogame-core/context/ServerContext';
+import {UniverseContext} from 'ogame-core/context/UniverseContext';
 import {HtmlParser} from '../browser/parsers/dom/HtmlParser';
 import {JSONGalaxyParser} from '../common/parsers/json/galaxy-report-json';
 import {NoDOMEspionageReportParser} from '../common/parsers/no-dom/espionage-report-no-dom';
-import {CachingCostCalculator} from '../uniplatform/core/calculator/CostCalculator';
-import {FlightCalculator, StaticFlightCalculator} from '../uniplatform/core/calculator/FlightCalculator';
-import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext} from '../uniplatform/core/ServerContext';
-import {UniverseContext} from '../uniplatform/core/UniverseContext';
 import {AutoObserve} from '../common/services/AutoObserve';
 import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
@@ -13,6 +11,8 @@ import {EspionageReportScrapper} from '../common/services/operations/EspionageRe
 import {GalaxyObserver} from '../common/services/operations/GalaxyObserver';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {LegacyMapper} from '../uncertain/LegacyMapper';
+import {CachingCostCalculator} from '../uniplatform/core/calculator/CostCalculator';
+import {FlightCalculator, StaticFlightCalculator} from '../uniplatform/core/calculator/FlightCalculator';
 import {LegacyFetcher} from './LegacyFetcher';
 import {SqlEspionageRepository} from './repository/SqlEspionageRepository';
 import {SqlGalaxyRepository} from './repository/SqlGalaxyRepository';

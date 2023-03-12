@@ -1,9 +1,9 @@
-import {getNearest, sameCoordinates} from '../../uniplatform/util/common';
+import {UniverseContext} from 'ogame-core/context/UniverseContext';
+import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from 'ogame-core/types/core';
 import {CostCalculator} from '../../uniplatform/core/calculator/CostCalculator';
 import {FlightCalculator, ResourceOrder} from '../../uniplatform/core/calculator/FlightCalculator';
-import {UniverseContext} from '../../uniplatform/core/UniverseContext';
 import {EspionageReport, ShardedEspionageReport} from '../../uniplatform/core/types/reports';
-import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from '../../uniplatform/core/types/core';
+import {getNearest, sameCoordinates} from '../../uniplatform/util/common';
 
 export type Triplet = [number, number, number];
 

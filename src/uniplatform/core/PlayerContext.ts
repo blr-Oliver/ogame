@@ -1,5 +1,5 @@
+import {Buildings, Defense, Fleet, Researches, Resources, SpaceBody} from 'ogame-core/types/core';
 import {TechContext} from './types/reports';
-import {Buildings, Defense, Fleet, Researches, Resources, SpaceBody} from './types/core';
 
 export interface PlayerContext {
   getBodies(): Promise<SpaceBody[]>;

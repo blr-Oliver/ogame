@@ -1,4 +1,4 @@
-import {Mission} from '../../../uniplatform/core/types/core';
+import {Mission} from 'ogame-core/types/core';
 import {Launcher} from '../Mapper';
 
 export class MissionScheduler {

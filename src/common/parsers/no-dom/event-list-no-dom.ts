@@ -1,7 +1,7 @@
+import {CoordinateType, FleetPartial, MissionType, Resources} from 'ogame-core/types/core';
 import {EventListParser} from '../../../uniplatform/core/types/parsers';
 import {FlightEvent, StringNumberMap} from '../../../uniplatform/core/types/reports';
 import {translateEntries} from '../../l12n/translate';
-import {CoordinateType, FleetPartial, MissionType, Resources} from '../../../uniplatform/core/types/core';
 import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
 import {readAttribute, readBetween} from './no-dom-common';
 
@@ -113,7 +113,7 @@ function readMapFromTable(cells: string[]): StringNumberMap {
 }
 
 export function parseFleetTooltip(tooltip: string, replaceHtmlEntities: boolean = true): [FleetPartial, Resources] {
-  if(replaceHtmlEntities)
+  if (replaceHtmlEntities)
     tooltip = tooltip
         .replaceAll('&lt;', '<')
         .replaceAll('&gt;', '>')

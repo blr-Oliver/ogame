@@ -1,10 +1,10 @@
-import {processAll} from '../uniplatform/util/common';
+import {DefensePartial, DefenseType, FleetPartial, ShipType} from 'ogame-core/types/core';
+import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
 import {CostCalculator} from '../uniplatform/core/calculator/CostCalculator';
 import {DEFENCE_STATS, SHIP_STATS} from '../uniplatform/core/calculator/unit-stats-types';
 import {DebrisGalaxyInfo, ShardedEspionageReport} from '../uniplatform/core/types/reports';
 import {EspionageRepository, GalaxyRepository} from '../uniplatform/core/types/repositories';
-import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
-import {DefensePartial, DefenseType, FleetPartial, ShipType} from '../uniplatform/core/types/core';
+import {processAll} from '../uniplatform/util/common';
 
 export async function findUncertainTargets(galaxyRepository: GalaxyRepository, espionageRepository: EspionageRepository): Promise<{ [infoLevel: number]: ShardedEspionageReport[] }> {
   const targets = await galaxyRepository.findInactiveTargets();

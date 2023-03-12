@@ -1,3 +1,4 @@
+import {CoordinateType} from 'ogame-core/types/core';
 import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 import {
   AllianceGalaxyInfo,
@@ -11,7 +12,6 @@ import {
   PlayerGalaxyInfo,
   PlayerStatusInfo
 } from '../../../uniplatform/core/types/reports';
-import {CoordinateType} from '../../../uniplatform/core/types/core';
 
 export class JSONGalaxyParser implements GalaxyParser {
   parseGalaxy(body: string, timestamp?: Date): GalaxySystemInfo {

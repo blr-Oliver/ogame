@@ -1,4 +1,4 @@
-import {SystemCoordinates} from '../../uniplatform/core/types/core';
+import {SystemCoordinates} from 'ogame-core/types/core';
 
 export type AutoObserveStatus = 'paused' | 'idle' | 'active' | 'sleeping';
 

@@ -1,4 +1,4 @@
-import {AsyncFunction} from '../uniplatform/core/types/functional';
+import {AsyncFunction} from 'ogame-core/types/functional';
 
 export type IdProvider = AsyncFunction<LockManager, string>;
 export const getCurrentClientId: IdProvider = (locks: LockManager) =>

@@ -1,7 +1,7 @@
-import {slotsEqual} from '../../../uniplatform/util/common';
+import {Coordinates, SystemCoordinates} from 'ogame-core/types/core';
 import {GalaxySlot, GalaxySystemInfo} from '../../../uniplatform/core/types/reports';
 import {GalaxyHistoryRepository} from '../../../uniplatform/core/types/repositories';
-import {Coordinates, SystemCoordinates} from '../../../uniplatform/core/types/core';
+import {slotsEqual} from '../../../uniplatform/util/common';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';
 

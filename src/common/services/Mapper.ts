@@ -1,5 +1,5 @@
+import {Mission} from 'ogame-core/types/core';
 import {FlightEvent} from '../../uniplatform/core/types/reports';
-import {Mission} from '../../uniplatform/core/types/core';
 
 export interface Launcher {
   launch(mission: Mission, maxAttempts?: number): Promise<unknown>;

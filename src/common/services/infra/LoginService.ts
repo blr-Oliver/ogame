@@ -1,5 +1,5 @@
+import {ServerContext} from 'ogame-core/context/ServerContext';
 import {Fetcher, RequestFacade} from '../../core/Fetcher';
-import {ServerContext} from '../../../uniplatform/core/ServerContext';
 
 export class LoginService {
   constructor(

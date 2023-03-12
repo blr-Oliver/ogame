@@ -1,9 +1,9 @@
-import {FloodGate} from '../core/FloodGate';
-import {ListenableObject, PropertyChangeListener} from '../core/PropertyChangeEvent';
-import {UniverseContext} from '../../uniplatform/core/UniverseContext';
+import {UniverseContext} from 'ogame-core/context/UniverseContext';
+import {SystemCoordinates} from 'ogame-core/types/core';
 import {GalaxySystemInfo} from '../../uniplatform/core/types/reports';
 import {GalaxyRepository} from '../../uniplatform/core/types/repositories';
-import {SystemCoordinates} from '../../uniplatform/core/types/core';
+import {FloodGate} from '../core/FloodGate';
+import {ListenableObject, PropertyChangeListener} from '../core/PropertyChangeEvent';
 import {AutoObserve, AutoObserveSettings, AutoObserveStatus} from './AutoObserve';
 import {GalaxyObserver} from './operations/GalaxyObserver';
 

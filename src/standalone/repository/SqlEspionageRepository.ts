@@ -1,7 +1,7 @@
-import {sameCoordinates} from '../../uniplatform/util/common';
+import {Coordinates, CoordinateType} from 'ogame-core/types/core';
 import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../uniplatform/core/types/reports';
 import {EspionageRepository} from '../../uniplatform/core/types/repositories';
-import {Coordinates, CoordinateType} from '../../uniplatform/core/types/core';
+import {sameCoordinates} from '../../uniplatform/util/common';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
 import {COORDINATES_MAPPING, extractFrom, extractObject, FieldMapping, packObject} from './object-mapping';

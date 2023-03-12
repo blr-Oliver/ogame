@@ -1,5 +1,5 @@
+import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SpaceBody, SystemCoordinates} from 'ogame-core/types/core';
 import {FlightCalculator} from '../core/calculator/FlightCalculator';
-import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SpaceBody, SystemCoordinates} from '../core/types/core';
 import {GalaxySlot} from '../core/types/reports';
 
 export const map: <T, U, A extends ArrayLike<T> | T[]>(array: A, callback: (value: T, index: number, array: A) => U, thisArg?: any) => U[] =

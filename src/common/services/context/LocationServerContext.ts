@@ -1,4 +1,4 @@
-import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext} from '../../../uniplatform/core/ServerContext';
+import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext} from 'ogame-core/context/ServerContext';
 
 export interface LocationLike {
   hostname: string;

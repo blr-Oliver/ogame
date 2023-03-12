@@ -1,22 +1,15 @@
-import {
-  extractBuildings,
-  extractContext,
-  extractDefence,
-  extractFleet,
-  extractResearches,
-  getTechResponse
-} from '../../parsers/json/fetchTechs-json';
+import {ServerContext} from 'ogame-core/context/ServerContext';
+import {Buildings, Defense, Fleet, Researches, Resources, SpaceBody} from 'ogame-core/types/core';
+import {PlayerContext} from '../../../uniplatform/core/PlayerContext';
+import {TechContext} from '../../../uniplatform/core/types/reports';
+import {Fetcher} from '../../core/Fetcher';
+import {extractBuildings, extractContext, extractDefence, extractFleet, extractResearches, getTechResponse} from '../../parsers/json/fetchTechs-json';
 import {
   getImportExportRefreshResponse,
   getImportExportResponse,
   parseImportExportForBodies,
   parseImportExportForResources
 } from '../../parsers/no-dom/import-export-no-dom';
-import {Fetcher} from '../../core/Fetcher';
-import {PlayerContext} from '../../../uniplatform/core/PlayerContext';
-import {ServerContext} from '../../../uniplatform/core/ServerContext';
-import {TechContext} from '../../../uniplatform/core/types/reports';
-import {Buildings, Defense, Fleet, Researches, Resources, SpaceBody} from '../../../uniplatform/core/types/core';
 
 export class NoDOMPlayerContext implements PlayerContext {
   constructor(

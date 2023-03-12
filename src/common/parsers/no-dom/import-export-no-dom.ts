@@ -1,6 +1,6 @@
+import {ServerContext} from 'ogame-core/context/ServerContext';
+import {CoordinateType, Resources, SpaceBody} from 'ogame-core/types/core';
 import {Fetcher} from '../../core/Fetcher';
-import {ServerContext} from '../../../uniplatform/core/ServerContext';
-import {CoordinateType, Resources, SpaceBody} from '../../../uniplatform/core/types/core';
 import {parseCoordinates} from '../parsers-common';
 import {readAttribute} from './no-dom-common';
 

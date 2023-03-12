@@ -1,5 +1,5 @@
+import {UniverseContext} from 'ogame-core/context/UniverseContext';
 import {Coordinates, Fleet, FleetPartial, MissionType, Researches, ShipType, Speed} from 'ogame-core/types/core';
-import {UniverseContext} from '../UniverseContext';
 import {DRIVE_IMPROVEMENT, DRIVE_TECH, SHIP_STATS, shipDrive} from './unit-stats-types';
 
 export type ResourcePriority = 0 | 1 | 2;

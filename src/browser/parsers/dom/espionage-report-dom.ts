@@ -1,7 +1,7 @@
-import {map} from '../../../uniplatform/util/common';
+import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from 'ogame-core/types/core';
 import {parseLocalDate, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {StampedEspionageReport, StringNumberMap} from '../../../uniplatform/core/types/reports';
-import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from '../../../uniplatform/core/types/core';
+import {map} from '../../../uniplatform/util/common';
 import {HtmlParser} from './HtmlParser';
 
 /**

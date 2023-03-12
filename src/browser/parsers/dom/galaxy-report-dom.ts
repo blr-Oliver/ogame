@@ -1,3 +1,4 @@
+import {parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 import {
   AllianceGalaxyInfo,
@@ -11,7 +12,6 @@ import {
   PlayerInactivity,
   PlayerStatusInfo
 } from '../../../uniplatform/core/types/reports';
-import {parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {HtmlParser} from './HtmlParser';
 
 /**

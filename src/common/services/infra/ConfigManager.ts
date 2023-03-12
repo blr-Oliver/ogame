@@ -1,5 +1,5 @@
-import {ListenableObject, makeListenable} from '../../core/PropertyChangeEvent';
 import {ConfigRepository} from '../../../uniplatform/core/types/repositories';
+import {ListenableObject, makeListenable} from '../../core/PropertyChangeEvent';
 
 export class ConfigManager {
   constructor(private readonly configRepo: ConfigRepository) {

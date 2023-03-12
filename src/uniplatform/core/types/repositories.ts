@@ -1,5 +1,5 @@
+import {Coordinates, CoordinateType, SystemCoordinates} from 'ogame-core/types/core';
 import {DebrisGalaxyInfo, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, ShardedEspionageReport, StampedEspionageReport} from './reports';
-import {Coordinates, CoordinateType, SystemCoordinates} from './core';
 
 export interface EspionageRepository {
   load(galaxy: number, system: number, position: number, type?: CoordinateType): Promise<ShardedEspionageReport | undefined>;

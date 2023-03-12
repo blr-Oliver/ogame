@@ -1,8 +1,8 @@
+import {CoordinateType, FleetPartial, MissionType, Resources} from 'ogame-core/types/core';
+import {translateEntries} from '../../../common/l12n/translate';
+import {parseCoordinates, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {EventListParser} from '../../../uniplatform/core/types/parsers';
 import {FlightEvent, StringNumberMap} from '../../../uniplatform/core/types/reports';
-import {translateEntries} from '../../../common/l12n/translate';
-import {CoordinateType, FleetPartial, MissionType, Resources} from '../../../uniplatform/core/types/core';
-import {parseCoordinates, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
 import {HtmlParser} from './HtmlParser';
 
 export class DOMEventListParser implements EventListParser {

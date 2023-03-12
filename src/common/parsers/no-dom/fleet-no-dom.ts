@@ -1,5 +1,5 @@
+import {ServerContext} from 'ogame-core/context/ServerContext';
 import {Fetcher} from '../../core/Fetcher';
-import {ServerContext} from '../../../uniplatform/core/ServerContext';
 
 const firstSearch = `class="maincontent"`;
 const secondSearch = `var token`;

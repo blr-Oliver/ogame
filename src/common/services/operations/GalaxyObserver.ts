@@ -1,10 +1,10 @@
-import {after, processAll, waitUntil} from '../../../uniplatform/util/common';
-import {Fetcher, RequestFacade} from '../../core/Fetcher';
-import {ServerContext} from '../../../uniplatform/core/ServerContext';
+import {ServerContext} from 'ogame-core/context/ServerContext';
+import {Coordinates} from 'ogame-core/types/core';
 import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 import {GalaxySystemInfo} from '../../../uniplatform/core/types/reports';
 import {GalaxyHistoryRepository, GalaxyRepository} from '../../../uniplatform/core/types/repositories';
-import {Coordinates} from '../../../uniplatform/core/types/core';
+import {after, processAll, waitUntil} from '../../../uniplatform/util/common';
+import {Fetcher, RequestFacade} from '../../core/Fetcher';
 
 export class GalaxyObserver {
   private readonly requestTemplate: RequestFacade;

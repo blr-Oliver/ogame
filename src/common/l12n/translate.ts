@@ -1,5 +1,5 @@
-import * as l18n_en from './en.json';
 import {InfoCategory, StringNumberMap} from '../../uniplatform/core/types/reports';
+import * as l18n_en from './en.json';
 
 export type TranslationMapping = { [key: string]: string[] };
 export type ReverseTranslationMapping = { [key: string]: string };

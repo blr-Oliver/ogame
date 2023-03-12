@@ -1,5 +1,5 @@
+import {ServerContext} from 'ogame-core/context/ServerContext';
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
-import {ServerContext} from '../../../uniplatform/core/ServerContext';
 import {extractGlobalVars, extractMetaValues} from '../../parsers/xml-lite/fleet-page';
 import {XmlLiteResponseParser} from '../../parsers/xml-lite/XmlLiteResponseParser';
 

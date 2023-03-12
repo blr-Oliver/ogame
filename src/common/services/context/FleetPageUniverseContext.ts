@@ -1,4 +1,4 @@
-import {initUniverseContext, UniverseContext} from '../../../uniplatform/core/UniverseContext';
+import {initUniverseContext, UniverseContext} from 'ogame-core/context/UniverseContext';
 import {FleetPageInfoLoader} from '../operations/FleetPageInfoLoader';
 
 export class FleetPageUniverseContext {
