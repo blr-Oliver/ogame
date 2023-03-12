@@ -16,6 +16,7 @@
     "my-xml-lite": "file:../my-xml-lite",
     "mysql": "2.18.1",
     "ogame-core": "file:./ogame-core",
+    "ogame-calc": "file:./ogame-calc",
     "request": "2.88.2"
   },
   "devDependencies": {
