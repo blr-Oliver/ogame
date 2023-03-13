@@ -34,7 +34,7 @@ import {RecurringTokenLauncher} from '../common/services/operations/RecurringTok
 import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Raider';
 import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
-import {GalaxyParser} from '../uniplatform/core/types/parsers';
+import {GalaxyParser} from '../uniplatform/parsers';
 import {ClientManager} from './ClientManager';
 import * as defaultExpeditorSettings from './expeditor-settings.json';
 import {GalaxyRequestMonitor} from './GalaxyRequestMonitor';

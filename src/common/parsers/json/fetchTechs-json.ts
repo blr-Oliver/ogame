@@ -1,8 +1,6 @@
-import {TechContext} from 'ogame-api-facade';
+import {TechContext, TechResponse} from 'ogame-api-facade';
 import {Buildings, BuildingTypeId, Defense, DefenseTypeId, Fleet, Researches, ResearchTypeId, ServerContext, ShipTypeId} from 'ogame-core';
 import {Fetcher} from '../../core/Fetcher';
-
-export type TechResponse = { [techId: number]: number };
 
 export function getTechResponse(fetcher: Fetcher, serverContext: ServerContext, cp?: number): Promise<TechResponse> {
   const query: { [key: string]: string | number } = {

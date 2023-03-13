@@ -1,6 +1,6 @@
 import {EventListLoader, FlightEvent} from 'ogame-api-facade';
 import {ServerContext} from 'ogame-core';
-import {EventListParser} from '../../../uniplatform/core/types/parsers';
+import {EventListParser} from '../../../uniplatform/parsers';
 import {Fetcher} from '../../core/Fetcher';
 
 export class AjaxEventListLoader implements EventListLoader {

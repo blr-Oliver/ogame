@@ -1,6 +1,5 @@
 import {Document} from 'my-xml-lite';
-import {FlightEvent, GalaxySystemInfo, MovingFleet, StampedEspionageReport} from 'ogame-api-facade';
-import {EspionageReportList} from '../../../common/parsers/no-dom/espionage-report-no-dom';
+import {EspionageReportList, FlightEvent, GalaxySystemInfo, MovingFleet, StampedEspionageReport} from 'ogame-api-facade';
 
 // TODO all these should accept ResponseFacade
 

@@ -165,3 +165,37 @@ export interface TechContext {
   defense: Defense;
   fleet: Fleet;
 }
+
+export interface EspionageBriefHeader {
+  id: number;
+  timestamp: Date;
+  coordinates: Coordinates;
+  planetName: string;
+}
+
+export interface EspionageBriefContent {
+  playerName: string;
+  playerStatus: string;
+  playerClass?: string;
+  playerAllianceClass?: string;
+  activity: PlanetActivity;
+  counterEspionage: number;
+  loot: number;
+  infoLevel: number;
+}
+
+export interface EspionageBrief {
+  header: EspionageBriefHeader;
+  isCounterEspionage: boolean;
+  content?: EspionageBriefContent;
+  // TODO add content section for counter-espionage report
+}
+
+export interface EspionageReportList {
+  token: string;
+  page: number;
+  totalPages: number;
+  reports: EspionageBrief[];
+}
+
+export type TechResponse = { [techId: number]: number };

@@ -69,7 +69,7 @@ export function parseImportExportForResources(body: string): { [planetId: number
   return parseImportExportScriptForResources(script);
 }
 
-export function parseImportExportScriptForResources(script: string) {
+function parseImportExportScriptForResources(script: string) {
   const {prefix, suffix} = resourcesMarkers;
   const data = eval(prefix + script + suffix);
   return Object.keys(data).reduce((result, id) => (result[+id] = data[id].input, result), {} as { [id: number]: Resources });

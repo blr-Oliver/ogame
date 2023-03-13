@@ -1,8 +1,9 @@
 import {Document, Element, Text, textContent} from 'my-xml-lite';
 import {MovingFleet} from 'ogame-api-facade';
-import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources, StringNumberMap} from 'ogame-core';
+import {StringNumberMap} from 'ogame-common';
+import {Coordinates, CoordinateType, FleetPartial, MissionType, Resources} from 'ogame-core';
 import {translateEntries} from 'ogame-l12n';
-import {FleetMovementParser} from '../../../uniplatform/core/types/parsers';
+import {FleetMovementParser} from '../../../uniplatform/parsers';
 import {parseCoordinates, parseOnlyNumbers} from '../parsers-common';
 
 export class XmlLiteFleetMovementParser implements FleetMovementParser {

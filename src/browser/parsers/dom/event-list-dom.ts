@@ -3,7 +3,7 @@ import {StringNumberMap} from 'ogame-common';
 import {CoordinateType, FleetPartial, MissionType, Resources} from 'ogame-core';
 import {translateEntries} from 'ogame-l12n';
 import {parseCoordinates, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
-import {EventListParser} from '../../../uniplatform/core/types/parsers';
+import {EventListParser} from '../../../uniplatform/parsers';
 import {HtmlParser} from './HtmlParser';
 
 export class DOMEventListParser implements EventListParser {

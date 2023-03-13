@@ -1,4 +1,4 @@
-import {PlanetActivity, StampedEspionageReport} from 'ogame-api-facade';
+import {EspionageBrief, EspionageReportList, PlanetActivity, StampedEspionageReport} from 'ogame-api-facade';
 import {StringNumberMap} from 'ogame-common';
 import {
   AllianceClass,
@@ -13,7 +13,7 @@ import {
   Resources,
   ShipTypeId
 } from 'ogame-core';
-import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
+import {EspionageReportParser} from '../../../uniplatform/parsers';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {readAttribute, readBetween} from './no-dom-common';
 
@@ -26,39 +26,7 @@ export class NoDOMEspionageReportParser implements EspionageReportParser {
   }
 }
 
-export interface EspionageBriefHeader {
-  id: number;
-  timestamp: Date;
-  coordinates: Coordinates;
-  planetName: string;
-}
-
-export interface EspionageBriefContent {
-  playerName: string;
-  playerStatus: string;
-  playerClass?: string;
-  playerAllianceClass?: string;
-  activity: PlanetActivity;
-  counterEspionage: number;
-  loot: number;
-  infoLevel: number;
-}
-
-export interface EspionageBrief {
-  header: EspionageBriefHeader;
-  isCounterEspionage: boolean;
-  content?: EspionageBriefContent;
-  // TODO add content section for counter-espionage report
-}
-
-export interface EspionageReportList {
-  token: string;
-  page: number;
-  totalPages: number;
-  reports: EspionageBrief[];
-}
-
-export function parseReportListFull(body: string): EspionageReportList {
+function parseReportListFull(body: string): EspionageReportList {
   let topPaginationStart = body.indexOf(`<ul`);
   let topPaginationEnd = body.indexOf(`</ul>`);
   const paginationBlock = body.substring(topPaginationStart, topPaginationEnd + `</ul>`.length).trim();
@@ -162,7 +130,7 @@ function parseMessageHead(head: string): [string, Coordinates, Date] {
 }
 
 const TOKEN_ATTRIBUTE_MARKER = `value=`;
-export function parseReportListForToken(body: string, position: number = 0): string {
+function parseReportListForToken(body: string, position: number = 0): string {
   const inputPosition = body.indexOf(`<input type=`, position);
   if (inputPosition === -1) return '';
   let tokenAttributePosition = body.indexOf(TOKEN_ATTRIBUTE_MARKER, inputPosition);
@@ -173,7 +141,7 @@ export function parseReportListForToken(body: string, position: number = 0): str
 }
 
 const SECTION_MARKER = `<div class="section_title">`;
-export function parseReport(body: string): StampedEspionageReport | undefined {
+function parseReport(body: string): StampedEspionageReport | undefined {
   if (body.indexOf('.espionageDefText') !== -1) return; // hostile espionage
   const messageStart = body.indexOf(`detail_msg`);
   let id = +readAttribute(body, messageStart, 'data-msg-id');

@@ -11,7 +11,7 @@ import {
   PlayerStatusInfo
 } from 'ogame-api-facade';
 import {parseOnlyNumbers} from '../../../common/parsers/parsers-common';
-import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
+import {GalaxyParser} from '../../../uniplatform/parsers';
 import {HtmlParser} from './HtmlParser';
 
 /**

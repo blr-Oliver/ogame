@@ -2,7 +2,7 @@ import {GalaxyObserver, GalaxySystemInfo} from 'ogame-api-facade';
 import {after} from 'ogame-common';
 import {Coordinates, ServerContext} from 'ogame-core';
 import {GalaxyHistoryRepository, GalaxyRepository} from 'ogame-repository-facade';
-import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
+import {GalaxyParser} from '../../../uniplatform/parsers';
 import {Fetcher, RequestFacade} from '../../core/Fetcher';
 
 export class AjaxGalaxyObserver implements GalaxyObserver {
