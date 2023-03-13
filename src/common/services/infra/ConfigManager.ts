@@ -1,4 +1,4 @@
-import {ConfigRepository} from '../../../uniplatform/core/types/repositories';
+import {ConfigRepository} from 'ogame-repository-facade';
 import {ListenableObject, makeListenable} from '../../core/PropertyChangeEvent';
 
 export class ConfigManager {

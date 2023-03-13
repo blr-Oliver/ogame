@@ -1,0 +1,20 @@
+{
+  "name": "ogame-repository-facade",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Vasily Liaskovsky <vasily.liaskovsky@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "typings/index.d.ts",
+  "dependencies": {
+    "ogame-api-facade": "file:../ogame-api-facade",
+    "ogame-common": "file:../ogame-common",
+    "ogame-core": "file:../ogame-core"
+  },
+  "devDependencies": {
+    "typescript": "~4.9"
+  }
+}

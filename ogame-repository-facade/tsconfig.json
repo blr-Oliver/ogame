@@ -1,0 +1,13 @@
+{
+  "extends": "../base-tsconfig.json",
+  "exclude": [
+    "dist/",
+    "typings/"
+  ],
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "./typings",
+    "declarationMap": true,
+    "outDir": "./dist"
+  }
+}

@@ -1,8 +1,7 @@
-import {EventListLoader, FlightEvent, Launcher} from 'ogame-api-facade';
+import {EventListLoader, FlightEvent, Launcher, PlayerContext} from 'ogame-api-facade';
 import {processAll, sameCoordinates, sleep} from 'ogame-common';
 import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType} from 'ogame-core';
-import {PlayerContext} from '../../uniplatform/core/PlayerContext';
-import {EspionageRepository, GalaxyRepository} from '../../uniplatform/core/types/repositories';
+import {EspionageRepository, GalaxyRepository} from 'ogame-repository-facade';
 import {ThreatNotifier} from './notification/ThreatNotifier';
 import {EspionageReportScrapper} from './operations/EspionageReportScrapper';
 import {RaidReportAnalyzer, SuggestionRequest} from './RaidReportAnalyzer';

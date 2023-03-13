@@ -1,4 +1,4 @@
-import {ConfigRepository} from '../../../uniplatform/core/types/repositories';
+import {ConfigRepository} from 'ogame-repository-facade';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils} from '../IDBUtils';
 

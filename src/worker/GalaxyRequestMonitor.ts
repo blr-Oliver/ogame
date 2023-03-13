@@ -1,5 +1,5 @@
+import {GalaxyHistoryRepository, GalaxyRepository} from 'ogame-repository-facade';
 import {GalaxyParser} from '../uniplatform/core/types/parsers';
-import {GalaxyHistoryRepository, GalaxyRepository} from '../uniplatform/core/types/repositories';
 import {spyRequest} from './spy-request';
 
 export class GalaxyRequestMonitor {

@@ -1,8 +1,8 @@
 import {StampedEspionageReport} from 'ogame-api-facade';
 import {deduplicate, processAll} from 'ogame-common';
 import {ServerContext} from 'ogame-core';
+import {EspionageRepository} from 'ogame-repository-facade';
 import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
-import {EspionageRepository} from '../../../uniplatform/core/types/repositories';
 import {Fetcher} from '../../core/Fetcher';
 import {parallelLimit} from '../../core/FloodGate';
 import {EspionageBrief, EspionageReportList} from '../../parsers/no-dom/espionage-report-no-dom';

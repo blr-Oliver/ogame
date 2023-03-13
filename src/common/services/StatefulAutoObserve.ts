@@ -1,6 +1,6 @@
 import {GalaxySystemInfo} from 'ogame-api-facade';
 import {SystemCoordinates, UniverseContext} from 'ogame-core';
-import {GalaxyRepository} from '../../uniplatform/core/types/repositories';
+import {GalaxyRepository} from 'ogame-repository-facade';
 import {FloodGate} from '../core/FloodGate';
 import {ListenableObject, PropertyChangeListener} from '../core/PropertyChangeEvent';
 import {AutoObserve, AutoObserveSettings, AutoObserveStatus} from './AutoObserve';

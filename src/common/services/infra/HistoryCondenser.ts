@@ -1,4 +1,4 @@
-import {GalaxyHistoryRepository} from '../../../uniplatform/core/types/repositories';
+import {GalaxyHistoryRepository} from 'ogame-repository-facade';
 import {FloodGate} from '../../core/FloodGate';
 
 export function condenseGalaxyHistory(repo: GalaxyHistoryRepository) {

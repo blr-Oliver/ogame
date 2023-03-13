@@ -1,6 +1,5 @@
-import {TechContext} from 'ogame-api-facade';
+import {PlayerContext, TechContext} from 'ogame-api-facade';
 import {Buildings, Defense, Fleet, Researches, Resources, ServerContext, SpaceBody} from 'ogame-core';
-import {PlayerContext} from '../../../uniplatform/core/PlayerContext';
 import {Fetcher} from '../../core/Fetcher';
 import {extractBuildings, extractContext, extractDefence, extractFleet, extractResearches, getTechResponse} from '../../parsers/json/fetchTechs-json';
 import {

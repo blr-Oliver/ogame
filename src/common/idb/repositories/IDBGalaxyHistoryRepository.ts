@@ -1,6 +1,6 @@
 import {GalaxySlot, GalaxySystemInfo} from 'ogame-api-facade';
 import {Coordinates, SystemCoordinates} from 'ogame-core';
-import {GalaxyHistoryRepository} from '../../../uniplatform/core/types/repositories';
+import {GalaxyHistoryRepository} from 'ogame-repository-facade';
 import {slotsEqual} from '../../../uniplatform/util/tied-coupling';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';

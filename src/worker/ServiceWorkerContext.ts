@@ -1,6 +1,7 @@
-import {EventListLoader, Launcher} from 'ogame-api-facade';
+import {EventListLoader, Launcher, PlayerContext} from 'ogame-api-facade';
 import {CachingCostCalculator, CostCalculator, FlightCalculator, StaticFlightCalculator} from 'ogame-calc';
 import {ServerContext, UniverseContext} from 'ogame-core';
+import {ConfigRepository, EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from 'ogame-repository-facade';
 import {getCurrentClientId} from '../common/client-id';
 import {Fetcher} from '../common/core/Fetcher';
 import {NativeFetcher} from '../common/core/NativeFetcher';
@@ -33,9 +34,7 @@ import {RecurringTokenLauncher} from '../common/services/operations/RecurringTok
 import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Raider';
 import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
-import {PlayerContext} from '../uniplatform/core/PlayerContext';
 import {GalaxyParser} from '../uniplatform/core/types/parsers';
-import {ConfigRepository, EspionageRepository, GalaxyHistoryRepository, GalaxyRepository} from '../uniplatform/core/types/repositories';
 import {ClientManager} from './ClientManager';
 import * as defaultExpeditorSettings from './expeditor-settings.json';
 import {GalaxyRequestMonitor} from './GalaxyRequestMonitor';
