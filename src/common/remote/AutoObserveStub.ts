@@ -1,4 +1,4 @@
-import {ReplyingMessageChannel} from '../message/ReplyingMessageChannel';
+import {ReplyingMessageChannel} from 'ogame-message-channel';
 import {AutoObserveSettings, AutoObserveState, AutoObserveStatus} from '../services/AutoObserve';
 import {RemoteAutoObserve, RemoteAutoObserveSettings} from './RemoteAutoObserve';
 import {remoteAssign, remoteGet, remoteInvoke, remoteSet} from './stub-skeleton';

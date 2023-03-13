@@ -1,6 +1,6 @@
+import {MessageChannelWithFactory} from 'ogame-message-channel';
 import {ServiceWorkerConnector} from '../browser/ServiceWorkerConnector';
 import {getCurrentClientId} from '../common/client-id';
-import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
 
 if ('serviceWorker' in navigator) {
   const url = '/sw.js';

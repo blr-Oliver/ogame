@@ -20,6 +20,7 @@
     "ogame-common": "file:./ogame-common",
     "ogame-core": "file:./ogame-core",
     "ogame-l12n": "file:./ogame-l12n",
+    "ogame-message-channel": "file:./ogame-message-channel",
     "ogame-repository-facade": "file:./ogame-repository-facade",
     "request": "2.88.2"
   },

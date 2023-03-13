@@ -1,5 +1,4 @@
-import {ReplyingMessageChannel} from '../common/message/ReplyingMessageChannel';
-import {WaitingRequestMessageChannel} from '../common/message/WaitingRequestMessageChannel';
+import {ReplyingMessageChannel, WaitingRequestMessageChannel} from 'ogame-message-channel';
 import {AutoObserveSkeleton} from '../common/remote/AutoObserveSkeleton';
 import {AutoObserve} from '../common/services/AutoObserve';
 

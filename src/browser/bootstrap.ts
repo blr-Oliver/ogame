@@ -1,5 +1,5 @@
+import {MessageChannelWithFactory} from 'ogame-message-channel';
 import {getCurrentClientId} from '../common/client-id';
-import {MessageChannelWithFactory} from '../common/message/MessageChannelWithFactory';
 import {ServiceWorkerConnector} from './ServiceWorkerConnector';
 import {initSkin} from './ui/skin';
 

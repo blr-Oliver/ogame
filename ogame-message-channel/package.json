@@ -1,0 +1,16 @@
+{
+  "name": "ogame-message-channel",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Vasily Liaskovsky <vasily.liaskovsky@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "typings/index.d.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "~4.9"
+  }
+}

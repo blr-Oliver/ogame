@@ -1,4 +1,4 @@
-import {ReplyingMessageChannel} from '../message/ReplyingMessageChannel';
+import {ReplyingMessageChannel} from 'ogame-message-channel';
 
 export type MessageType = 'invoke' | 'get' | 'set' | 'assign';
 

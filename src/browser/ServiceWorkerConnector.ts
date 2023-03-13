@@ -1,5 +1,4 @@
-import {ChannelFactory} from '../common/message/ReplyingMessageChannel';
-import {WaitingRequestMessageChannel} from '../common/message/WaitingRequestMessageChannel';
+import {ChannelFactory, WaitingRequestMessageChannel} from 'ogame-message-channel';
 
 export class ServiceWorkerConnector implements ChannelFactory<any, any> {
   constructor(private readonly idProvider: () => Promise<string>) {

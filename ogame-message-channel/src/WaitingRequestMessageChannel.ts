@@ -1,8 +1,6 @@
 import {ReplyingMessageChannel, ReplyingMessagePortEventMap, Transferable} from './ReplyingMessageChannel';
 import {Packet, ReplyHandler, ReplyingMessageEvent} from './ReplyingMessageEvent';
 
-declare var navigator: { locks: LockManager };
-
 interface WaitingRequest<R, L> {
   promise: Promise<ReplyingMessageEvent<R, L>>;
   resolve: (result: ReplyingMessageEvent<R, L>) => void;
