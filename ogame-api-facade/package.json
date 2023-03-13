@@ -10,7 +10,7 @@
   "main": "dist/index.js",
   "types": "typings/index.d.ts",
   "dependencies": {
-    "ogame-core": "file:../ogame-core"
+    "ogame-core": "*"
   },
   "devDependencies": {
     "typescript": "~4.9"
