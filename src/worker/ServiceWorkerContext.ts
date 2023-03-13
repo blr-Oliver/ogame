@@ -1,3 +1,4 @@
+import {EventListLoader, Launcher} from 'ogame-api-facade';
 import {CachingCostCalculator, CostCalculator} from 'ogame-calc/CostCalculator';
 import {FlightCalculator, StaticFlightCalculator} from 'ogame-calc/FlightCalculator';
 import {ServerContext} from 'ogame-core/context/ServerContext';
@@ -25,12 +26,11 @@ import {Expeditor, ExpeditorSettings} from '../common/services/Expeditor';
 import {ConfigManager} from '../common/services/infra/ConfigManager';
 import {LoginService} from '../common/services/infra/LoginService';
 import {MissionScheduler} from '../common/services/infra/Schedule';
-import {EventListLoader, Launcher} from '../common/services/Mapper';
 import {ThreatNotifier} from '../common/services/notification/ThreatNotifier';
 import {AjaxEventListLoader} from '../common/services/operations/AjaxEventListLoader';
+import {AjaxGalaxyObserver} from '../common/services/operations/AjaxGalaxyObserver';
 import {EspionageReportScrapper} from '../common/services/operations/EspionageReportScrapper';
 import {FleetPageInfoLoader} from '../common/services/operations/FleetPageInfoLoader';
-import {GalaxyObserver} from '../common/services/operations/GalaxyObserver';
 import {RecurringTokenLauncher} from '../common/services/operations/RecurringTokenLauncher';
 import {DEFAULT_SETTINGS as RAIDER_DEFAULTS, Raider} from '../common/services/Raider';
 import {DEFAULT_SETTINGS as ANALYZER_DEFAULTS, RaidReportAnalyzer} from '../common/services/RaidReportAnalyzer';
@@ -61,7 +61,7 @@ export class ServiceWorkerContext {
       readonly configManager: ConfigManager,
       readonly espionageScrapper: EspionageReportScrapper,
       readonly galaxyParser: GalaxyParser,
-      readonly galaxyObserver: GalaxyObserver,
+      readonly galaxyObserver: AjaxGalaxyObserver,
       readonly galaxyMonitor: GalaxyRequestMonitor,
       readonly autoObserve: AutoObserve,
       readonly launcher: Launcher,
@@ -119,7 +119,7 @@ export class ServiceWorkerContext {
     const galaxyParser = new JSONGalaxyParser();
     const eventListParser = new NoDOMEventListParser();
     const espionageParser = new NoDOMEspionageReportParser();
-    const galaxyObserver = new GalaxyObserver(galaxyRepository, galaxyHistoryRepository, galaxyParser, fetcher, server);
+    const galaxyObserver = new AjaxGalaxyObserver(galaxyRepository, galaxyHistoryRepository, galaxyParser, fetcher, server);
     const galaxyMonitor = new GalaxyRequestMonitor(galaxyRepository, galaxyHistoryRepository, galaxyParser);
     const autoObserveSettings = await configManager.prepareConfig({
       timeout: 3600 * 2,

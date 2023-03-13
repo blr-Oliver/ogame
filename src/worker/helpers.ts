@@ -1,9 +1,9 @@
+import {DebrisGalaxyInfo, ShardedEspionageReport} from 'ogame-api-facade';
 import {CostCalculator} from 'ogame-calc/CostCalculator';
 import {DEFENCE_STATS, SHIP_STATS} from 'ogame-calc/unit-stats-types';
 import {processAll} from 'ogame-common/common';
 import {DefensePartial, DefenseType, FleetPartial, ShipType} from 'ogame-core/types/core';
 import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
-import {DebrisGalaxyInfo, ShardedEspionageReport} from '../uniplatform/core/types/reports';
 import {EspionageRepository, GalaxyRepository} from '../uniplatform/core/types/repositories';
 
 export async function findUncertainTargets(galaxyRepository: GalaxyRepository, espionageRepository: EspionageRepository): Promise<{ [infoLevel: number]: ShardedEspionageReport[] }> {

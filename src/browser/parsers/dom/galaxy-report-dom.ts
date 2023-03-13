@@ -1,5 +1,3 @@
-import {parseOnlyNumbers} from '../../../common/parsers/parsers-common';
-import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 import {
   AllianceGalaxyInfo,
   DebrisGalaxyInfo,
@@ -11,7 +9,9 @@ import {
   PlayerGalaxyInfo,
   PlayerInactivity,
   PlayerStatusInfo
-} from '../../../uniplatform/core/types/reports';
+} from 'ogame-api-facade';
+import {parseOnlyNumbers} from '../../../common/parsers/parsers-common';
+import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 import {HtmlParser} from './HtmlParser';
 
 /**

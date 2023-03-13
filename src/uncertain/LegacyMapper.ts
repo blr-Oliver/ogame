@@ -1,19 +1,18 @@
 import {JSDOM} from 'jsdom';
+import {FlightEvent} from 'ogame-api-facade';
 import {ServerContext} from 'ogame-core/context/ServerContext';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from 'ogame-core/types/core';
 import {parseEventList} from '../browser/parsers/dom/event-list-dom';
 import {Fetcher, ResponseFacade} from '../common/core/Fetcher';
-import {Mapper} from '../common/services/Mapper';
 import {getEventListResponse} from '../common/services/operations/AjaxEventListLoader';
 import {dumpFile} from '../standalone/files';
-import {FlightEvent} from '../uniplatform/core/types/reports';
 
 type Form = { [key: string]: string | number };
 
 /**
  * deprecated Launcher part of this no longer works
  */
-export class LegacyMapper implements Mapper {
+export class LegacyMapper {
   constructor(private fetcher: Fetcher,
               private serverContext: ServerContext) {
   }

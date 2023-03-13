@@ -1,5 +1,5 @@
+import {FlightEvent} from 'ogame-api-facade';
 import {MissionType} from 'ogame-core/types/core';
-import {FlightEvent} from '../../../uniplatform/core/types/reports';
 
 interface ThreatInfo {
   event: FlightEvent;

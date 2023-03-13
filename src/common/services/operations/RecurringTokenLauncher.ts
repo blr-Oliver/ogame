@@ -1,8 +1,8 @@
+import {Launcher} from 'ogame-api-facade';
 import {sleep} from 'ogame-common/common';
 import {ServerContext} from 'ogame-core/context/ServerContext';
 import {CoordinateType, Mission, ShipType, ShipTypeId} from 'ogame-core/types/core';
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
-import {Launcher} from '../Mapper';
 
 interface LaunchTask {
   maxAttempts?: number;

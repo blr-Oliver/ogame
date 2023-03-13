@@ -1,5 +1,5 @@
+import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from 'ogame-api-facade';
 import {Coordinates, CoordinateType} from 'ogame-core/types/core';
-import {ShardedEspionageReport, ShardHeader, StampedEspionageReport} from '../../../uniplatform/core/types/reports';
 import {EspionageRepository} from '../../../uniplatform/core/types/repositories';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MIN_DATE} from '../IDBUtils';

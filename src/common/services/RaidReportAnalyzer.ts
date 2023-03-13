@@ -1,9 +1,9 @@
+import {EspionageReport, ShardedEspionageReport} from 'ogame-api-facade';
 import {CostCalculator} from 'ogame-calc/CostCalculator';
 import {FlightCalculator, ResourceOrder} from 'ogame-calc/FlightCalculator';
 import {sameCoordinates} from 'ogame-common/common';
 import {UniverseContext} from 'ogame-core/context/UniverseContext';
 import {Coordinates, CoordinateType, FleetPartial, Mission, MissionType, PlunderPriority, Researches, SpaceBody} from 'ogame-core/types/core';
-import {EspionageReport, ShardedEspionageReport} from '../../uniplatform/core/types/reports';
 import {getNearest} from '../../uniplatform/util/tied-coupling';
 
 export type Triplet = [number, number, number];

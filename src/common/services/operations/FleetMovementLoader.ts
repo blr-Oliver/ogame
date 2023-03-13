@@ -1,6 +1,6 @@
+import {MovingFleet} from 'ogame-api-facade';
 import {ServerContext} from 'ogame-core/context/ServerContext';
 import {FleetMovementParser} from '../../../uniplatform/core/types/parsers';
-import {MovingFleet} from '../../../uniplatform/core/types/reports';
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
 import {XmlLiteResponseParser} from '../../parsers/xml-lite/XmlLiteResponseParser';
 

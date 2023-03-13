@@ -1,3 +1,4 @@
+import {PlanetActivity, StampedEspionageReport} from 'ogame-api-facade';
 import {StringNumberMap} from 'ogame-common/common';
 import {
   AllianceClass,
@@ -13,7 +14,6 @@ import {
   ShipTypeId
 } from 'ogame-core/types/core';
 import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
-import {PlanetActivity, StampedEspionageReport} from '../../../uniplatform/core/types/reports';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {readAttribute, readBetween} from './no-dom-common';
 

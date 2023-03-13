@@ -1,8 +1,8 @@
+import {ShardedEspionageReport} from 'ogame-api-facade';
 import {processAll} from 'ogame-common/common';
 import {Coordinates} from 'ogame-core/types/core';
 import {condenseGalaxyHistory} from '../common/services/infra/HistoryCondenser';
 import {RaidReportAnalyzer, Triplet} from '../common/services/RaidReportAnalyzer';
-import {ShardedEspionageReport} from '../uniplatform/core/types/reports';
 import {findProtectedTargets, findUncertainTargets, rateAllDebris, rateHangingDebris} from './helpers';
 import {ServiceWorkerContext} from './ServiceWorkerContext';
 import {wrappingSum} from './utils';

@@ -9,8 +9,8 @@ import {NoDOMEspionageReportParser} from '../common/parsers/no-dom/espionage-rep
 import {AutoObserve} from '../common/services/AutoObserve';
 import {NoDOMPlayerContext} from '../common/services/context/NoDOMPlayerContext';
 import {NoDOMUniverseContext} from '../common/services/context/NoDOMUniverseContext';
+import {AjaxGalaxyObserver} from '../common/services/operations/AjaxGalaxyObserver';
 import {EspionageReportScrapper} from '../common/services/operations/EspionageReportScrapper';
-import {GalaxyObserver} from '../common/services/operations/GalaxyObserver';
 import {StatefulAutoObserve} from '../common/services/StatefulAutoObserve';
 import {LegacyMapper} from '../uncertain/LegacyMapper';
 import {LegacyFetcher} from './LegacyFetcher';
@@ -46,7 +46,7 @@ export const galaxyParser = new JSONGalaxyParser();
 export const espionageReportParser = new NoDOMEspionageReportParser();
 export const espionageReportScrapper = new EspionageReportScrapper(espionageRepo, espionageReportParser, fetcher, serverContext);
 export const mapper = new LegacyMapper(fetcher, serverContext);
-export const galaxyObserver = new GalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
+export const galaxyObserver = new AjaxGalaxyObserver(galaxyRepo, galaxyParser, fetcher, serverContext);
 
 (async function () {
   universeContext = await NoDOMUniverseContext.acquire(fetcher, serverContext);

@@ -1,7 +1,7 @@
+import {StampedEspionageReport} from 'ogame-api-facade';
 import {map, StringNumberMap} from 'ogame-common/common';
 import {Buildings, BuildingTypeId, DefenseTypeId, Researches, ResearchTypeId, ShipTypeId} from 'ogame-core/types/core';
 import {parseLocalDate, parseOnlyNumbers} from '../../../common/parsers/parsers-common';
-import {StampedEspionageReport} from '../../../uniplatform/core/types/reports';
 import {HtmlParser} from './HtmlParser';
 
 /**

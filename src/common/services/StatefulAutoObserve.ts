@@ -1,11 +1,11 @@
+import {GalaxySystemInfo} from 'ogame-api-facade';
 import {UniverseContext} from 'ogame-core/context/UniverseContext';
 import {SystemCoordinates} from 'ogame-core/types/core';
-import {GalaxySystemInfo} from '../../uniplatform/core/types/reports';
 import {GalaxyRepository} from '../../uniplatform/core/types/repositories';
 import {FloodGate} from '../core/FloodGate';
 import {ListenableObject, PropertyChangeListener} from '../core/PropertyChangeEvent';
 import {AutoObserve, AutoObserveSettings, AutoObserveStatus} from './AutoObserve';
-import {GalaxyObserver} from './operations/GalaxyObserver';
+import {AjaxGalaxyObserver} from './operations/AjaxGalaxyObserver';
 
 export class StatefulAutoObserve implements AutoObserve {
   private handler: FloodGate<(galaxy: number, system: number) => Promise<GalaxySystemInfo>>;
@@ -14,7 +14,7 @@ export class StatefulAutoObserve implements AutoObserve {
   #scheduledContinueId?: ReturnType<typeof setTimeout>;
 
   constructor(
-      private observer: GalaxyObserver,
+      private observer: AjaxGalaxyObserver,
       private repo: GalaxyRepository,
       private universe: UniverseContext,
       public readonly settings: ListenableObject<AutoObserveSettings>

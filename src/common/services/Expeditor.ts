@@ -1,6 +1,6 @@
+import {Launcher} from 'ogame-api-facade';
 import {Coordinates, CoordinateType, Fleet, FleetPartial, Mission, MissionType, ShipType, SpaceBody} from 'ogame-core/types/core';
 import {PlayerContext} from '../../uniplatform/core/PlayerContext';
-import {Launcher} from './Mapper';
 
 export type ShipCompositionRule = {
   type: 'fixed' | 'varying';

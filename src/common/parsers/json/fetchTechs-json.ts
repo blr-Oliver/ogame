@@ -1,6 +1,6 @@
+import {TechContext} from 'ogame-api-facade';
 import {ServerContext} from 'ogame-core/context/ServerContext';
 import {Buildings, BuildingTypeId, Defense, DefenseTypeId, Fleet, Researches, ResearchTypeId, ShipTypeId} from 'ogame-core/types/core';
-import {TechContext} from '../../../uniplatform/core/types/reports';
 import {Fetcher} from '../../core/Fetcher';
 
 export type TechResponse = { [techId: number]: number };

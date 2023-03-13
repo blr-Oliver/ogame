@@ -1,5 +1,3 @@
-import {CoordinateType} from 'ogame-core/types/core';
-import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 import {
   AllianceGalaxyInfo,
   DebrisGalaxyInfo,
@@ -11,7 +9,9 @@ import {
   PlanetGalaxyInfo,
   PlayerGalaxyInfo,
   PlayerStatusInfo
-} from '../../../uniplatform/core/types/reports';
+} from 'ogame-api-facade';
+import {CoordinateType} from 'ogame-core/types/core';
+import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 
 export class JSONGalaxyParser implements GalaxyParser {
   parseGalaxy(body: string, timestamp?: Date): GalaxySystemInfo {

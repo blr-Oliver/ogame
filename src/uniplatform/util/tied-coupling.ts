@@ -1,6 +1,6 @@
+import {GalaxySlot} from 'ogame-api-facade';
 import {FlightCalculator} from 'ogame-calc/FlightCalculator';
 import {Coordinates, SpaceBody} from 'ogame-core/types/core';
-import {GalaxySlot} from '../core/types/reports';
 
 // TODO add it to calculator maybe
 export function getNearest(bodies: SpaceBody[], coordinates: Coordinates, calculator: FlightCalculator) {

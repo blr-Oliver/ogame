@@ -1,8 +1,8 @@
+import {Launcher} from 'ogame-api-facade';
 import {Mission} from 'ogame-core/types/core';
-import {Launcher} from '../Mapper';
 
 export class MissionScheduler {
-  private tasks: number[] = [];
+  private tasks: ReturnType<typeof setTimeout>[] = [];
 
   constructor(private readonly launcher: Launcher) {
   }
