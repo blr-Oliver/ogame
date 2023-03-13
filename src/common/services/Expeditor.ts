@@ -1,5 +1,5 @@
 import {Launcher} from 'ogame-api-facade';
-import {Coordinates, CoordinateType, Fleet, FleetPartial, Mission, MissionType, ShipType, SpaceBody} from 'ogame-core/types/core';
+import {Coordinates, CoordinateType, Fleet, FleetPartial, Mission, MissionType, ShipType, SpaceBody} from 'ogame-core';
 import {PlayerContext} from '../../uniplatform/core/PlayerContext';
 
 export type ShipCompositionRule = {

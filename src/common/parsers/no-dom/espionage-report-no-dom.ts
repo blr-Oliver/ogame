@@ -1,5 +1,5 @@
 import {PlanetActivity, StampedEspionageReport} from 'ogame-api-facade';
-import {StringNumberMap} from 'ogame-common/common';
+import {StringNumberMap} from 'ogame-common';
 import {
   AllianceClass,
   Buildings,
@@ -12,7 +12,7 @@ import {
   ResearchTypeId,
   Resources,
   ShipTypeId
-} from 'ogame-core/types/core';
+} from 'ogame-core';
 import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
 import {parseLocalDate, parseOnlyNumbers} from '../parsers-common';
 import {readAttribute, readBetween} from './no-dom-common';

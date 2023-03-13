@@ -1,6 +1,6 @@
 import {DebrisGalaxyInfo, GalaxyClass, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo, PlayerInactivity} from 'ogame-api-facade';
-import {compareCoordinatesKeys, deduplicate} from 'ogame-common/common';
-import {Coordinates, CoordinateType, SystemCoordinates} from 'ogame-core/types/core';
+import {compareCoordinatesKeys, deduplicate} from 'ogame-common';
+import {Coordinates, CoordinateType, SystemCoordinates} from 'ogame-core';
 import {GalaxyRepository} from '../../../uniplatform/core/types/repositories';
 import {IDBRepository} from '../IDBRepository';
 import {IDBUtils, MAX_DATE, MIN_DATE} from '../IDBUtils';

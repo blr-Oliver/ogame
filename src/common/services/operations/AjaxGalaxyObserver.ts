@@ -1,7 +1,6 @@
 import {GalaxyObserver, GalaxySystemInfo} from 'ogame-api-facade';
-import {after} from 'ogame-common/common';
-import {ServerContext} from 'ogame-core/context/ServerContext';
-import {Coordinates} from 'ogame-core/types/core';
+import {after} from 'ogame-common';
+import {Coordinates, ServerContext} from 'ogame-core';
 import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 import {GalaxyHistoryRepository, GalaxyRepository} from '../../../uniplatform/core/types/repositories';
 import {Fetcher, RequestFacade} from '../../core/Fetcher';

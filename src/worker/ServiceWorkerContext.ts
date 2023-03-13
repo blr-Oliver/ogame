@@ -1,8 +1,6 @@
 import {EventListLoader, Launcher} from 'ogame-api-facade';
-import {CachingCostCalculator, CostCalculator} from 'ogame-calc/CostCalculator';
-import {FlightCalculator, StaticFlightCalculator} from 'ogame-calc/FlightCalculator';
-import {ServerContext} from 'ogame-core/context/ServerContext';
-import {UniverseContext} from 'ogame-core/context/UniverseContext';
+import {CachingCostCalculator, CostCalculator, FlightCalculator, StaticFlightCalculator} from 'ogame-calc';
+import {ServerContext, UniverseContext} from 'ogame-core';
 import {getCurrentClientId} from '../common/client-id';
 import {Fetcher} from '../common/core/Fetcher';
 import {NativeFetcher} from '../common/core/NativeFetcher';

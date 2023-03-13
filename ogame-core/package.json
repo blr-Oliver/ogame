@@ -7,14 +7,8 @@
   "author": "Vasily Liaskovsky <vasily.liaskovsky@gmail.com>",
   "license": "UNLICENSED",
   "private": true,
-  "exports": {
-    "./*": "./dist/*"
-  },
-  "typesVersions": {
-    ">1.0": {
-      "*": ["typings/*"]
-    }
-  },
+  "main": "dist/index.js",
+  "types": "typings/index.d.ts",
   "dependencies": {},
   "devDependencies": {
     "typescript": "~4.9"

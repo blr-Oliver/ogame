@@ -1,6 +1,6 @@
 import {StampedEspionageReport} from 'ogame-api-facade';
-import {deduplicate, processAll} from 'ogame-common/common';
-import {ServerContext} from 'ogame-core/context/ServerContext';
+import {deduplicate, processAll} from 'ogame-common';
+import {ServerContext} from 'ogame-core';
 import {EspionageReportParser} from '../../../uniplatform/core/types/parsers';
 import {EspionageRepository} from '../../../uniplatform/core/types/repositories';
 import {Fetcher} from '../../core/Fetcher';

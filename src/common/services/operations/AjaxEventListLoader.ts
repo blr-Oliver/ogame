@@ -1,5 +1,5 @@
 import {EventListLoader, FlightEvent} from 'ogame-api-facade';
-import {ServerContext} from 'ogame-core/context/ServerContext';
+import {ServerContext} from 'ogame-core';
 import {EventListParser} from '../../../uniplatform/core/types/parsers';
 import {Fetcher} from '../../core/Fetcher';
 

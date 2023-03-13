@@ -1,4 +1,4 @@
-import {Coordinates} from 'ogame-core/types/core';
+import {Coordinates} from 'ogame-core';
 
 export function parseOnlyNumbers(text: string): number {
   return +text.replace(/[\D]/g, '');

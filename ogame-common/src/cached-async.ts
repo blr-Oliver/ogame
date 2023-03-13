@@ -1,4 +1,4 @@
-import {AsyncSupplier, Supplier} from 'ogame-core/types/functional';
+import {AsyncSupplier, Supplier} from 'ogame-core';
 
 export function cacheResult<T>(supplier: Supplier<T>): Supplier<T> {
   let value: T;

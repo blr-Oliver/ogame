@@ -1,7 +1,6 @@
 import {JSDOM} from 'jsdom';
 import {FlightEvent} from 'ogame-api-facade';
-import {ServerContext} from 'ogame-core/context/ServerContext';
-import {CoordinateType, Mission, ShipType, ShipTypeId} from 'ogame-core/types/core';
+import {CoordinateType, Mission, ServerContext, ShipType, ShipTypeId} from 'ogame-core';
 import {parseEventList} from '../browser/parsers/dom/event-list-dom';
 import {Fetcher, ResponseFacade} from '../common/core/Fetcher';
 import {getEventListResponse} from '../common/services/operations/AjaxEventListLoader';

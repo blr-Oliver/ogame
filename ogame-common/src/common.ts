@@ -1,4 +1,4 @@
-import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SystemCoordinates} from 'ogame-core/types/core';
+import {Coordinates, CoordinateType, Fleet, FleetPartial, ShipType, ShipTypeId, SystemCoordinates} from 'ogame-core';
 
 declare function setTimeout<TArgs extends any[]>(callback: (...args: TArgs) => void, ms?: number, ...args: TArgs): unknown;
 

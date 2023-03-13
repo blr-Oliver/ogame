@@ -1,4 +1,4 @@
-import {ServerContext} from 'ogame-core/context/ServerContext';
+import {ServerContext} from 'ogame-core';
 import {Fetcher, RequestFacade} from '../../core/Fetcher';
 
 export class LoginService {

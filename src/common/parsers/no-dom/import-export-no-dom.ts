@@ -1,5 +1,4 @@
-import {ServerContext} from 'ogame-core/context/ServerContext';
-import {CoordinateType, Resources, SpaceBody} from 'ogame-core/types/core';
+import {CoordinateType, Resources, ServerContext, SpaceBody} from 'ogame-core';
 import {Fetcher} from '../../core/Fetcher';
 import {parseCoordinates} from '../parsers-common';
 import {readAttribute} from './no-dom-common';

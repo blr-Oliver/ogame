@@ -1,8 +1,6 @@
 import {JSDOM} from 'jsdom';
-import {CachingCostCalculator} from 'ogame-calc/CostCalculator';
-import {FlightCalculator, StaticFlightCalculator} from 'ogame-calc/FlightCalculator';
-import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext} from 'ogame-core/context/ServerContext';
-import {UniverseContext} from 'ogame-core/context/UniverseContext';
+import {CachingCostCalculator, FlightCalculator, StaticFlightCalculator} from 'ogame-calc';
+import {GAME_PATH, LOBBY_DOMAIN_URL, LOBBY_LOGIN_URL, ServerContext, UniverseContext} from 'ogame-core';
 import {HtmlParser} from '../browser/parsers/dom/HtmlParser';
 import {JSONGalaxyParser} from '../common/parsers/json/galaxy-report-json';
 import {NoDOMEspionageReportParser} from '../common/parsers/no-dom/espionage-report-no-dom';

@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as fs from 'fs';
-import {CoordinateType, SystemCoordinates} from 'ogame-core/types/core';
+import {CoordinateType, SystemCoordinates} from 'ogame-core';
 import * as path from 'path';
 import {Cookie} from 'tough-cookie';
 import {autoObserve, espionageRepo, espionageReportScrapper, fetcher, galaxyRepo, mapper, serverContext, universeContext} from './init-components';

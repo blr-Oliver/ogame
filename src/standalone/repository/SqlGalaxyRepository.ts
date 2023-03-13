@@ -1,5 +1,5 @@
 import {DebrisGalaxyInfo, GalaxyClass, GalaxyRepository, GalaxySlot, GalaxySlotCoordinates, GalaxySystemInfo} from 'ogame-api-facade';
-import {Coordinates, SystemCoordinates} from 'ogame-core/types/core';
+import {Coordinates, SystemCoordinates} from 'ogame-core';
 import {db} from './db';
 import {valueToSQLString} from './db-common';
 import {COORDINATES_MAPPING, createPlainMapping, extractObject, FieldMapping, packObject} from './object-mapping';

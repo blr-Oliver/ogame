@@ -1,16 +1,4 @@
-import {
-  AllianceClass,
-  Buildings,
-  Coordinates,
-  Defense,
-  DefensePartial,
-  Fleet,
-  FleetPartial,
-  MissionType,
-  PlayerClass,
-  Researches,
-  Resources
-} from 'ogame-core/types/core';
+import {AllianceClass, Buildings, Coordinates, Defense, DefensePartial, Fleet, FleetPartial, MissionType, PlayerClass, Researches, Resources} from 'ogame-core';
 
 export type ZeroOne = 0 | 1;
 

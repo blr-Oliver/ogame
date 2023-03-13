@@ -10,7 +10,7 @@ import {
   PlayerGalaxyInfo,
   PlayerStatusInfo
 } from 'ogame-api-facade';
-import {CoordinateType} from 'ogame-core/types/core';
+import {CoordinateType} from 'ogame-core';
 import {GalaxyParser} from '../../../uniplatform/core/types/parsers';
 
 export class JSONGalaxyParser implements GalaxyParser {

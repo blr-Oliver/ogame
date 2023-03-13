@@ -1,4 +1,4 @@
-import {Coordinates, Mission} from 'ogame-core/types/core';
+import {Coordinates, Mission} from 'ogame-core';
 import {FlightEvent, GalaxySystemInfo} from './model';
 
 export interface GalaxyObserver {

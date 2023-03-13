@@ -1,5 +1,5 @@
 import {Launcher} from 'ogame-api-facade';
-import {Mission} from 'ogame-core/types/core';
+import {Mission} from 'ogame-core';
 
 export class MissionScheduler {
   private tasks: ReturnType<typeof setTimeout>[] = [];

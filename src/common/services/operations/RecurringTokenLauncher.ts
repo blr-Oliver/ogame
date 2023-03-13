@@ -1,7 +1,6 @@
 import {Launcher} from 'ogame-api-facade';
-import {sleep} from 'ogame-common/common';
-import {ServerContext} from 'ogame-core/context/ServerContext';
-import {CoordinateType, Mission, ShipType, ShipTypeId} from 'ogame-core/types/core';
+import {sleep} from 'ogame-common';
+import {CoordinateType, Mission, ServerContext, ShipType, ShipTypeId} from 'ogame-core';
 import {Fetcher, ResponseFacade} from '../../core/Fetcher';
 
 interface LaunchTask {

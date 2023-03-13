@@ -1,6 +1,7 @@
-import {StringNumberMap} from 'ogame-common/common';
-import {InfoCategory} from 'ogame-core/types/core';
-import * as l18n_en from './en.json';
+import {StringNumberMap} from 'ogame-common';
+import {InfoCategory} from 'ogame-core';
+import * as l18n_en from './bundles/en.json';
+import * as l18n_ru from './bundles/ru.json';
 
 export type TranslationMapping = { [key: string]: string[] };
 export type ReverseTranslationMapping = { [key: string]: string };
@@ -9,6 +10,9 @@ export type CategorizedReverseTranslationMapping = { [category in InfoCategory]:
 
 export const GLOBAL_TO_LOCAL: CategorizedTranslationMapping = l18n_en;
 export const LOCAL_TO_GLOBAL: CategorizedReverseTranslationMapping = reverseCategorizedMapping(GLOBAL_TO_LOCAL);
+
+export const GLOBAL_TO_LOCAL_RU: CategorizedTranslationMapping = l18n_ru;
+export const LOCAL_TO_GLOBAL_RU: CategorizedReverseTranslationMapping = reverseCategorizedMapping(GLOBAL_TO_LOCAL_RU);
 
 export function translateEntries<T /*extends StringNumberMap*/>(category: InfoCategory, local?: StringNumberMap, padEntries: boolean = true, keepUnknown: boolean = true): T | undefined {
   if (local) {
